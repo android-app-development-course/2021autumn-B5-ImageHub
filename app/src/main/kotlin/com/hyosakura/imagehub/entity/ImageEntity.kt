@@ -6,7 +6,8 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "image")
 data class ImageEntity(
     @field:PrimaryKey(autoGenerate = true)
-    var id: Int? = null,
+    var imageId: Int? = null,
+    var dirId: Int? = null,
     var name: String? = null,
     var url: String? = null,
     var ext: String? = null,
@@ -14,5 +15,6 @@ data class ImageEntity(
     var width: Int? = null,
     var height: Int? = null,
     var size: Double? = null,
-    var rating: Int? = null
+    var rating: Int? = null,
+    var modifyTime: Long? = null
 )
