@@ -4,7 +4,7 @@ import androidx.room.*
 import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.entity.relation.ImageTagCrossRef
 import com.hyosakura.imagehub.entity.relation.ImageWithTags
-import com.hyosakura.imagehub.entity.relation.TagWithImages
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ImageDao {
@@ -12,15 +12,15 @@ interface ImageDao {
     fun insertImages(vararg images: ImageEntity)
 
     @Query("SELECT * FROM image")
-    fun getAllImages(): List<ImageEntity>
+    fun getAllImages(): Flow<List<ImageEntity>>
 
     @Transaction
     @Query("SELECT * FROM image where imageId = :id")
-    fun getImageWithTagsById(id: Int): List<ImageWithTags>
+    fun getImageWithTagsById(id: Int): Flow<List<ImageWithTags>>
 
     @Transaction
     @Query("SELECT * FROM image where name like :name")
-    fun getImageWithTagsByName(name: String): List<ImageWithTags>
+    fun getImageWithTagsByName(name: String): Flow<List<ImageWithTags>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertTags(vararg relation: ImageTagCrossRef)

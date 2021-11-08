@@ -4,6 +4,7 @@ import androidx.room.*
 import com.hyosakura.imagehub.entity.DirEntity
 import com.hyosakura.imagehub.entity.relation.DirWithDir
 import com.hyosakura.imagehub.entity.relation.DirWithImage
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface DirDao {
@@ -11,13 +12,13 @@ interface DirDao {
     fun insertDirs(vararg dirs: DirEntity)
 
     @Query("SELECT * FROM directory")
-    fun getAllDirs(): List<DirEntity>
+    fun getAllDirs(): Flow<List<DirEntity>>
 
     @Transaction
     @Query("SELECT * FROM directory where dirId = :id")
-    fun getChildDirs(id : Int): List<DirWithDir>
+    fun getChildDirs(id : Int): Flow<List<DirWithDir>>
 
     @Transaction
     @Query("SELECT * FROM directory")
-    fun getImagesWithImages(): List<DirWithImage>
+    fun getImagesWithImages(): Flow<List<DirWithImage>>
 }
