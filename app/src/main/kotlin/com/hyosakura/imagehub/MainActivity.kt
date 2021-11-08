@@ -17,6 +17,8 @@ import com.hyosakura.imagehub.util.AppDatabase
 import com.hyosakura.imagehub.util.DataBaseUtil
 
 class MainActivity : ComponentActivity() {
+    val database by lazy { AppDatabase.getDatabase(this) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         init(applicationContext)
