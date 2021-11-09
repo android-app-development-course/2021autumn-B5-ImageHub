@@ -1,11 +1,10 @@
-package com.hyosakura.imagehub.ui
+package com.hyosakura.imagehub.ui.page
 
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.sp
 import com.hyosakura.imagehub.R
 
 class Item(var text: String, var painter1: Painter, var painter2: Painter = painter1)
@@ -36,14 +35,14 @@ fun NavigationBar(state: BasePageState) {
         for ((index, item) in items.withIndex()) {
             NavigationBarItem(
                 icon = {
-                    if (state.selectedItem == index)
+                    if (state.currentPage == index)
                         Icon(item.painter1, contentDescription = null)
                     else
                         Icon(item.painter2, contentDescription = null)
                 },
                 label = { Text(item.text, style = MaterialTheme.typography.labelLarge) },
-                selected = state.selectedItem == index,
-                onClick = { state.selectedItem = index }
+                selected = state.currentPage == index,
+                onClick = { state.currentPage = index }
             )
         }
     }

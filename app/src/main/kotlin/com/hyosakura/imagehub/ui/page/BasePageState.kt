@@ -1,9 +1,9 @@
-package com.hyosakura.imagehub.ui
+package com.hyosakura.imagehub.ui.page
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
 class BasePageState {
-    var selectedItem by mutableStateOf(0)
+    var currentPage by mutableStateOf(0)
 }
