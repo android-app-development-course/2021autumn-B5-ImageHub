@@ -41,7 +41,7 @@ fun NavigationBar(state: BasePageState) {
                     else
                         Icon(item.painter2, contentDescription = null)
                 },
-                label = { Text(item.text, fontSize = 14.sp) },
+                label = { Text(item.text, style = MaterialTheme.typography.labelLarge) },
                 selected = state.selectedItem == index,
                 onClick = { state.selectedItem = index }
             )
