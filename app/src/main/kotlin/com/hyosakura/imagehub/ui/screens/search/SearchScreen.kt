@@ -1,4 +1,4 @@
-package com.hyosakura.imagehub.ui.page.search
+package com.hyosakura.imagehub.ui.screens.search
 
 
 import androidx.compose.foundation.layout.*
@@ -9,14 +9,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.hyosakura.imagehub.ui.page.BasePageState
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchPage(state: BasePageState) {
+fun SearchScreen() {
     Scaffold(
         topBar = {
             Row(
@@ -47,5 +46,5 @@ fun SearchPage(state: BasePageState) {
 @Preview
 @Composable
 fun PreviewSearchPage() {
-    SearchPage(BasePageState())
+    SearchScreen()
 }
