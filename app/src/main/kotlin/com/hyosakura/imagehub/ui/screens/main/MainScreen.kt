@@ -6,5 +6,5 @@ import androidx.compose.runtime.Composable
 @Composable
 fun MainScreen() {
 
-    Text("Page0")
+    Text("MainScreen")
 }

@@ -5,6 +5,6 @@ import androidx.compose.runtime.Composable
 
 @Composable
 fun LibraryScreen() {
-    Text("Page3")
+    Text("LibraryScreen")
 }
 

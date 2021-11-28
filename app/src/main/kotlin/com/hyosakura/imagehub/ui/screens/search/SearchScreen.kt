@@ -9,42 +9,38 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.hyosakura.imagehub.R
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchScreen() {
+fun SearchScreen(onSearchBarClick: () -> Unit) {
     Scaffold(
         topBar = {
             Row(
-                Modifier.fillMaxWidth(),
+                Modifier.fillMaxWidth().fillMaxHeight(0.08f),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 FilledTonalButton(
-                    onClick = { /* Do something! */ },
-                    modifier = Modifier.width(320.dp)
+                    onClick = onSearchBarClick,
+                    modifier = Modifier.width(320.dp).fillMaxHeight()
                 ) {
                     Row(
                         Modifier.fillMaxWidth().alpha(0.7f),
                         verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Filled.Search, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("搜索 “标签” “注释”", style = MaterialTheme.typography.bodyMedium)
+                        Text(stringResource(R.string.searchSuggestions), style = MaterialTheme.typography.bodyMedium)
                     }
                 }
             }
         },
         content = {
-            Text("Page1")
+            Text("SearchScreen")
         }
     )
-}
-
-@Preview
-@Composable
-fun PreviewSearchPage() {
-    SearchScreen()
 }
