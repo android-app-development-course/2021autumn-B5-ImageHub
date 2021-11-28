@@ -31,9 +31,3 @@ fun BaseBottomBar(allScreens: List<Screen>, onSelected: (Screen) -> Unit, curren
         }
     }
 }
-
-@Preview
-@Composable
-fun NavigationBarPreview() {
-
-}

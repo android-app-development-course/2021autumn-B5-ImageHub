@@ -1,8 +1,7 @@
 package com.hyosakura.imagehub.ui.screens.search
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.TabRowDefaults.Divider
 import androidx.compose.material.TextFieldDefaults
@@ -29,22 +28,24 @@ fun SearchResultsScreen() {
                 OutlinedTextField(
                     value = searchString,
                     onValueChange = { searchString = it },
-                    placeholder = { Text(stringResource(R.string.searchSuggestions), style = MaterialTheme.typography.bodyMedium, modifier = Modifier.alpha(0.7f)) },
+                    placeholder = { Text(stringResource(R.string.searchSuggestions), style = MaterialTheme.typography.titleMedium, modifier = Modifier.alpha(0.7f)) },
+                    textStyle = MaterialTheme.typography.titleMedium,
                     singleLine = true,
                     leadingIcon = { Icon(painter = painterResource(R.drawable.ic_outline_search_24), contentDescription = null) },
                     colors = TextFieldDefaults.outlinedTextFieldColors(
-                        textColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                        textColor = MaterialTheme.colorScheme.primary,
+                        cursorColor = MaterialTheme.colorScheme.inversePrimary,
                         focusedBorderColor = Color.Transparent,
                         unfocusedBorderColor = Color.Transparent
                     ),
                     modifier = Modifier.fillMaxWidth()
                 )
-                Divider(color = MaterialTheme.colorScheme.surfaceVariant, thickness = 1.dp)
+                Divider(color = MaterialTheme.colorScheme.inversePrimary, thickness = 1.dp, modifier = Modifier.padding(start = 52.dp))
             }
         },
         content = {
             Text("SearchResultsScreen")
-        }
+        },
     )
 }
 

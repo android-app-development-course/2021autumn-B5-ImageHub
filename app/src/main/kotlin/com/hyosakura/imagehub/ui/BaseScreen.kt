@@ -1,5 +1,11 @@
 package com.hyosakura.imagehub.ui
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -54,54 +60,18 @@ fun BaseScreen() {
             }
         },
         bottomBar = {
-            BottonBar(navController, currentScreen)
+            BottomBar(navController, currentScreen)
         }
     )
 }
 
 @Composable
-private fun BottonBar(
-    navController: NavHostController,
-    currentScreen: Screen
-) {
-    when (currentScreen) {
-        Main -> BaseBottomBar(
-            allScreens = listOf(Main, Search, Library),
-            onSelected = { screen ->
-                navController.navigate(screen.name)
-            },
-            currentScreen = currentScreen,
-        )
-        Search -> BaseBottomBar(
-            allScreens = listOf(Main, Search, Library),
-            onSelected = { screen ->
-                navController.navigate(screen.name)
-            },
-            currentScreen = currentScreen,
-        )
-        Library -> BaseBottomBar(
-            allScreens = listOf(Main, Search, Library),
-            onSelected = { screen ->
-                navController.navigate(screen.name)
-            },
-            currentScreen = currentScreen,
-        )
-        SearchResults -> {
-        }
+private fun TopBar(currentScreen: Screen) {
+    AnimatedVisibility(currentScreen == Main || currentScreen == Search || currentScreen == Library,) {
+        BaseTopBar()
     }
 }
 
-@Composable
-private fun TopBar(currentScreen: Screen) {
-    // TODO: 用动画实现消失效果
-    when (currentScreen) {
-        Main -> BaseTopBar()
-        Search -> BaseTopBar()
-        Library -> BaseTopBar()
-        SearchResults -> {
-        }
-    }
-}
 
 @Composable
 private fun BaseTopBar() {
@@ -111,6 +81,32 @@ private fun BaseTopBar() {
             style = MaterialTheme.typography.headlineLarge
         )
     })
+}
+
+@Composable
+private fun BottomBar(
+    navController: NavHostController,
+    currentScreen: Screen
+) {
+    AnimatedVisibility(currentScreen == Main || currentScreen == Search || currentScreen == Library,
+        enter = slideInVertically(
+            // Enters by sliding down from offset -fullHeight to 0.
+            initialOffsetY = { fullHeight -> fullHeight },
+            animationSpec = tween(durationMillis = 250, easing = FastOutLinearInEasing)
+        ),
+        exit = slideOutVertically(
+            // Exits by sliding up from offset 0 to -fullHeight.
+            targetOffsetY = { fullHeight -> fullHeight },
+            animationSpec = tween(durationMillis = 250, easing = LinearOutSlowInEasing)
+        )){
+        BaseBottomBar(
+            allScreens = listOf(Main, Search, Library),
+            onSelected = { screen ->
+                navController.navigate(screen.name)
+            },
+            currentScreen = currentScreen,
+        )
+    }
 }
 
 @Preview
