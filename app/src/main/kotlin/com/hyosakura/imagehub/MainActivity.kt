@@ -3,7 +3,7 @@ package com.hyosakura.imagehub
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import com.hyosakura.imagehub.ui.page.BasePage
+import com.hyosakura.imagehub.ui.BaseScreen
 import com.hyosakura.imagehub.ui.theme.ImageHubTheme
 
 class MainActivity : ComponentActivity() {
@@ -11,7 +11,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             ImageHubTheme {
-                BasePage()
+                BaseScreen()
             }
         }
     }
