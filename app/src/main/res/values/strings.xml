@@ -5,4 +5,9 @@
     <string name="library">资源库</string>
     <string name="searchSuggestions">搜索“标签”“注释”…</string>
     <string name="imageHub">Image Hub</string>
+    <string name="label">标签</string>
+    <string name="folder">文件夹</string>
+    <string name="recycleBin">回收站</string>
+    <string name="tool">工具</string>
+    <string name="tip">助手</string>
 </resources>

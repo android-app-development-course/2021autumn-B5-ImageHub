@@ -22,7 +22,11 @@ enum class Screen(
         iconId = R.drawable.ic_outline_folder_24,
         spIconID = R.drawable.ic_baseline_folder_24
     ),
-    SearchResults();
+    SearchResults(),
+    Folder(),
+    Label(),
+    Tip(),
+    Trash();
 
     companion object {
         fun fromRoute(route: String?): Screen =
@@ -31,6 +35,10 @@ enum class Screen(
                 Main.name -> Main
                 Search.name -> Search
                 SearchResults.name -> SearchResults
+                Folder.name -> Folder
+                Label.name -> Label
+                Tip.name -> Tip
+                Trash.name -> Trash
                 null -> Main
                 else -> throw IllegalArgumentException("Route $route is not recognized.")
             }

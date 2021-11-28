@@ -18,9 +18,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.hyosakura.imagehub.R
-import com.hyosakura.imagehub.ui.screens.LibraryScreen
+import com.hyosakura.imagehub.ui.screens.library.LibraryScreen
 import com.hyosakura.imagehub.ui.screens.Screen
 import com.hyosakura.imagehub.ui.screens.Screen.*
+import com.hyosakura.imagehub.ui.screens.library.folder.FolderScreen
+import com.hyosakura.imagehub.ui.screens.library.label.LabelScreen
+import com.hyosakura.imagehub.ui.screens.library.tip.TipScreen
+import com.hyosakura.imagehub.ui.screens.library.trash.TrashScreen
 import com.hyosakura.imagehub.ui.screens.main.MainScreen
 import com.hyosakura.imagehub.ui.screens.search.SearchResultsScreen
 import com.hyosakura.imagehub.ui.screens.search.SearchScreen
@@ -52,10 +56,22 @@ fun BaseScreen() {
                     SearchScreen(onSearchBarClick = { navController.navigate(SearchResults.name) })
                 }
                 composable(Library.name) {
-                    LibraryScreen()
+                    LibraryScreen(navController)
                 }
                 composable(SearchResults.name) {
                     SearchResultsScreen()
+                }
+                composable(Label.name) {
+                    LabelScreen()
+                }
+                composable(Folder.name) {
+                    FolderScreen()
+                }
+                composable(Tip.name) {
+                    TipScreen()
+                }
+                composable(Trash.name) {
+                    TrashScreen()
                 }
             }
         },
@@ -67,7 +83,7 @@ fun BaseScreen() {
 
 @Composable
 private fun TopBar(currentScreen: Screen) {
-    AnimatedVisibility(currentScreen == Main || currentScreen == Search || currentScreen == Library,) {
+    AnimatedVisibility(currentScreen == Main || currentScreen == Search || currentScreen == Library) {
         BaseTopBar()
     }
 }
@@ -88,7 +104,8 @@ private fun BottomBar(
     navController: NavHostController,
     currentScreen: Screen
 ) {
-    AnimatedVisibility(currentScreen == Main || currentScreen == Search || currentScreen == Library,
+    AnimatedVisibility(
+        currentScreen == Main || currentScreen == Search || currentScreen == Library,
         enter = slideInVertically(
             // Enters by sliding down from offset -fullHeight to 0.
             initialOffsetY = { fullHeight -> fullHeight },
@@ -98,7 +115,8 @@ private fun BottomBar(
             // Exits by sliding up from offset 0 to -fullHeight.
             targetOffsetY = { fullHeight -> fullHeight },
             animationSpec = tween(durationMillis = 250, easing = LinearOutSlowInEasing)
-        )){
+        )
+    ) {
         BaseBottomBar(
             allScreens = listOf(Main, Search, Library),
             onSelected = { screen ->
