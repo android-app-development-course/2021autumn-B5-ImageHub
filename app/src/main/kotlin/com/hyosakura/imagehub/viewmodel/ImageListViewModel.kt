@@ -1,9 +1,12 @@
 package com.hyosakura.imagehub.viewmodel
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import androidx.lifecycle.*
 import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.entity.relation.ImageTagCrossRef
 import com.hyosakura.imagehub.repository.DataRepository
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -12,6 +15,8 @@ import java.time.ZoneId
 
 
 class ImageListViewModel(private val repository: DataRepository) : ViewModel() {
+    private val options = BitmapFactory.Options()
+
     /**
      * 指定日期内分享的所有图片集合
      */
@@ -20,6 +25,17 @@ class ImageListViewModel(private val repository: DataRepository) : ViewModel() {
         to: LocalDateTime
     ): LiveData<List<ImageEntity>> {
         return repository.shareImageListBetweenDate(from.toLong(), to.toLong()).asLiveData()
+    }
+
+    /**
+     * 根据url返回图片的bitmap表示
+     */
+    fun getImageByUrl(url: String, size: Int): LiveData<Bitmap> {
+        options.inSampleSize = size
+        val bitmap = BitmapFactory.decodeFile(url, options)
+        return flow<Bitmap> {
+            emit(bitmap)
+        }.asLiveData()
     }
 
     /**
