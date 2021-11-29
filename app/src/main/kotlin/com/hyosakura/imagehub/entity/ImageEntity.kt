@@ -16,5 +16,7 @@ data class ImageEntity(
     var height: Int? = null,
     var size: Double? = null,
     var rating: Int? = null,
-    var modifyTime: Long? = null
+    var addTime: Long? = null,
+    var shareTime: Long? = null,
+    var deleted: Int = 0
 )
