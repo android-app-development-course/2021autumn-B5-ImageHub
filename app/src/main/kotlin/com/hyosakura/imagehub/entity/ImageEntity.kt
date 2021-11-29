@@ -18,5 +18,5 @@ data class ImageEntity(
     var rating: Int? = null,
     var addTime: Long? = null,
     var shareTime: Long? = null,
-    var deleted: Int = 0
+    var deleted: Int? = 0
 )
