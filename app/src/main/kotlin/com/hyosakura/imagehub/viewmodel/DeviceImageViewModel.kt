@@ -4,20 +4,15 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.database.Cursor
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.provider.MediaStore
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.asLiveData
 import com.hyosakura.imagehub.repository.DataRepository
-import kotlinx.coroutines.flow.flow
+import com.hyosakura.imagehub.util.ImageUtil
 import java.io.File
 
 
 class DeviceImageViewModel(private val repository: DataRepository) : ViewModel() {
-    private val options = BitmapFactory.Options()
-
     private fun getCursor(context: Context): Cursor {
         val resolver = context.contentResolver
         return resolver.query(
@@ -30,41 +25,28 @@ class DeviceImageViewModel(private val repository: DataRepository) : ViewModel()
     }
 
     /**
-     * 指定设备上文件夹的最近修改图片
+     * 设备上包含图片的文件夹列表，包含该文件夹的一张图片
      */
     @SuppressLint("Range")
-    fun getDeviceImage(context: Context, size: Int): LiveData<List<Bitmap>> {
-        return getCursor(context).use {
-            options.inSampleSize = size
-            val list = mutableListOf<Bitmap>()
-            while (it.moveToNext()) {
+    fun getDeviceImageFolderList(context: Context, size: Int): List<Pair<String, Bitmap>> {
+        val cursor = getCursor(context)
+        val folderList = mutableListOf<Pair<String, Bitmap>>()
+        val folderMap = mutableMapOf<String, Bitmap>()
+        cursor.use {
+            while (cursor.moveToNext()) {
                 val path =
-                    it.getString(it.getColumnIndex(MediaStore.Images.Media.DATE_MODIFIED))
-                list.add(BitmapFactory.decodeFile(path, options))
+                    cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATE_MODIFIED))
+                val folder = File(path).parentFile!!
+                val folderName = folder.name
+                if (folderMap.containsKey(folderName)) {
+                    continue
+                }
+                val bitmap = ImageUtil.decodeFile(path, size)
+                folderMap[folderName] = bitmap
+                folderList.add(Pair(folderName, bitmap))
             }
-            flow<List<Bitmap>> {
-                emit(list)
-            }.asLiveData()
         }
-    }
-
-    /**
-     * 设备上包含图片的文件夹列表
-     */
-    @SuppressLint("Range")
-    fun dirContainImage(context: Context): LiveData<List<File>> {
-        return getCursor(context).use {
-            val list = mutableListOf<File>()
-            while (it.moveToNext()) {
-                val path =
-                    it.getString(it.getColumnIndex(MediaStore.Images.Media.DATE_MODIFIED))
-                val dir = File(path).parentFile!!
-                list.add(dir)
-            }
-            flow<List<File>> {
-                emit(list)
-            }.asLiveData()
-        }
+        return folderList
     }
 }
 
