@@ -11,16 +11,23 @@ interface TagDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertTags(vararg tags: TagEntity)
 
-    @Query("SELECT * FROM tag")
-    fun getAllTags(): Flow<List<TagEntity>>
+    @Query("SELECT * FROM tag limit :limit")
+    fun getAllTags(limit: Int = 20): Flow<List<TagEntity>>
+
+    @Query("SELECT * FROM tag WHERE name like :condition")
+    fun searchImage(condition: String): Flow<MutableList<TagWithImages>>
+
+    @Transaction
+    @Query("SELECT * FROM tag order by modifyTime desc limit :limit")
+    fun recentTagWithImages(limit: Int): List<TagWithImages>
 
     @Transaction
     @Query("SELECT * FROM tag where tagId = :id")
-    fun getTagWithImagesById(id: Int): Flow<List<TagWithImages>>
+    fun getTagWithImagesById(id: Int): Flow<TagWithImages>
 
     @Transaction
     @Query("SELECT * FROM tag where name like :name")
-    fun getTagWithImagesByName(name: String): Flow<List<TagWithImages>>
+    fun getTagWithImagesByName(name: String): Flow<TagWithImages>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertImages(vararg relation: ImageTagCrossRef)

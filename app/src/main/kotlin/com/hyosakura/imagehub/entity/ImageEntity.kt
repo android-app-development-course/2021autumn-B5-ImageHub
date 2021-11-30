@@ -2,6 +2,9 @@ package com.hyosakura.imagehub.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 @Entity(tableName = "image")
 data class ImageEntity(
@@ -20,3 +23,15 @@ data class ImageEntity(
     var shareTime: Long? = null,
     var deleted: Int? = 0
 )
+
+fun Long.toDate(): LocalDateTime {
+    val instant = Instant.ofEpochMilli(this)
+    val zone = ZoneId.systemDefault()
+    return LocalDateTime.ofInstant(instant, zone)
+}
+
+fun LocalDateTime.toLong(): Long {
+    val zone = ZoneId.systemDefault()
+    val instant: Instant = this.atZone(zone).toInstant()
+    return instant.toEpochMilli()
+}

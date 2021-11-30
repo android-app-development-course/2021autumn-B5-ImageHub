@@ -15,10 +15,18 @@ interface DirDao {
     fun getAllDirs(): Flow<List<DirEntity>>
 
     @Transaction
+    @Query("SELECT * FROM directory WHERE name like :condition")
+    fun searchImage(condition: String): Flow<MutableList<DirWithImage>>
+
+    @Transaction
+    @Query("SELECT * FROM directory order by modifyTime desc limit :limit")
+    fun recentDirWithImages(limit: Int): List<DirWithImage>
+
+    @Transaction
     @Query("SELECT * FROM directory where dirId = :id")
     fun getChildDirs(id : Int): Flow<List<DirWithDir>>
 
     @Transaction
     @Query("SELECT * FROM directory")
-    fun getImagesWithImages(): Flow<List<DirWithImage>>
+    fun getDirWithImages(): Flow<List<DirWithImage>>
 }

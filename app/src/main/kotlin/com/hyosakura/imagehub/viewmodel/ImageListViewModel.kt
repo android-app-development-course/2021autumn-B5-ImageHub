@@ -1,102 +1,42 @@
 package com.hyosakura.imagehub.viewmodel
 
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import androidx.lifecycle.*
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import com.hyosakura.imagehub.entity.ImageEntity
-import com.hyosakura.imagehub.entity.relation.ImageTagCrossRef
+import com.hyosakura.imagehub.entity.toDate
 import com.hyosakura.imagehub.repository.DataRepository
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
+import com.hyosakura.imagehub.util.ImageUtil
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneId
-
+import kotlinx.coroutines.withContext
+import java.time.LocalDate
 
 class ImageListViewModel(private val repository: DataRepository) : ViewModel() {
-    private val options = BitmapFactory.Options()
-
     /**
-     * 指定日期内分享的所有图片集合
+     * 根据id返回图片的bitmap表示
      */
-    fun shareImageListBetweenDate(
-        from: LocalDateTime,
-        to: LocalDateTime
-    ): LiveData<List<ImageEntity>> {
-        return repository.shareImageListBetweenDate(from.toLong(), to.toLong()).asLiveData()
+    fun getImageByUrl(imageId: Int, size: Int): Bitmap {
+        return ImageUtil.decodeFile(repository.getImageById(imageId).url!!, size)
     }
 
     /**
-     * 根据url返回图片的bitmap表示
+     * 特定条件的图片
      */
-    fun getImageByUrl(url: String, size: Int): LiveData<Bitmap> {
-        options.inSampleSize = size
-        val bitmap = BitmapFactory.decodeFile(url, options)
-        return flow<Bitmap> {
-            emit(bitmap)
-        }.asLiveData()
-    }
-
-    /**
-     * 搜索结果的图片的添加日期
-     */
-    fun addDateOfSearchImage(key: String): LiveData<List<LocalDateTime>> {
-        return repository.addDateOfSearchImage(key).map {
-            it.map { entity ->
-                entity.addTime!!.toDate()
+    suspend fun getImagesByCondition(
+        condition: String
+    ): Map<LocalDate, List<ImageEntity>> = withContext(viewModelScope.coroutineContext) {
+        val map = mutableMapOf<LocalDate, MutableList<ImageEntity>>()
+        map.apply {
+            repository.searchImage(condition).collect {outer->
+                outer.forEach {inner->
+                    val date = inner.addTime!!.toDate().toLocalDate()
+                    computeIfAbsent(date) {
+                        mutableListOf()
+                    }.add(inner)
+                }
             }
-        }.asLiveData()
-    }
-
-    /**
-     * 指定日期的搜索结果的图片集合
-     */
-    fun searchImageBetweenDate(
-        from: LocalDateTime,
-        to: LocalDateTime,
-        key: String
-    ): LiveData<List<ImageEntity>> {
-        return repository.searchImageBetweenDate(key, from.toLong(), to.toLong()).asLiveData()
-    }
-
-    /**
-     * 最近分享的图片
-     */
-    fun recentShareImage(): LiveData<List<ImageEntity>> {
-        return repository.recentShareImage().asLiveData()
-    }
-
-    /**
-     * 所有图片的添加日期
-     */
-    fun addDateOfAllImage(): LiveData<List<LocalDateTime>> {
-        return repository.addDateOfAllImage().map {
-            it.map { entity ->
-                entity.addTime!!.toDate()
-            }
-        }.asLiveData()
-    }
-
-    /**
-     * 指定日期范围内添加的所有图片集合
-     */
-    fun addImageListBetweenDate(
-        from: LocalDateTime,
-        to: LocalDateTime
-    ): LiveData<List<ImageEntity>> {
-        return repository.addImageListBetweenDate(from.toLong(), to.toLong()).asLiveData()
-    }
-
-    /**
-     * 给图像添加标签
-     */
-    fun addTagToImage(imageIds: List<Int>, tagId: Int) {
-        viewModelScope.launch {
-            val relations = imageIds.map {
-                ImageTagCrossRef(it, tagId)
-            }
-            repository.addTagToImage(*relations.toTypedArray())
         }
     }
 
@@ -110,18 +50,6 @@ class ImageListViewModel(private val repository: DataRepository) : ViewModel() {
             }
             repository.moveImageToRecycle(*updateEntity.toTypedArray())
         }
-    }
-
-    private fun Long.toDate(): LocalDateTime {
-        val instant = Instant.ofEpochMilli(this)
-        val zone = ZoneId.systemDefault()
-        return LocalDateTime.ofInstant(instant, zone)
-    }
-
-    private fun LocalDateTime.toLong(): Long {
-        val zone = ZoneId.systemDefault()
-        val instant: Instant = this.atZone(zone).toInstant()
-        return instant.toEpochMilli()
     }
 }
 
