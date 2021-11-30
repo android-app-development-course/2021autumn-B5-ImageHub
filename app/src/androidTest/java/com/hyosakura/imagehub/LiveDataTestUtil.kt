@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit
 object LiveDataTestUtil {
     @Throws(InterruptedException::class)
     @Suppress("UNCHECKED_CAST")
-    fun <T> getValue(liveData: LiveData<T>): T? {
+    fun <T> getValue(liveData: LiveData<T>, timeout: Long = 2): T? {
         val data = arrayOfNulls<Any>(1)
         val latch = CountDownLatch(1)
         val observer: Observer<T> = object : Observer<T> {
@@ -19,7 +19,7 @@ object LiveDataTestUtil {
             }
         }
         liveData.observeForever(observer)
-        latch.await(2, TimeUnit.SECONDS)
+        latch.await(timeout, TimeUnit.SECONDS)
         return data[0] as T?
     }
 }
