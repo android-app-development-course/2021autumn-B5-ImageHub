@@ -1,9 +1,12 @@
 package com.hyosakura.imagehub.viewmodel
 
+import android.content.res.Resources
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.hyosakura.imagehub.R
 import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.entity.toDate
 import com.hyosakura.imagehub.repository.DataRepository
@@ -12,6 +15,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
+import kotlin.random.Random
 
 class ImageListViewModel(private val repository: DataRepository) : ViewModel() {
     /**
@@ -26,8 +30,8 @@ class ImageListViewModel(private val repository: DataRepository) : ViewModel() {
      */
     suspend fun getImagesByCondition(
         condition: String?
-    ): Map<LocalDate, List<ImageEntity>> = withContext(viewModelScope.coroutineContext) {
-        val map = mutableMapOf<LocalDate, MutableList<ImageEntity>>()
+    ): Map<LocalDate, List<Int>> = withContext(viewModelScope.coroutineContext) {
+        val map = mutableMapOf<LocalDate, MutableList<Int>>()
         map.apply {
             if (condition != null) {
                 repository.searchImage(condition).collect { outer ->
@@ -35,7 +39,7 @@ class ImageListViewModel(private val repository: DataRepository) : ViewModel() {
                         val date = inner.addTime!!.toDate().toLocalDate()
                         computeIfAbsent(date) {
                             mutableListOf()
-                        }.add(inner)
+                        }.add(inner.imageId!!)
                     }
                 }
             } else {
@@ -44,7 +48,7 @@ class ImageListViewModel(private val repository: DataRepository) : ViewModel() {
                         val date = inner.addTime!!.toDate().toLocalDate()
                         computeIfAbsent(date) {
                             mutableListOf()
-                        }.add(inner)
+                        }.add(inner.imageId!!)
                     }
                 }
             }
@@ -65,16 +69,30 @@ class ImageListViewModel(private val repository: DataRepository) : ViewModel() {
     }
 
     /**
-     * 返回供测试用的纯色图片
+     * 图片列表测试
      */
-    fun fakeImages(width: Int, height: Int, ids: List<Int>): Map<LocalDate, List<Bitmap>> {
-        return mapOf(
-            LocalDate.now() to ids.map {
-                val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-                bitmap.eraseColor(it)
-                bitmap
+    fun fakeImageIdList(): Map<String, List<Int>> {
+        val firstList = mutableListOf<Int>().also {
+            for (i in 0..Random.nextInt(5, 9)) {
+                it.add(114514)
             }
+        }
+        val secondList = mutableListOf<Int>().also {
+            for (i in 0..Random.nextInt(5, 9)) {
+                it.add(114514)
+            }
+        }
+        return mapOf(
+            "1" to firstList,
+            "2" to secondList
         )
+    }
+
+    /**
+     * 测试通过id拿到bitmap表示的图片
+     */
+    fun fakeGetBitMapById(id: Int): Bitmap {
+        return BitmapFactory.decodeResource(Resources.getSystem(), R.drawable.ic_outline_image_24)
     }
 }
 
