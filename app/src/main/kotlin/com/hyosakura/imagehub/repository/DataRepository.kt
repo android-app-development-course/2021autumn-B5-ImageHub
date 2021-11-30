@@ -39,7 +39,9 @@ class DataRepository(private val database: AppDatabase) {
 
     fun recentDirWithImages(limit: Int) = database.dirDao().recentDirWithImages(limit)
 
-    fun getAllTags() = database.tagDao().getAllTags()
+    fun getAllTags(limit: Int = 20) = database.tagDao().getAllTags(limit)
+
+    fun getAllImages(limit: Int = 20) = database.imageDao().getAllImages(limit)
 
     fun imageNumInTag(tagId: Int) = database.tagDao().getTagWithImagesById(tagId)
 }
