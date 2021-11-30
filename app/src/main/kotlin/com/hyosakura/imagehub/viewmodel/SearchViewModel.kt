@@ -3,6 +3,8 @@ package com.hyosakura.imagehub.viewmodel
 import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.hyosakura.imagehub.entity.DirEntity
+import com.hyosakura.imagehub.entity.TagEntity
 import com.hyosakura.imagehub.repository.DataRepository
 import com.hyosakura.imagehub.util.ImageUtil
 
@@ -22,6 +24,18 @@ class SearchViewModel(private val repository: DataRepository) : ViewModel() {
     fun recentDirWithImages(limit: Int = 5, size: Int): List<Pair<String, Bitmap>> {
         return repository.recentDirWithImages(limit).map {
             it.dir.name!! to ImageUtil.decodeFile(it.images.first().url!!, size)
+        }
+    }
+
+    fun fakeTags(ids: List<Int>): List<TagEntity> {
+        return ids.map {
+            TagEntity(tagId = it, name = it.toString())
+        }
+    }
+
+    fun fakeDirs(ids: List<Int>): List<DirEntity> {
+        return ids.map {
+            DirEntity(dirId = it, parentId = -1, name = it.toString())
         }
     }
 }

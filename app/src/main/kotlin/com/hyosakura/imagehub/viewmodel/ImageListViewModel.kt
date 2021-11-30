@@ -25,19 +25,31 @@ class ImageListViewModel(private val repository: DataRepository) : ViewModel() {
      * 特定条件的图片
      */
     suspend fun getImagesByCondition(
-        condition: String
+        condition: String?
     ): Map<LocalDate, List<ImageEntity>> = withContext(viewModelScope.coroutineContext) {
         val map = mutableMapOf<LocalDate, MutableList<ImageEntity>>()
         map.apply {
-            repository.searchImage(condition).collect {outer->
-                outer.forEach {inner->
-                    val date = inner.addTime!!.toDate().toLocalDate()
-                    computeIfAbsent(date) {
-                        mutableListOf()
-                    }.add(inner)
+            if (condition != null) {
+                repository.searchImage(condition).collect { outer ->
+                    outer.forEach { inner ->
+                        val date = inner.addTime!!.toDate().toLocalDate()
+                        computeIfAbsent(date) {
+                            mutableListOf()
+                        }.add(inner)
+                    }
+                }
+            } else {
+                repository.getAllImages().collect { outer ->
+                    outer.forEach { inner ->
+                        val date = inner.addTime!!.toDate().toLocalDate()
+                        computeIfAbsent(date) {
+                            mutableListOf()
+                        }.add(inner)
+                    }
                 }
             }
         }
+
     }
 
     /**
@@ -50,6 +62,19 @@ class ImageListViewModel(private val repository: DataRepository) : ViewModel() {
             }
             repository.moveImageToRecycle(*updateEntity.toTypedArray())
         }
+    }
+
+    /**
+     * 返回供测试用的纯色图片
+     */
+    fun fakeImages(width: Int, height: Int, ids: List<Int>): Map<LocalDate, List<Bitmap>> {
+        return mapOf(
+            LocalDate.now() to ids.map {
+                val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+                bitmap.eraseColor(it)
+                bitmap
+            }
+        )
     }
 }
 
