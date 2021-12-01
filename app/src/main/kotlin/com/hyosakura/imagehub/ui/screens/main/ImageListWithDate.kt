@@ -61,6 +61,6 @@ private fun ImageItem(images: MutableMap<Int, Bitmap>, image: Int) {
 
 @Preview
 @Composable
-fun PictureListWithDatePreview() {
+fun ImageListWithDatePreview() {
 
 }
