@@ -16,14 +16,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.flowlayout.FlowMainAxisAlignment
-import com.google.accompanist.flowlayout.FlowRow
 
+
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ImageListWithDate(date: String, images: List<Bitmap>) {
+fun ImageListWithDate(date: String, images: MutableMap<Int, Bitmap>) {
     Column(Modifier.fillMaxWidth()) {
         Row(
-            Modifier.fillMaxWidth().padding(bottom = 10.dp),
+            Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -32,43 +32,35 @@ fun ImageListWithDate(date: String, images: List<Bitmap>) {
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(start = 10.dp)
             )
+            TextButton(onClick = { /*TODO*/ }, modifier = Modifier.padding(start = 10.dp)) {
+                Text(text = "查看全部")
+            }
         }
 
-        ImageGrid(images)
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun ImageGrid(images: List<Bitmap>) {
-    LazyVerticalGrid(
-        cells = GridCells.Adaptive(minSize = 120.dp),
-    ) {
-        items(images.size) { image ->
-            ImageItem(images, image)
+        LazyVerticalGrid(
+            cells = GridCells.Adaptive(minSize = 120.dp),
+        ) {
+            items(images.size) { image ->
+                ImageItem(images, image)
+            }
         }
     }
 }
 
 @Composable
-private fun ImageItem(images: List<Bitmap>, image: Int) {
-    Image(
-        images[image].asImageBitmap(), null,
+private fun ImageItem(images: MutableMap<Int, Bitmap>, image: Int) {
+    images[image]?.let {
+        Image(
+        it.asImageBitmap(), null,
         Modifier
             .size(120.dp)
-            .clickable { /*TODO*/ }
-    )
+            .clickable { })
+    }
 }
 
 
 @Preview
 @Composable
 fun PictureListWithDatePreview() {
-    ImageListWithDate(
-        "2020/01/01", listOf(
-            Bitmap.createBitmap(354, 354, Bitmap.Config.ARGB_8888),
-            Bitmap.createBitmap(354, 354, Bitmap.Config.ARGB_8888),
-            Bitmap.createBitmap(354, 354, Bitmap.Config.ARGB_8888),
-            )
-    )
+
 }

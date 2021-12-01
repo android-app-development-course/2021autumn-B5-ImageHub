@@ -8,7 +8,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -18,14 +18,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.hyosakura.imagehub.R
-import com.hyosakura.imagehub.ui.screens.library.LibraryScreen
 import com.hyosakura.imagehub.ui.screens.Screen
 import com.hyosakura.imagehub.ui.screens.Screen.*
+import com.hyosakura.imagehub.ui.screens.library.LibraryScreen
 import com.hyosakura.imagehub.ui.screens.library.folder.FolderScreen
 import com.hyosakura.imagehub.ui.screens.library.label.LabelScreen
 import com.hyosakura.imagehub.ui.screens.library.tip.TipScreen
 import com.hyosakura.imagehub.ui.screens.library.trash.TrashScreen
-import com.hyosakura.imagehub.ui.screens.main.MainScreen
 import com.hyosakura.imagehub.ui.screens.search.SearchResultsScreen
 import com.hyosakura.imagehub.ui.screens.search.SearchScreen
 
@@ -38,6 +37,7 @@ fun BaseScreen() {
     val navController = rememberNavController()
     val backstackEntry = navController.currentBackStackEntryAsState()
     val currentScreen = Screen.fromRoute(backstackEntry.value?.destination?.route)
+//val vm: ImageListViewModel = viewModel()
 
     Scaffold(
         topBar = {
@@ -50,7 +50,7 @@ fun BaseScreen() {
                 modifier = Modifier.padding(innerPadding)
             ) {
                 composable(Main.name) {
-                    MainScreen()
+//                    MainScreen(vm)
                 }
                 composable(Search.name) {
                     SearchScreen(onSearchBarClick = { navController.navigate(SearchResults.name) })
@@ -105,17 +105,7 @@ private fun BottomBar(
     currentScreen: Screen
 ) {
     AnimatedVisibility(
-        currentScreen == Main || currentScreen == Search || currentScreen == Library,
-        enter = slideInVertically(
-            // Enters by sliding down from offset -fullHeight to 0.
-            initialOffsetY = { fullHeight -> fullHeight },
-            animationSpec = tween(durationMillis = 250, easing = FastOutLinearInEasing)
-        ),
-        exit = slideOutVertically(
-            // Exits by sliding up from offset 0 to -fullHeight.
-            targetOffsetY = { fullHeight -> fullHeight },
-            animationSpec = tween(durationMillis = 250, easing = LinearOutSlowInEasing)
-        )
+        currentScreen == Main || currentScreen == Search || currentScreen == Library
     ) {
         BaseBottomBar(
             allScreens = listOf(Main, Search, Library),
