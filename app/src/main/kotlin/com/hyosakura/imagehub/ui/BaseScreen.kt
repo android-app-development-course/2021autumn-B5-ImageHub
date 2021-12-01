@@ -20,11 +20,13 @@ import androidx.navigation.compose.rememberNavController
 import com.hyosakura.imagehub.R
 import com.hyosakura.imagehub.ui.screens.Screen
 import com.hyosakura.imagehub.ui.screens.Screen.*
+import com.hyosakura.imagehub.ui.screens.library.AddDeviceImageScreen
 import com.hyosakura.imagehub.ui.screens.library.LibraryScreen
 import com.hyosakura.imagehub.ui.screens.library.folder.FolderScreen
 import com.hyosakura.imagehub.ui.screens.library.label.LabelScreen
 import com.hyosakura.imagehub.ui.screens.library.tip.TipScreen
 import com.hyosakura.imagehub.ui.screens.library.trash.TrashScreen
+import com.hyosakura.imagehub.ui.screens.main.MainScreen
 import com.hyosakura.imagehub.ui.screens.search.SearchResultsScreen
 import com.hyosakura.imagehub.ui.screens.search.SearchScreen
 
@@ -51,6 +53,7 @@ fun BaseScreen() {
             ) {
                 composable(Main.name) {
 //                    MainScreen(vm)
+                    MainScreen()
                 }
                 composable(Search.name) {
                     SearchScreen(onSearchBarClick = { navController.navigate(SearchResults.name) })
@@ -72,6 +75,9 @@ fun BaseScreen() {
                 }
                 composable(Trash.name) {
                     TrashScreen()
+                }
+                composable(AddDeviceImage.name) {
+                    AddDeviceImageScreen()
                 }
             }
         },
