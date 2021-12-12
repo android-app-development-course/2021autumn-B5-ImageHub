@@ -11,6 +11,9 @@ interface TagDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertTags(vararg tags: TagEntity)
 
+    @Update
+    fun updateTags(vararg tags: TagEntity)
+
     @Query("SELECT * FROM tag limit :limit")
     fun getAllTags(limit: Int = 20): Flow<List<TagEntity>>
 
