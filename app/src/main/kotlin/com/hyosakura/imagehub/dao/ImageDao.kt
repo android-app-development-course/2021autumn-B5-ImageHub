@@ -24,7 +24,7 @@ interface ImageDao {
     fun getAllDeletedImages(): Flow<List<ImageEntity>>
 
     @Query("SELECT * FROM image where deleted = 1")
-    fun getAllDeletedImagesWithOutFlow(): List<ImageEntity>
+    fun getAllDeletedImagesWithoutFlow(): List<ImageEntity>
 
     @Query("SELECT * FROM image where imageId = :id")
     fun getImageById(id: Int): ImageEntity
