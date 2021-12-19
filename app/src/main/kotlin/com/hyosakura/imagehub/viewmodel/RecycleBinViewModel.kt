@@ -13,7 +13,7 @@ class RecycleBinViewModel(private val repository: DataRepository) : ViewModel() 
 
     fun deleteAllImages() {
         viewModelScope.launch {
-            val images = repository.getAllDeletedImagesWithOutFlow()
+            val images = repository.getAllDeletedImagesWithoutFlow()
             deleteImages(*images.toTypedArray())
         }
     }

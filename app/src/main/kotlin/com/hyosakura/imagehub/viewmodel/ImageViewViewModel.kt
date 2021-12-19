@@ -11,11 +11,10 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class ImageViewViewModel(private val repository: DataRepository) : ViewModel() {
-    val imageEntities = repository.allImages.asLiveData()
-
-    val images = repository.allImages.map {list->
+    val images = repository.allImages.map { list ->
         list.map {
-            ImageUtil.decodeFile(it.url!!, 100)
+            it.bitmap = ImageUtil.decodeFile(it.url!!, 100)
+            it
         }
     }.asLiveData()
 

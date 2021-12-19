@@ -1,6 +1,5 @@
 package com.hyosakura.imagehub.viewmodel
 
-import android.graphics.Bitmap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -11,34 +10,50 @@ import com.hyosakura.imagehub.util.ImageUtil
 import kotlinx.coroutines.flow.map
 
 class ImageListViewModel(private val repository: DataRepository) : ViewModel() {
-    val imageList = repository.allImages.map { list ->
-        list.map {
-            it to ImageUtil.decodeFile(it.url!!, 100)
-        }
-    }.asLiveData()
+    lateinit var imageList: LiveData<List<ImageEntity>>
 
-    fun imagesWithTag(tagId: Int): LiveData<List<Pair<ImageEntity, Bitmap>>> {
+    fun allImages(): LiveData<List<ImageEntity>> {
+        return repository.allImages.map { list ->
+            list.map {
+                it.bitmap = ImageUtil.decodeFile(it.url!!, 100)
+                it
+            }
+        }.asLiveData().also {
+            imageList = it
+        }
+    }
+
+    fun imagesWithTag(tagId: Int): LiveData<List<ImageEntity>>  {
         return repository.tagWithImages(tagId).map { ref ->
             ref.images.map {
-                it to ImageUtil.decodeFile(it.url!!, 100)
+                it.bitmap = ImageUtil.decodeFile(it.url!!, 100)
+                it
             }
-        }.asLiveData()
+        }.asLiveData().also {
+            imageList = it
+        }
     }
 
-    fun imagesInDir(dirId: Int): LiveData<List<Pair<ImageEntity, Bitmap>>> {
+    fun imagesInDir(dirId: Int): LiveData<List<ImageEntity>> {
         return repository.dirWithImages(dirId).map { ref ->
             ref.images.map {
-                it to ImageUtil.decodeFile(it.url!!, 100)
+                it.bitmap = ImageUtil.decodeFile(it.url!!, 100)
+                it
             }
-        }.asLiveData()
+        }.asLiveData().also {
+            imageList = it
+        }
     }
 
-    fun searchImage(condition: String): LiveData<List<Pair<ImageEntity, Bitmap>>> {
+    fun searchImage(condition: String): LiveData<List<ImageEntity>>  {
         return repository.searchImage(condition).map { list ->
             list.map {
-                it to ImageUtil.decodeFile(it.url!!, 100)
+                it.bitmap = ImageUtil.decodeFile(it.url!!, 100)
+                it
             }
-        }.asLiveData()
+        }.asLiveData().also {
+            imageList = it
+        }
     }
 }
 

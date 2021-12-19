@@ -23,6 +23,12 @@ class TagManageViewModel(private val repository: DataRepository) : ViewModel() {
             repository.insertTag(entity)
         }
     }
+
+    fun deleteTag(entity: TagEntity) {
+        viewModelScope.launch {
+            repository.deleteTag(entity)
+        }
+    }
 }
 
 class TagManageViewModelFactory(private val repository: DataRepository) :
