@@ -14,7 +14,9 @@ class DataRepository(private val database: AppDatabase) {
 
     fun getDirById(dirId: Int) = database.dirDao().getDirById(dirId)
 
-    suspend fun updateImage(entity: ImageEntity) = database.imageDao().updateImages(entity)
+    suspend fun insertImage(vararg entity: ImageEntity) = database.imageDao().updateImages(*entity)
+
+    suspend fun updateImage(vararg entity: ImageEntity) = database.imageDao().updateImages(*entity)
 
     fun searchImage(condition: String): Flow<List<ImageEntity>> {
         val flow1 = database.imageDao().searchImage(condition)
@@ -50,19 +52,21 @@ class DataRepository(private val database: AppDatabase) {
 
     fun tagWithImages(tagId: Int) = database.tagDao().getTagWithImagesById(tagId)
 
-    suspend fun updateTag(tag: TagEntity) = database.tagDao().updateTags(tag)
+    suspend fun updateTag(vararg tags: TagEntity) = database.tagDao().updateTags(*tags)
 
-    suspend fun insertTag(tag: TagEntity) = database.tagDao().insertTags(tag)
+    suspend fun insertTag(vararg tags: TagEntity) = database.tagDao().insertTags(*tags)
 
-    suspend fun updateDir(dir: DirEntity) = database.dirDao().updateDirs(dir)
+    suspend fun deleteTag(vararg tags: TagEntity) = database.tagDao().deleteTags(*tags)
 
-    suspend fun insertDir(dir: DirEntity) = database.dirDao().insertDirs(dir)
+    suspend fun updateDir(vararg dirs: DirEntity) = database.dirDao().updateDirs(*dirs)
+
+    suspend fun insertDir(vararg dirs: DirEntity) = database.dirDao().insertDirs(*dirs)
 
     val allImages = database.imageDao().getAllImages(20)
 
     val allDeletedImages = database.imageDao().getAllDeletedImages()
 
-    fun getAllDeletedImagesWithOutFlow() = database.imageDao().getAllDeletedImagesWithOutFlow()
+    fun getAllDeletedImagesWithoutFlow() = database.imageDao().getAllDeletedImagesWithoutFlow()
 
     fun dirWithImages(dirId: Int) = database.dirDao().getDirWithImagesById(dirId)
 
