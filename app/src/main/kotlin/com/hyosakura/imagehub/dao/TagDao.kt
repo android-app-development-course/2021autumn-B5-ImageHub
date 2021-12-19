@@ -14,6 +14,9 @@ interface TagDao {
     @Update
     fun updateTags(vararg tags: TagEntity)
 
+    @Delete
+    fun deleteTags(vararg tags: TagEntity)
+
     @Query("SELECT * FROM tag limit :limit")
     fun getAllTags(limit: Int = 20): Flow<List<TagEntity>>
 
