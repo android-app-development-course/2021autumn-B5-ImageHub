@@ -1,18 +1,29 @@
 package com.hyosakura.imagehub.entity
 
+import android.graphics.Bitmap
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "directory")
 data class DirEntity(
     @field:PrimaryKey(autoGenerate = true)
-    var dirId: Int? = null,
+    override var dirId: Int? = null,
+
     var parentId: Int? = null,
-    var name: String? = null,
+
+    override var name: String? = null,
+
+    @Ignore
+    override var url: String? = null,
+
     var number: Int? = null,
+
     var modifyTime: Long? = null,
-    var latestPicture: ByteArray? = null
-) {
+
+    @Ignore
+    override var latestPicture: Bitmap? = null
+) : DeviceDirEntity() {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -24,10 +35,7 @@ data class DirEntity(
         if (name != other.name) return false
         if (number != other.number) return false
         if (modifyTime != other.modifyTime) return false
-        if (latestPicture != null) {
-            if (other.latestPicture == null) return false
-            if (!latestPicture.contentEquals(other.latestPicture)) return false
-        } else if (other.latestPicture != null) return false
+        if (latestPicture != other.latestPicture) return false
 
         return true
     }
@@ -38,7 +46,18 @@ data class DirEntity(
         result = 31 * result + (name?.hashCode() ?: 0)
         result = 31 * result + (number ?: 0)
         result = 31 * result + (modifyTime?.hashCode() ?: 0)
-        result = 31 * result + (latestPicture?.contentHashCode() ?: 0)
+        result = 31 * result + (latestPicture?.hashCode() ?: 0)
         return result
     }
 }
+
+/**
+ * 设备文件夹
+ * 其id与子类的id无直接关系
+ */
+abstract class DeviceDirEntity(
+    open var dirId: Int? = null,
+    open var name: String? = null,
+    open var url: String? = null,
+    open var latestPicture: Bitmap? = null
+)

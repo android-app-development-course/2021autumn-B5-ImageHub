@@ -7,9 +7,13 @@ import androidx.room.PrimaryKey
 data class TagEntity(
     @field:PrimaryKey(autoGenerate = true)
     var tagId: Int? = null,
+
     var name: String? = null,
+
     var addTime: Long? = null,
+
     var modifyTime: Long? = null,
+
     var latestPicture: ByteArray? = null
 ) {
     override fun equals(other: Any?): Boolean {
