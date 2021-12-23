@@ -43,7 +43,7 @@ abstract class AppDatabase : RoomDatabase() {
                         override fun onOpen(db: SupportSQLiteDatabase) {
                             super.onOpen(db)
                             scope.launch(Dispatchers.IO) {
-                                INSTANCE?.dirDao()?.insertDirs(DirEntity(dirId = -1))
+                                INSTANCE?.dirDao()?.insertDirs(DirEntity(dirId = -1, parentId = null))
                             }
                         }
                     })

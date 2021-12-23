@@ -27,7 +27,7 @@ class DirManageViewModel(private val repository: DataRepository) : ViewModel() {
             outerList.childDirs.also { innerList ->
                 innerList.forEach {
                     it.latestPicture = repository.dirWithImages(it.dirId!!)
-                        .firstOrNull()?.images?.first()?.url?.let { s ->
+                        .firstOrNull()?.images?.firstOrNull()?.url?.let { s ->
                             ImageUtil.decodeFile(s, 100)
                         }
                 }
@@ -36,7 +36,7 @@ class DirManageViewModel(private val repository: DataRepository) : ViewModel() {
     }
 
     private fun visitImages(dirId: Int) {
-        imagesInCurrentDir = repository.dirWithImages(dirId).map { relation ->
+        imagesInCurrentDir = repository.dirWithImages(-1).map { relation ->
             relation.images.map {
                 it.bitmap = ImageUtil.decodeFile(it.url!!, 100)
                 it

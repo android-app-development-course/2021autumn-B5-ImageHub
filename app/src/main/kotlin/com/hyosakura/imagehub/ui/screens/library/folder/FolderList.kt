@@ -1,13 +1,13 @@
 package com.hyosakura.imagehub.ui.screens.library.folder
 
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.painterResource
@@ -24,21 +24,24 @@ fun FolderList(
     repository: DataRepository,
     viewModel: DirManageViewModel
 ) {
+    // 文件夹显示
     Row {
         viewModel.currentChildDir.observeAsState().value?.let {
+            Log.i("list", it.toString())
+            Log.i("indices", it.indices.toString())
             for (i in it.indices step 2) {
+                Log.i("i", i.toString())
                 Row(
-                    Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    Modifier.fillMaxWidth()
                 ) {
                     Column(Modifier.weight(0.5F)) {
                         val entity = it[i]
+                        Log.i("first", entity.toString())
                         if (entity.latestPicture == null) {
                             Image(
                                 painterResource(R.drawable.ic_outline_folder_24),
                                 null,
-                                Modifier.size(120.dp)
+                                Modifier.fillMaxSize()
                             )
                         } else {
                             Image(
@@ -51,6 +54,7 @@ fun FolderList(
                     if ((i + 1) in it.indices) {
                         Column(Modifier.weight(0.5F)) {
                             val entity = it[i + 1]
+                            Log.i("second", entity.toString())
                             if (entity.latestPicture == null) {
                                 Image(
                                     painterResource(R.drawable.ic_outline_folder_24),
@@ -70,9 +74,10 @@ fun FolderList(
             }
         }
     }
-
+    // 内容分割
+    // 图片显示
     Row {
-        viewModel.imagesInCurrentDir.value?.let {
+        viewModel.imagesInCurrentDir.observeAsState().value?.let {
             val images = it.map { entity ->
                 entity.bitmap!!
             }

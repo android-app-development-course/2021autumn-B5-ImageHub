@@ -5,6 +5,8 @@ import androidx.lifecycle.asLiveData
 import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.hyosakura.imagehub.entity.DirEntity
+import com.hyosakura.imagehub.repository.DataRepository
 import com.hyosakura.imagehub.util.AppDatabase
 import org.junit.Rule
 import org.junit.Test
@@ -47,7 +49,11 @@ class ExampleInstrumentedTest {
         // db.imageDao().insertTags(ImageTagCrossRef(2, 1))
         // db.imageDao().insertTags(ImageTagCrossRef(2, 2))
 
-        val result = LiveDataTestUtil.getValue(db.imageDao().getAllImages().asLiveData())
+        val repository = DataRepository(db)
+        var result:Any? = LiveDataTestUtil.getValue(db.imageDao().getAllImages().asLiveData())
+        db.dirDao().insertDirs(DirEntity(dirId = 1, parentId = -1, "测试文件夹"))
+        println(result)
+        result = LiveDataTestUtil.getValue(repository.dirWithImages(-1).asLiveData())
         println(result)
     }
 }
