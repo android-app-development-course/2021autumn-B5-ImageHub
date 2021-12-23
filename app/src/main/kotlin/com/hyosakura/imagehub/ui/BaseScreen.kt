@@ -81,7 +81,7 @@ fun BaseScreen(
                 composable(
                     "${ Detail.name }/{imageId}",
                     arguments = listOf(navArgument("imageId") { type = NavType.IntType })){
-                    DetailScreen(it.arguments?.getInt("imageId"))
+                    DetailScreen(it.arguments?.getInt("imageId"), repository)
                 }
             }
         },

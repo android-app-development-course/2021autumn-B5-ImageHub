@@ -9,10 +9,10 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface DirDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertDirs(vararg dirs: DirEntity)
+    suspend fun insertDirs(vararg dirs: DirEntity)
 
     @Update
-    fun updateDirs(vararg dirs: DirEntity)
+    suspend fun updateDirs(vararg dirs: DirEntity)
 
     @Query("SELECT * FROM directory")
     fun getAllDirs(): Flow<List<DirEntity>>

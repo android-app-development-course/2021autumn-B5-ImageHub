@@ -8,9 +8,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 
 class DataRepository(private val database: AppDatabase) {
-    fun getImageById(id: Int): ImageEntity {
-        return database.imageDao().getImageById(id)
-    }
+    fun getImageById(id: Int) = database.imageDao().getImageById(id)
 
     fun getDirById(dirId: Int) = database.dirDao().getDirById(dirId)
 
@@ -72,7 +70,8 @@ class DataRepository(private val database: AppDatabase) {
 
     fun childDir(dirId: Int) = database.dirDao().getChildDirs(dirId)
 
-    suspend fun imageNumInTag(tagId: Int) = database.tagDao().getTagWithImagesById(tagId)
+    fun imageNumInTag(tagId: Int) = database.tagDao().getTagWithImagesById(tagId)
 
-    suspend fun removeImagesInRecycleBin(vararg images: ImageEntity) = database.imageDao().removeDeletedImages(*images)
+    suspend fun removeImagesInRecycleBin(vararg images: ImageEntity) =
+        database.imageDao().removeDeletedImages(*images)
 }

@@ -12,7 +12,7 @@ interface ImageDao {
     fun insertImages(vararg images: ImageEntity)
 
     @Update
-    fun updateImages(vararg images: ImageEntity)
+    suspend fun updateImages(vararg images: ImageEntity)
 
     @Query("SELECT * FROM image WHERE deleted = 0 and annotation like :condition")
     fun searchImage(condition: String): Flow<MutableList<ImageEntity>>
@@ -27,7 +27,7 @@ interface ImageDao {
     fun getAllDeletedImagesWithoutFlow(): List<ImageEntity>
 
     @Query("SELECT * FROM image where imageId = :id")
-    fun getImageById(id: Int): ImageEntity
+    fun getImageById(id: Int): Flow<ImageEntity>
 
     @Transaction
     @Query("SELECT * FROM image where imageId = :id")
@@ -41,5 +41,5 @@ interface ImageDao {
     fun insertTags(vararg relation: ImageTagCrossRef)
 
     @Delete
-    fun removeDeletedImages(vararg images: ImageEntity)
+    suspend fun removeDeletedImages(vararg images: ImageEntity)
 }

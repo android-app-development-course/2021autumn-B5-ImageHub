@@ -1,22 +1,18 @@
 package com.hyosakura.imagehub.viewmodel
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.repository.DataRepository
-import com.hyosakura.imagehub.util.ImageUtil
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class ImageViewViewModel(private val repository: DataRepository) : ViewModel() {
-    val images = repository.allImages.map { list ->
-        list.map {
-            it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
-            it
+    lateinit var image: LiveData<ImageEntity>
+
+    fun getImageById(id: Int): LiveData<ImageEntity> {
+        return repository.getImageById(id).asLiveData().also {
+            image = it
         }
-    }.asLiveData()
+    }
 
     fun updateImage(entity: ImageEntity) {
         viewModelScope.launch {

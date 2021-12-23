@@ -9,13 +9,13 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface TagDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertTags(vararg tags: TagEntity)
+    suspend fun insertTags(vararg tags: TagEntity)
 
     @Update
-    fun updateTags(vararg tags: TagEntity)
+    suspend fun updateTags(vararg tags: TagEntity)
 
     @Delete
-    fun deleteTags(vararg tags: TagEntity)
+    suspend fun deleteTags(vararg tags: TagEntity)
 
     @Query("SELECT * FROM tag limit :limit")
     fun getAllTags(limit: Int = 20): Flow<List<TagEntity>>
