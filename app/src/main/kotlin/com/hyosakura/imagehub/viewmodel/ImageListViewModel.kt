@@ -15,7 +15,7 @@ class ImageListViewModel(private val repository: DataRepository) : ViewModel() {
     fun allImages(): LiveData<List<ImageEntity>> {
         return repository.allImages.map { list ->
             list.map {
-                it.bitmap = ImageUtil.decodeFile(it.url!!, 100)
+                it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
                 it
             }
         }.asLiveData().also {
@@ -26,7 +26,7 @@ class ImageListViewModel(private val repository: DataRepository) : ViewModel() {
     fun imagesWithTag(tagId: Int): LiveData<List<ImageEntity>> {
         return repository.tagWithImages(tagId).map { ref ->
             ref.images.map {
-                it.bitmap = ImageUtil.decodeFile(it.url!!, 100)
+                it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
                 it
             }
         }.asLiveData().also {
@@ -37,7 +37,7 @@ class ImageListViewModel(private val repository: DataRepository) : ViewModel() {
     fun imagesInDir(dirId: Int): LiveData<List<ImageEntity>> {
         return repository.dirWithImages(dirId).map { ref ->
             ref.images.map {
-                it.bitmap = ImageUtil.decodeFile(it.url!!, 100)
+                it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
                 it
             }
         }.asLiveData().also {
@@ -48,7 +48,7 @@ class ImageListViewModel(private val repository: DataRepository) : ViewModel() {
     fun searchImage(condition: String): LiveData<List<ImageEntity>> {
         return repository.searchImage(condition).map { list ->
             list.map {
-                it.bitmap = ImageUtil.decodeFile(it.url!!, 100)
+                it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
                 it
             }
         }.asLiveData().also {

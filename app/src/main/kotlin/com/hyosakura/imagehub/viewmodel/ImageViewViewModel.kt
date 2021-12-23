@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 class ImageViewViewModel(private val repository: DataRepository) : ViewModel() {
     val images = repository.allImages.map { list ->
         list.map {
-            it.bitmap = ImageUtil.decodeFile(it.url!!, 100)
+            it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
             it
         }
     }.asLiveData()
