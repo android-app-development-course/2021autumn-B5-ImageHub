@@ -30,7 +30,7 @@ interface DirDao {
 
     @Transaction
     @Query("SELECT * FROM directory where dirId = :id")
-    fun getChildDirs(id: Int): Flow<List<DirWithDir>>
+    fun getChildDirs(id: Int): Flow<DirWithDir>
 
     @Transaction
     @Query("SELECT * FROM directory where dirId = :id")

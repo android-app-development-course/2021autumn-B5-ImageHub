@@ -8,7 +8,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -18,9 +18,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.hyosakura.imagehub.R
-import com.hyosakura.imagehub.ui.screens.library.LibraryScreen
+import com.hyosakura.imagehub.repository.DataRepository
 import com.hyosakura.imagehub.ui.screens.Screen
 import com.hyosakura.imagehub.ui.screens.Screen.*
+import com.hyosakura.imagehub.ui.screens.library.LibraryScreen
 import com.hyosakura.imagehub.ui.screens.library.folder.FolderScreen
 import com.hyosakura.imagehub.ui.screens.library.label.LabelScreen
 import com.hyosakura.imagehub.ui.screens.library.tip.TipScreen
@@ -32,8 +33,9 @@ import com.hyosakura.imagehub.ui.screens.search.SearchScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BaseScreen() {
-
+fun BaseScreen(
+    repository: DataRepository
+) {
     val allScreens = values().toList()
     val navController = rememberNavController()
     val backstackEntry = navController.currentBackStackEntryAsState()
@@ -50,7 +52,7 @@ fun BaseScreen() {
                 modifier = Modifier.padding(innerPadding)
             ) {
                 composable(Main.name) {
-                    MainScreen()
+                    MainScreen(repository)
                 }
                 composable(Search.name) {
                     SearchScreen(onSearchBarClick = { navController.navigate(SearchResults.name) })
@@ -59,19 +61,19 @@ fun BaseScreen() {
                     LibraryScreen(navController)
                 }
                 composable(SearchResults.name) {
-                    SearchResultsScreen()
+                    SearchResultsScreen(repository)
                 }
                 composable(Label.name) {
                     LabelScreen()
                 }
                 composable(Folder.name) {
-                    FolderScreen()
+                    FolderScreen(repository)
                 }
                 composable(Tip.name) {
                     TipScreen()
                 }
                 composable(Trash.name) {
-                    TrashScreen()
+                    TrashScreen(repository)
                 }
             }
         },
@@ -130,5 +132,5 @@ private fun BottomBar(
 @Preview
 @Composable
 fun BasePagePreview() {
-    BaseScreen()
+    // BaseScreen()
 }

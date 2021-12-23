@@ -1,21 +1,25 @@
 package com.hyosakura.imagehub
 
+import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.net.toFile
+import android.util.Log
 import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.util.AppDatabase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import java.io.File
-import java.io.FileInputStream
 import java.io.FileOutputStream
 
 
-class ReceiveActivity : AppCompatActivity() {
+class ReceiveActivity : Activity() {
+    private val scope = CoroutineScope(SupervisorJob())
+
     private val db by lazy {
         AppDatabase.getDatabase(this)
     }
@@ -34,6 +38,8 @@ class ReceiveActivity : AppCompatActivity() {
                 dealMultiplePicStream(intent)
             }
         }
+        val mainIntent = Intent(this, MainActivity::class.java)
+        startActivity(mainIntent)
     }
 
     private fun dealPicStream(intent: Intent) {
@@ -50,7 +56,8 @@ class ReceiveActivity : AppCompatActivity() {
         }
     }
 
-    private fun getBitMapAndSave(uriList: List<Uri>) {
+    private fun getBitMapAndSave(uriList: List<Uri>) = scope.launch {
+        Log.i("receive", uriList.toString())
         val option = BitmapFactory.Options()
         uriList.forEach {
             val bitmap = BitmapFactory.decodeStream(
@@ -58,22 +65,22 @@ class ReceiveActivity : AppCompatActivity() {
                 null,
                 option
             )
+            val fileName = it.path?.substringAfterLast("/") ?: "None"
             if (bitmap != null) {
-                val file = it.toFile()
                 val path = saveImage(
                     bitmap,
-                    file.name
+                    fileName
                 )
                 val imageEntity = ImageEntity(
                     imageId = null,
                     dirId = -1,
-                    name = file.name,
+                    name = fileName,
                     url = path,
-                    ext = it.toFile().extension,
+                    ext = fileName.substringAfterLast('.', ""),
                     annotation = null,
                     bitmap.width,
                     bitmap.height,
-                    FileInputStream(file).available().toDouble(),
+                    bitmap.byteCount.toDouble(),
                     rating = null,
                     addTime = System.currentTimeMillis(),
                     shareTime = null,

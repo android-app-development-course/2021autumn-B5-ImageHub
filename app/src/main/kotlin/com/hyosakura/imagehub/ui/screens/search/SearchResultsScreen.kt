@@ -1,7 +1,8 @@
 package com.hyosakura.imagehub.ui.screens.search
 
-import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.OutlinedTextField
@@ -9,6 +10,7 @@ import androidx.compose.material.TabRowDefaults.Divider
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
@@ -19,12 +21,22 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hyosakura.imagehub.R
+import com.hyosakura.imagehub.entity.toDateTime
+import com.hyosakura.imagehub.repository.DataRepository
+import com.hyosakura.imagehub.ui.screens.main.ImageListWithDate
+import com.hyosakura.imagehub.viewmodel.ImageListViewModel
+import com.hyosakura.imagehub.viewmodel.ImageListViewModelFactory
+import java.time.format.DateTimeFormatter
+import java.util.stream.Collectors
 
 @OptIn(ExperimentalMaterial3Api::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
-fun SearchResultsScreen() {
-
+fun SearchResultsScreen(
+    repository: DataRepository,
+    viewModel: ImageListViewModel = ImageListViewModelFactory(repository).create(ImageListViewModel::class.java)
+) {
     var searchString by remember { mutableStateOf("") }
+    val format = DateTimeFormatter.ofPattern("yyyy/MM/dd")
 
     Scaffold(
         topBar = {
@@ -66,7 +78,25 @@ fun SearchResultsScreen() {
             }
         },
         content = {
-            Text("SearchResultsScreen")
+            Column {
+                viewModel.searchImage(searchString)
+                viewModel.imageList.observeAsState().value?.let { entityList ->
+                    val map = entityList.stream().collect(Collectors.groupingBy {
+                        it.addTime!!.toDateTime().toLocalDate()
+                    })
+                    val iterator = map.iterator()
+                    while (iterator.hasNext()) {
+                        val entry = iterator.next()
+                        val date = entry.key
+                        val list = entry.value
+                        ImageListWithDate(
+                            date.format(format), list.map {
+                                it.bitmap!!
+                            }
+                        )
+                    }
+                }
+            }
         },
     )
 }
@@ -74,5 +104,5 @@ fun SearchResultsScreen() {
 @Preview
 @Composable
 fun DefaultPreview() {
-    SearchResultsScreen()
+    // SearchResultsScreen()
 }

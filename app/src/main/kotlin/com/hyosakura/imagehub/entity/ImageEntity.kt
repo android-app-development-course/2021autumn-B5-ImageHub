@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 
@@ -13,7 +14,7 @@ data class ImageEntity(
     @field:PrimaryKey(autoGenerate = true)
     override var imageId: Int? = null,
 
-    var dirId: Int? = null,
+    var dirId: Int? = -1,
 
     override var name: String? = null,
 
@@ -41,10 +42,16 @@ data class ImageEntity(
     var bitmap: Bitmap? = null
 ) : DeviceImageEntity()
 
-fun Long.toDate(): LocalDateTime {
+fun Long.toDateTime(): LocalDateTime {
     val instant = Instant.ofEpochMilli(this)
     val zone = ZoneId.systemDefault()
     return LocalDateTime.ofInstant(instant, zone)
+}
+
+fun Long.toDate(): LocalDate {
+    val instant = Instant.ofEpochMilli(this)
+    val zone = ZoneId.systemDefault()
+    return instant.atZone(zone).toLocalDate()
 }
 
 fun LocalDateTime.toLong(): Long {

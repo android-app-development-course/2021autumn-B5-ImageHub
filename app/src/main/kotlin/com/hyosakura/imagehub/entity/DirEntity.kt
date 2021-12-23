@@ -10,7 +10,7 @@ data class DirEntity(
     @field:PrimaryKey(autoGenerate = true)
     override var dirId: Int? = null,
 
-    var parentId: Int? = null,
+    var parentId: Int? = -1,
 
     override var name: String? = null,
 

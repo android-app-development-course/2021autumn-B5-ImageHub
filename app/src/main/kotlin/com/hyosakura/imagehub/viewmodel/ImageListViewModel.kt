@@ -10,7 +10,7 @@ import com.hyosakura.imagehub.util.ImageUtil
 import kotlinx.coroutines.flow.map
 
 class ImageListViewModel(private val repository: DataRepository) : ViewModel() {
-    lateinit var imageList: LiveData<List<ImageEntity>>
+    var imageList: LiveData<List<ImageEntity>> = allImages()
 
     fun allImages(): LiveData<List<ImageEntity>> {
         return repository.allImages.map { list ->
@@ -23,7 +23,7 @@ class ImageListViewModel(private val repository: DataRepository) : ViewModel() {
         }
     }
 
-    fun imagesWithTag(tagId: Int): LiveData<List<ImageEntity>>  {
+    fun imagesWithTag(tagId: Int): LiveData<List<ImageEntity>> {
         return repository.tagWithImages(tagId).map { ref ->
             ref.images.map {
                 it.bitmap = ImageUtil.decodeFile(it.url!!, 100)
@@ -45,7 +45,7 @@ class ImageListViewModel(private val repository: DataRepository) : ViewModel() {
         }
     }
 
-    fun searchImage(condition: String): LiveData<List<ImageEntity>>  {
+    fun searchImage(condition: String): LiveData<List<ImageEntity>> {
         return repository.searchImage(condition).map { list ->
             list.map {
                 it.bitmap = ImageUtil.decodeFile(it.url!!, 100)
