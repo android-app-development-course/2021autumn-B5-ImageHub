@@ -26,7 +26,8 @@ enum class Screen(
     Folder(),
     Label(),
     Tip(),
-    Trash();
+    Trash(),
+    Detail();
 
     companion object {
         fun fromRoute(route: String?): Screen =
@@ -39,8 +40,8 @@ enum class Screen(
                 Label.name -> Label
                 Tip.name -> Tip
                 Trash.name -> Trash
-                null -> Main
-                else -> throw IllegalArgumentException("Route $route is not recognized.")
+                Detail.name -> Detail
+                else -> Main
             }
     }
 }

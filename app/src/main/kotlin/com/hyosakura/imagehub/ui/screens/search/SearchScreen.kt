@@ -26,7 +26,7 @@ fun SearchScreen(onSearchBarClick: () -> Unit) {
             ) {
                 FilledTonalButton(
                     onClick = onSearchBarClick,
-                    modifier = Modifier.width(320.dp).fillMaxHeight()
+                    modifier = Modifier.fillMaxWidth(0.9f).fillMaxHeight()
                 ) {
                     Row(
                         Modifier.fillMaxWidth().alpha(0.7f),

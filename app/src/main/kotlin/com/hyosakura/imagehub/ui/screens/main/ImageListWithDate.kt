@@ -7,22 +7,23 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.flowlayout.FlowMainAxisAlignment
-import com.google.accompanist.flowlayout.FlowRow
+import androidx.navigation.NavHostController
+import com.hyosakura.imagehub.entity.ImageEntity
+import com.hyosakura.imagehub.ui.screens.Screen
 
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ImageListWithDate(date: String, images: List<Bitmap>) {
+fun ImageListWithDate(date: String, images: List<ImageEntity>, navController: NavHostController) {
     Column(Modifier.fillMaxWidth()) {
         Row(
             Modifier.fillMaxWidth(),
@@ -34,51 +35,33 @@ fun ImageListWithDate(date: String, images: List<Bitmap>) {
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(start = 10.dp)
             )
-            TextButton(onClick = { /*TODO*/ }, modifier = Modifier.padding(start = 10.dp)) {
-                Text(text = "查看全部")
-            }
         }
 
         LazyVerticalGrid(
             cells = GridCells.Adaptive(minSize = 120.dp),
         ) {
-            items(images.size) { image ->
-                ImageItem(images, image)
+            items(images) { image ->
+                ImageItem(image, toDetailScreens = {
+                    navController.navigate("${ Screen.Detail.name }/${ image.imageId }")
+                })
             }
         }
     }
 }
 
 @Composable
-private fun ImageItem(images: List<Bitmap>, image: Int) {
+private fun ImageItem(image: ImageEntity, toDetailScreens: () -> Unit) {
     Image(
-        images[image].asImageBitmap(), null,
+        image.bitmap!!.asImageBitmap(), null,
         Modifier
             .size(120.dp)
-            .clickable { })
+            .clickable(onClick = toDetailScreens)
+    )
 }
 
 
 @Preview
 @Composable
 fun PictureListWithDatePreview() {
-    ImageListWithDate(
-        "2020/01/01", listOf(
-            Bitmap.createBitmap(354, 354, Bitmap.Config.ARGB_8888),
-            Bitmap.createBitmap(354, 354, Bitmap.Config.ARGB_8888),
-            Bitmap.createBitmap(354, 354, Bitmap.Config.ARGB_8888),
-            Bitmap.createBitmap(354, 354, Bitmap.Config.ARGB_8888),
-            Bitmap.createBitmap(354, 354, Bitmap.Config.ARGB_8888),
-            Bitmap.createBitmap(354, 354, Bitmap.Config.ARGB_8888),
-            Bitmap.createBitmap(354, 354, Bitmap.Config.ARGB_8888),
-            Bitmap.createBitmap(354, 354, Bitmap.Config.ARGB_8888),
-            Bitmap.createBitmap(354, 354, Bitmap.Config.ARGB_8888),
-            Bitmap.createBitmap(354, 354, Bitmap.Config.ARGB_8888),
-            Bitmap.createBitmap(354, 354, Bitmap.Config.ARGB_8888),
-            Bitmap.createBitmap(354, 354, Bitmap.Config.ARGB_8888),
-            Bitmap.createBitmap(354, 354, Bitmap.Config.ARGB_8888),
 
-
-            )
-    )
 }

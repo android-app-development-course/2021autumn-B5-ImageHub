@@ -13,10 +13,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.hyosakura.imagehub.R
 import com.hyosakura.imagehub.repository.DataRepository
 import com.hyosakura.imagehub.ui.screens.Screen
@@ -26,6 +28,7 @@ import com.hyosakura.imagehub.ui.screens.library.folder.FolderScreen
 import com.hyosakura.imagehub.ui.screens.library.label.LabelScreen
 import com.hyosakura.imagehub.ui.screens.library.tip.TipScreen
 import com.hyosakura.imagehub.ui.screens.library.trash.TrashScreen
+import com.hyosakura.imagehub.ui.screens.main.DetailScreen
 import com.hyosakura.imagehub.ui.screens.main.MainScreen
 import com.hyosakura.imagehub.ui.screens.search.SearchResultsScreen
 import com.hyosakura.imagehub.ui.screens.search.SearchScreen
@@ -52,7 +55,7 @@ fun BaseScreen(
                 modifier = Modifier.padding(innerPadding)
             ) {
                 composable(Main.name) {
-                    MainScreen(repository)
+                    MainScreen(repository, navController)
                 }
                 composable(Search.name) {
                     SearchScreen(onSearchBarClick = { navController.navigate(SearchResults.name) })
@@ -61,7 +64,7 @@ fun BaseScreen(
                     LibraryScreen(navController)
                 }
                 composable(SearchResults.name) {
-                    SearchResultsScreen(repository)
+                    SearchResultsScreen(repository, navController)
                 }
                 composable(Label.name) {
                     LabelScreen(repository)
@@ -73,7 +76,12 @@ fun BaseScreen(
                     TipScreen()
                 }
                 composable(Trash.name) {
-                    TrashScreen(repository)
+                    TrashScreen(repository, navController)
+                }
+                composable(
+                    "${ Detail.name }/{imageId}",
+                    arguments = listOf(navArgument("imageId") { type = NavType.IntType })){
+                    DetailScreen(it.arguments?.getInt("imageId"))
                 }
             }
         },

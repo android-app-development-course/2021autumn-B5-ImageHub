@@ -104,23 +104,5 @@ private fun ImageItem(images: List<Bitmap>, image: Int) {
 @Preview
 @Composable
 fun PictureListWithDatePreview() {
-    ImageListWithDate(
-        "2020/01/01", listOf(
-            Bitmap.createBitmap(354, 354, Bitmap.Config.ARGB_8888),
-            Bitmap.createBitmap(354, 354, Bitmap.Config.ARGB_8888),
-            Bitmap.createBitmap(354, 354, Bitmap.Config.ARGB_8888),
-            Bitmap.createBitmap(354, 354, Bitmap.Config.ARGB_8888),
-            Bitmap.createBitmap(354, 354, Bitmap.Config.ARGB_8888),
-            Bitmap.createBitmap(354, 354, Bitmap.Config.ARGB_8888),
-            Bitmap.createBitmap(354, 354, Bitmap.Config.ARGB_8888),
-            Bitmap.createBitmap(354, 354, Bitmap.Config.ARGB_8888),
-            Bitmap.createBitmap(354, 354, Bitmap.Config.ARGB_8888),
-            Bitmap.createBitmap(354, 354, Bitmap.Config.ARGB_8888),
-            Bitmap.createBitmap(354, 354, Bitmap.Config.ARGB_8888),
-            Bitmap.createBitmap(354, 354, Bitmap.Config.ARGB_8888),
-            Bitmap.createBitmap(354, 354, Bitmap.Config.ARGB_8888),
 
-
-            )
-    )
 }

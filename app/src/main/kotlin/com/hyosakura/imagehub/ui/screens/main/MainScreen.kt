@@ -3,6 +3,7 @@ package com.hyosakura.imagehub.ui.screens.main
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.navigation.NavHostController
 import com.hyosakura.imagehub.entity.toDateTime
 import com.hyosakura.imagehub.repository.DataRepository
 import com.hyosakura.imagehub.viewmodel.ImageListViewModel
@@ -13,8 +14,9 @@ import java.util.stream.Collectors
 @Composable
 fun MainScreen(
     repository: DataRepository,
-    viewModel: ImageListViewModel = ImageListViewModelFactory(repository).create(ImageListViewModel::class.java)
+    navController: NavHostController
 ) {
+    val viewModel: ImageListViewModel = ImageListViewModelFactory(repository).create(ImageListViewModel::class.java)
     val format = DateTimeFormatter.ofPattern("yyyy/MM/dd")
     Column {
         viewModel.imageList.observeAsState().value?.let { entityList ->
@@ -27,9 +29,9 @@ fun MainScreen(
                 val date = entry.key
                 val list = entry.value
                 ImageListWithDate(
-                    date.format(format), list.map {
-                        it.bitmap!!
-                    }
+                    date.format(format),
+                    list.map { it },
+                    navController
                 )
             }
         }
