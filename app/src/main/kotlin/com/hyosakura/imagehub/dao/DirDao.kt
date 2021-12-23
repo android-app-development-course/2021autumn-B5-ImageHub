@@ -11,8 +11,14 @@ interface DirDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertDirs(vararg dirs: DirEntity)
 
+    @Update
+    fun updateDirs(vararg dirs: DirEntity)
+
     @Query("SELECT * FROM directory")
     fun getAllDirs(): Flow<List<DirEntity>>
+
+    @Query("SELECT * FROM directory where dirId = :dirId")
+    fun getDirById(dirId: Int): Flow<DirEntity>
 
     @Transaction
     @Query("SELECT * FROM directory WHERE name like :condition")
@@ -24,9 +30,13 @@ interface DirDao {
 
     @Transaction
     @Query("SELECT * FROM directory where dirId = :id")
-    fun getChildDirs(id : Int): Flow<List<DirWithDir>>
+    fun getChildDirs(id: Int): Flow<List<DirWithDir>>
 
     @Transaction
-    @Query("SELECT * FROM directory")
-    fun getDirWithImages(): Flow<List<DirWithImage>>
+    @Query("SELECT * FROM directory where dirId = :id")
+    fun getDirWithImagesById(id: Int): Flow<DirWithImage>
+
+    @Transaction
+    @Query("SELECT * FROM directory where name like :name")
+    fun getDirWithImagesByName(name: String): Flow<DirWithImage>
 }

@@ -1,98 +1,59 @@
 package com.hyosakura.imagehub.viewmodel
 
-import android.content.res.Resources
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
-import com.hyosakura.imagehub.R
+import androidx.lifecycle.asLiveData
 import com.hyosakura.imagehub.entity.ImageEntity
-import com.hyosakura.imagehub.entity.toDate
 import com.hyosakura.imagehub.repository.DataRepository
 import com.hyosakura.imagehub.util.ImageUtil
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.time.LocalDate
-import kotlin.random.Random
+import kotlinx.coroutines.flow.map
 
 class ImageListViewModel(private val repository: DataRepository) : ViewModel() {
-    /**
-     * 根据id返回图片的bitmap表示
-     */
-    fun getImageByUrl(imageId: Int, size: Int): Bitmap {
-        return ImageUtil.decodeFile(repository.getImageById(imageId).url!!, size)
-    }
+    lateinit var imageList: LiveData<List<ImageEntity>>
 
-    /**
-     * 特定条件的图片
-     */
-    suspend fun getImagesByCondition(
-        condition: String?
-    ): Map<LocalDate, List<Int>> = withContext(viewModelScope.coroutineContext) {
-        val map = mutableMapOf<LocalDate, MutableList<Int>>()
-        map.apply {
-            if (condition != null) {
-                repository.searchImage(condition).collect { outer ->
-                    outer.forEach { inner ->
-                        val date = inner.addTime!!.toDate().toLocalDate()
-                        computeIfAbsent(date) {
-                            mutableListOf()
-                        }.add(inner.imageId!!)
-                    }
-                }
-            } else {
-                repository.getAllImages().collect { outer ->
-                    outer.forEach { inner ->
-                        val date = inner.addTime!!.toDate().toLocalDate()
-                        computeIfAbsent(date) {
-                            mutableListOf()
-                        }.add(inner.imageId!!)
-                    }
-                }
+    fun allImages(): LiveData<List<ImageEntity>> {
+        return repository.allImages.map { list ->
+            list.map {
+                it.bitmap = ImageUtil.decodeFile(it.url!!, 100)
+                it
             }
-        }
-
-    }
-
-    /**
-     * 图片移入回收站
-     */
-    fun moveImageToRecycle(imageIds: List<Int>) {
-        viewModelScope.launch {
-            val updateEntity = imageIds.map {
-                ImageEntity(imageId = it, deleted = 1)
-            }
-            repository.moveImageToRecycle(*updateEntity.toTypedArray())
+        }.asLiveData().also {
+            imageList = it
         }
     }
 
-    /**
-     * 图片列表测试
-     */
-    fun fakeImageIdList(): Map<String, List<Int>> {
-        val firstList = mutableListOf<Int>().also {
-            for (i in 0..Random.nextInt(5, 9)) {
-                it.add(114514)
+    fun imagesWithTag(tagId: Int): LiveData<List<ImageEntity>>  {
+        return repository.tagWithImages(tagId).map { ref ->
+            ref.images.map {
+                it.bitmap = ImageUtil.decodeFile(it.url!!, 100)
+                it
             }
+        }.asLiveData().also {
+            imageList = it
         }
-        val secondList = mutableListOf<Int>().also {
-            for (i in 0..Random.nextInt(5, 9)) {
-                it.add(114514)
-            }
-        }
-        return mapOf(
-            "1" to firstList,
-            "2" to secondList
-        )
     }
 
-    /**
-     * 测试通过id拿到bitmap表示的图片
-     */
-    fun fakeGetBitMapById(id: Int): Bitmap {
-        return BitmapFactory.decodeResource(Resources.getSystem(), R.drawable.ic_outline_image_24)
+    fun imagesInDir(dirId: Int): LiveData<List<ImageEntity>> {
+        return repository.dirWithImages(dirId).map { ref ->
+            ref.images.map {
+                it.bitmap = ImageUtil.decodeFile(it.url!!, 100)
+                it
+            }
+        }.asLiveData().also {
+            imageList = it
+        }
+    }
+
+    fun searchImage(condition: String): LiveData<List<ImageEntity>>  {
+        return repository.searchImage(condition).map { list ->
+            list.map {
+                it.bitmap = ImageUtil.decodeFile(it.url!!, 100)
+                it
+            }
+        }.asLiveData().also {
+            imageList = it
+        }
     }
 }
 

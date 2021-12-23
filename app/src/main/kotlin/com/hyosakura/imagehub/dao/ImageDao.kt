@@ -20,6 +20,12 @@ interface ImageDao {
     @Query("SELECT * FROM image where deleted = 0 limit :limit")
     fun getAllImages(limit: Int = 20): Flow<List<ImageEntity>>
 
+    @Query("SELECT * FROM image where deleted = 1")
+    fun getAllDeletedImages(): Flow<List<ImageEntity>>
+
+    @Query("SELECT * FROM image where deleted = 1")
+    fun getAllDeletedImagesWithoutFlow(): List<ImageEntity>
+
     @Query("SELECT * FROM image where imageId = :id")
     fun getImageById(id: Int): ImageEntity
 
@@ -33,4 +39,7 @@ interface ImageDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertTags(vararg relation: ImageTagCrossRef)
+
+    @Delete
+    fun removeDeletedImages(vararg images: ImageEntity)
 }
