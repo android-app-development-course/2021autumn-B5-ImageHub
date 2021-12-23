@@ -24,7 +24,7 @@ fun FolderList(
     repository: DataRepository,
     viewModel: DirManageViewModel
 ) {
-    // 文件夹显示
+    // 文件夹显示 todo (可单独滚动)
     Row {
         viewModel.currentChildDir.observeAsState().value?.let {
             Log.i("list", it.toString())
@@ -37,6 +37,7 @@ fun FolderList(
                     Column(Modifier.weight(0.5F)) {
                         val entity = it[i]
                         Log.i("first", entity.toString())
+                        // todo 图片未正常显示
                         if (entity.latestPicture == null) {
                             Image(
                                 painterResource(R.drawable.ic_outline_folder_24),
@@ -74,8 +75,9 @@ fun FolderList(
             }
         }
     }
-    // 内容分割
-    // 图片显示
+    // todo 内容分割(不动点)
+
+    // 图片显示 todo (可单独滚动)
     Row {
         viewModel.imagesInCurrentDir.observeAsState().value?.let {
             val images = it.map { entity ->

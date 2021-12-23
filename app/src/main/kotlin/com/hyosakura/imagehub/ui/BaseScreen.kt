@@ -64,7 +64,7 @@ fun BaseScreen(
                     SearchResultsScreen(repository)
                 }
                 composable(Label.name) {
-                    LabelScreen()
+                    LabelScreen(repository)
                 }
                 composable(Folder.name) {
                     FolderScreen(repository)
