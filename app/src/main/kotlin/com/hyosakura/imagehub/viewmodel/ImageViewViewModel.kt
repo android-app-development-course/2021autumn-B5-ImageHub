@@ -29,7 +29,7 @@ class ImageViewViewModel(private val repository: DataRepository) : ViewModel() {
 class ImageViewViewModelFactory(private val repository: DataRepository) :
     ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(ImageListViewModel::class.java)) {
+        if (modelClass.isAssignableFrom(ImageViewViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
             return ImageViewViewModel(repository) as T
         }

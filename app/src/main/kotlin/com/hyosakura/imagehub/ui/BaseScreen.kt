@@ -81,7 +81,7 @@ fun BaseScreen(
                 composable(
                     "${ Detail.name }/{imageId}",
                     arguments = listOf(navArgument("imageId") { type = NavType.IntType })){
-                    DetailScreen(it.arguments?.getInt("imageId"), repository)
+                    DetailScreen(it.arguments?.getInt("imageId"), repository, navController)
                 }
             }
         },
@@ -116,16 +116,6 @@ private fun BottomBar(
 ) {
     AnimatedVisibility(
         currentScreen == Main || currentScreen == Search || currentScreen == Library,
-        enter = slideInVertically(
-            // Enters by sliding down from offset -fullHeight to 0.
-            initialOffsetY = { fullHeight -> fullHeight },
-            animationSpec = tween(durationMillis = 250, easing = FastOutLinearInEasing)
-        ),
-        exit = slideOutVertically(
-            // Exits by sliding up from offset 0 to -fullHeight.
-            targetOffsetY = { fullHeight -> fullHeight },
-            animationSpec = tween(durationMillis = 250, easing = LinearOutSlowInEasing)
-        )
     ) {
         BaseBottomBar(
             allScreens = listOf(Main, Search, Library),

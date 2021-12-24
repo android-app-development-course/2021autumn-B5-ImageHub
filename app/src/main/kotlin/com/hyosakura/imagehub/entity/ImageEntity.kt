@@ -22,7 +22,7 @@ data class ImageEntity(
 
     override var ext: String? = null,
 
-    var annotation: String? = null,
+    var annotation: String? = "",
 
     override var width: Int? = null,
 
