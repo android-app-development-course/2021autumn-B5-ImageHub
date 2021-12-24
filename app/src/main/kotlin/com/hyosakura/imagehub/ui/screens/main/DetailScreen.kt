@@ -4,18 +4,26 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.TextFieldDefaults
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
@@ -60,34 +68,30 @@ fun DetailScreen(
 
         val image = it
 
-        val folder = dirViewModel.visitDir(it.dirId).observeAsState().value
+        val folder by dirViewModel.visitDir(it.dirId).observeAsState()
 
-        val labelList = tagViewModel.allTags
+        // TODO： 不是 allTags， 是当前 ImageEntity 所有的 Tag
+        val labelList by tagViewModel.allTags.observeAsState()
 
         var isAnnotationEdit by remember { mutableStateOf(false) }
         var isAddLabel by remember { mutableStateOf(false) }
 
         Scaffold(
             topBar = {
-                MediumTopAppBar(
+                SmallTopAppBar(
                     title = {
-                        // TODO: 显示标签列表
-                        labelList.observeAsState().value?.let { list ->
-                            Text(
-                                text = list.joinToString(separator = " ") { entity ->
-                                    entity.name!!
-                                },
-                                style = TextStyle(
-                                    color = Color.White,
-                                    fontSize = 20.sp
-                                )
-                            )
+                        if (labelList != null) {
+                            LazyRow {
+                                items(labelList!!) { tagEntity ->
+                                    LabelItem(tagEntity,
+                                        onLabelClick = { navController.navigate("LabelImage/${tagEntity.tagId}") },
+                                        onDeleteClick = { TODO("从当前图像的标签列表中删除此标签") }) }
+                                item { Spacer(modifier = Modifier.width(10.dp)) }
+                            }
                         }
                     },
                     navigationIcon = {
-                        IconButton(
-                            onClick = { navController.popBackStack() }
-                        ) {
+                        IconButton(onClick = { navController.popBackStack() }) {
                             Icon(imageVector = Icons.Filled.ArrowBack, null)
                         }
                     },
@@ -275,6 +279,22 @@ fun DetailScreen(
                 )
             }
         }
+    }
+}
+
+@Composable
+fun LabelItem(it: TagEntity, onLabelClick: () -> Unit, onDeleteClick: () -> Unit) {
+    Row(Modifier.padding(2.dp), verticalAlignment = Alignment.CenterVertically) {
+        OutlinedButton(
+            onClick = onLabelClick,
+            modifier = Modifier.padding(1.dp)
+        ) {
+            Text(it.name!!, Modifier.offset(x = (-10).dp))
+        }
+        Icon(imageVector = Icons.Filled.Close,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.error,
+            modifier = Modifier.offset(x = (-30).dp).clickable { println("test") })
     }
 }
 
