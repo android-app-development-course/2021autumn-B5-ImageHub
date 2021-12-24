@@ -92,7 +92,8 @@ fun DetailScreen(
                         0 -> {
                             DetailBottomBar(
                                 folderName = folderName,
-                                image
+                                image,
+                                dirViewModel
                             ) {
                                 navController.popBackStack(); it.deleted =
                                 1; imageManageViewModel.updateImage(it)
@@ -216,7 +217,12 @@ fun DetailScreen(
 }
 
 @Composable
-fun DetailBottomBar(folderName: String?, image: ImageEntity, onDeleteClick: () -> Unit) {
+fun DetailBottomBar(
+    folderName: String?,
+    image: ImageEntity,
+    viewModel: DirManageViewModel,
+    onDeleteClick: () -> Unit
+) {
     val context = LocalContext.current
     NavigationBar {
         NavigationBarItem(
@@ -246,7 +252,9 @@ fun DetailBottomBar(folderName: String?, image: ImageEntity, onDeleteClick: () -
                 }
             },
             // TODO：等文件夹页面写好跳转到对应的文件夹页面
-            onClick = { }
+            onClick = {
+                // viewModel.visitDir()
+            }
         )
 
         NavigationBarItem(
