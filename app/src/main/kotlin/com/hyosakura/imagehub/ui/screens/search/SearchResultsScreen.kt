@@ -20,13 +20,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.hyosakura.imagehub.R
 import com.hyosakura.imagehub.entity.toDateTime
 import com.hyosakura.imagehub.repository.DataRepository
 import com.hyosakura.imagehub.ui.screens.main.ImageListWithDate
-import com.hyosakura.imagehub.viewmodel.ImageListViewModel
-import com.hyosakura.imagehub.viewmodel.ImageListViewModelFactory
+import com.hyosakura.imagehub.viewmodel.ImageManageViewModel
+import com.hyosakura.imagehub.viewmodel.ImageManageViewModelFactory
 import java.time.format.DateTimeFormatter
 import java.util.stream.Collectors
 
@@ -35,8 +36,8 @@ import java.util.stream.Collectors
 fun SearchResultsScreen(
     repository: DataRepository,
     navController: NavHostController,
+    viewModel: ImageManageViewModel = viewModel(factory = ImageManageViewModelFactory(repository))
 ) {
-    val viewModel: ImageListViewModel = ImageListViewModelFactory(repository).create(ImageListViewModel::class.java)
     var searchString by remember { mutableStateOf("") }
     val format = DateTimeFormatter.ofPattern("yyyy/MM/dd")
 

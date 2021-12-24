@@ -55,6 +55,8 @@ class DataRepository(private val database: AppDatabase) {
 
     suspend fun insertTagToImage(vararg relation: ImageTagCrossRef) = database.imageDao().insertTags(*relation)
 
+    suspend fun removeTagFromImage(vararg relation: ImageTagCrossRef) = database.imageDao().removeTags(*relation)
+
     fun tagWithImages(tagId: Int) = database.tagDao().getTagWithImagesById(tagId)
 
     suspend fun updateTag(vararg tags: TagEntity) = database.tagDao().updateTags(*tags)
@@ -78,6 +80,8 @@ class DataRepository(private val database: AppDatabase) {
     fun childDir(dirId: Int) = database.dirDao().getChildDirs(dirId)
 
     fun imageInTag(tagId: Int) = database.tagDao().getTagWithImagesById(tagId)
+
+    fun imageWithTag(imageId: Int) = database.imageDao().getImageWithTagsById(imageId)
 
     suspend fun removeImagesInRecycleBin(vararg images: ImageEntity) =
         database.imageDao().removeDeletedImages(*images)
