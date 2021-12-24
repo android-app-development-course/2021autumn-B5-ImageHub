@@ -3,13 +3,18 @@ package com.hyosakura.imagehub.viewmodel
 import androidx.lifecycle.*
 import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.repository.DataRepository
+import com.hyosakura.imagehub.util.ImageUtil
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class ImageViewViewModel(private val repository: DataRepository) : ViewModel() {
     lateinit var image: LiveData<ImageEntity>
 
     fun getImageById(id: Int): LiveData<ImageEntity> {
-        return repository.getImageById(id).asLiveData().also {
+        return repository.getImageById(id).map {
+            it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
+            it
+        }.asLiveData().also {
             image = it
         }
     }
