@@ -57,7 +57,7 @@ fun DetailScreen(
 
         val image = it
 
-        val folderName = dirViewModel.visitDir(it.dirId).observeAsState().value?.name
+        val folder = dirViewModel.visitDir(it.dirId).observeAsState().value
 
         val labelList = tagViewModel.allTags
 
@@ -98,13 +98,14 @@ fun DetailScreen(
                     when (image.deleted) {
                         0 -> {
                             DetailBottomBar(
-                                folderName = folderName,
-                                image,
-                                dirViewModel
-                            ) {
-                                navController.popBackStack(); it.deleted =
-                                1; imageManageViewModel.updateImage(it)
-                            }
+                                folderName = folder?.name,
+                                imageEntity = image,
+                                onDeleteClick = {
+                                    navController.popBackStack(); it.deleted =
+                                    1; imageManageViewModel.updateImage(it)
+                                },
+                                onFolderClick = { navController.navigate("Folder/${folder?.dirId}") }
+                            )
                         }
                         else -> {
                             NavigationBar {
@@ -261,9 +262,9 @@ fun DetailScreen(
 @Composable
 fun DetailBottomBar(
     folderName: String?,
-    image: ImageEntity,
-    viewModel: DirManageViewModel,
-    onDeleteClick: () -> Unit
+    imageEntity: ImageEntity,
+    onDeleteClick: () -> Unit,
+    onFolderClick: () -> Unit,
 ) {
     val context = LocalContext.current
     NavigationBar {
@@ -277,7 +278,7 @@ fun DetailBottomBar(
                 )
             },
             onClick = {
-                context.share(image.url!!)
+                context.share(imageEntity.url!!)
             }
         )
         NavigationBarItem(
@@ -293,10 +294,7 @@ fun DetailBottomBar(
                     )
                 }
             },
-            // TODO：等文件夹页面写好跳转到对应的文件夹页面
-            onClick = {
-                // viewModel.visitDir()
-            }
+            onClick = onFolderClick
         )
 
         NavigationBarItem(
