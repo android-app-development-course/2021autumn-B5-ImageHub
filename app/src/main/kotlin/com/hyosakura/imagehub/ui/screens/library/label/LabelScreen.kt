@@ -82,9 +82,11 @@ fun LabelScreen(
                     // 展示tag
                     for (label in list) {
 
+                        var isStarChange by remember { mutableStateOf(label.star) }
+
                         LabelItem(
                             label.name!!,
-                            label.star,
+                            isStarChange,
                             onEditClick = {
                                 isEditMode = true
                                 oldLabelName = label.name!!
@@ -92,6 +94,7 @@ fun LabelScreen(
                             onLabelClick = { navController.navigate("LabelImage/${label.tagId}") },
                             onStarClick = {
                                 label.star = if (label.star == 0) 1 else 0
+                                isStarChange = label.star
                             },
                             modifier = Modifier.swipeToDismiss {
                                 viewModel.deleteTag(label)
@@ -184,7 +187,7 @@ fun LabelScreen(
 @Composable
 private fun LabelItem(
     label: String,
-    initStar: Int,
+    isStar: Int,
     onStarClick: () -> Unit,
     onEditClick: () -> Unit,
     onLabelClick: () -> Unit,
@@ -198,13 +201,11 @@ private fun LabelItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        var isStar by remember { mutableStateOf(initStar != 0) }
-
         TextButton(
-            onClick = onStarClick.also { isStar = !isStar },
+            onClick = onStarClick,
             modifier = Modifier.size(60.dp)
         ) {
-            if (isStar) {
+            if (isStar == 1) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_baseline_label_24),
                     contentDescription = null
