@@ -4,6 +4,7 @@ import androidx.lifecycle.*
 import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.entity.TagEntity
 import com.hyosakura.imagehub.repository.DataRepository
+import com.hyosakura.imagehub.util.ImageUtil
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -19,8 +20,11 @@ class TagManageViewModel(private val repository: DataRepository) : ViewModel() {
     }
 
     fun getImageInTag(tagId: Int): LiveData<List<ImageEntity>> {
-        return repository.imageInTag(tagId).map {
-            it.images
+        return repository.imageInTag(tagId).map { relation ->
+            relation.images.map {
+                it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
+                it
+            }
         }.asLiveData()
     }
 
