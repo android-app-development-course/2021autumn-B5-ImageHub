@@ -21,7 +21,9 @@ class TagManageViewModel(private val repository: DataRepository) : ViewModel() {
 
     fun getImageInTag(tagId: Int): LiveData<List<ImageEntity>> {
         return repository.imageInTag(tagId).map { relation ->
-            relation.images.map {
+            relation.images.filter {
+                it.deleted == 0
+            }.map {
                 it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
                 it
             }
