@@ -1,8 +1,10 @@
 package com.hyosakura.imagehub.viewmodel
 
 import androidx.lifecycle.*
+import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.entity.TagEntity
 import com.hyosakura.imagehub.repository.DataRepository
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -14,6 +16,12 @@ class TagManageViewModel(private val repository: DataRepository) : ViewModel() {
         viewModelScope.launch {
             repository.updateTag(entity)
         }
+    }
+
+    fun getImageInTag(tagId: Int): LiveData<List<ImageEntity>> {
+        return repository.imageInTag(tagId).map {
+            it.images
+        }.asLiveData()
     }
 
     fun insertTag(tag: TagEntity) {

@@ -1,6 +1,5 @@
 package com.hyosakura.imagehub.ui.screens.main
 
-import android.graphics.Bitmap
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -18,8 +17,32 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.hyosakura.imagehub.entity.ImageEntity
+import com.hyosakura.imagehub.entity.toDateTime
 import com.hyosakura.imagehub.ui.screens.Screen
+import java.time.format.DateTimeFormatter
+import java.util.stream.Collectors
 
+private val format = DateTimeFormatter.ofPattern("yyyy/MM/dd")
+
+@Composable
+fun ImageList(images: List<ImageEntity>, navController: NavHostController) {
+    val map = images.stream().collect(Collectors.groupingBy {
+        it.addTime!!.toDateTime().toLocalDate()
+    })
+    val iterator = map.iterator()
+    while (iterator.hasNext()) {
+        val entry = iterator.next()
+        val date = entry.key
+        val list = entry.value
+        Column {
+            ImageListWithDate(
+                date.format(format),
+                list.map { it },
+                navController
+            )
+        }
+    }
+}
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

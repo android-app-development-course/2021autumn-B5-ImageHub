@@ -81,9 +81,8 @@ fun BaseScreen(
                 }
                 composable("${ LabelImage.name }/{labelId}",
                     arguments = listOf(navArgument("labelId") {type = NavType.IntType})){
-                    LabelImageScreen(it.arguments?.getInt("labelId"))
+                    LabelImageScreen(repository, it.arguments?.getInt("labelId"), navController)
                 }
-
             }
         },
         bottomBar = {

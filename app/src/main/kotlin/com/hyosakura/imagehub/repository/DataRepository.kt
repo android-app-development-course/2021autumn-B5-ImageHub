@@ -75,7 +75,7 @@ class DataRepository(private val database: AppDatabase) {
 
     fun childDir(dirId: Int) = database.dirDao().getChildDirs(dirId)
 
-    fun imageNumInTag(tagId: Int) = database.tagDao().getTagWithImagesById(tagId)
+    fun imageInTag(tagId: Int) = database.tagDao().getTagWithImagesById(tagId)
 
     suspend fun removeImagesInRecycleBin(vararg images: ImageEntity) =
         database.imageDao().removeDeletedImages(*images)
