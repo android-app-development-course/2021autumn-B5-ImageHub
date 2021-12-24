@@ -83,7 +83,8 @@ fun DetailScreen(
                             .alpha(0.8f)
                             .padding(10.dp)
                             .clickable { isAnnotationEdit = true }) {
-                        Text(text = image.annotation!!, style = MaterialTheme.typography.bodySmall)
+                        // TODO：修复图片注释 NPE
+//                        Text(text = image.annotation!!, style = MaterialTheme.typography.bodySmall)
                     }
 
                     when (image.deleted) {

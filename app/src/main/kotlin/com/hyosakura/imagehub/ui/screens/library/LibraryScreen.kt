@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavHostController
 import com.hyosakura.imagehub.R
 import com.hyosakura.imagehub.ui.screens.Screen.*
@@ -17,22 +18,40 @@ fun LibraryScreen(navController: NavHostController) {
     Column {
         // 上半部分
         Column(Modifier.padding(20.dp)) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            ConstraintLayout(Modifier.fillMaxWidth()) {
+                val (label, folder, tip, trash) = createRefs()
                 Button(
                     iconId = R.drawable.ic_outline_label_24, textId = R.string.label,
-                    onButtonClick = { navController.navigate(Label.name) })
+                    onButtonClick = { navController.navigate(Label.name) },
+                    modifier = Modifier.constrainAs(label) {
+                        top.linkTo(parent.top, margin = 16.dp)
+                        end.linkTo(folder.start, margin = 8.dp)
+                        start.linkTo(parent.start, margin = 8.dp)
+                    })
                 Button(
                     iconId = R.drawable.ic_outline_folder_24, textId = R.string.folder,
-                    onButtonClick = { navController.navigate(Folder.name) })
-            }
-            Spacer(modifier = Modifier.height(20.dp))
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    onButtonClick = { navController.navigate(Folder.name) },
+                    modifier = Modifier.constrainAs(folder) {
+                        top.linkTo(parent.top, margin = 16.dp)
+                        start.linkTo(label.end, margin = 8.dp)
+                        end.linkTo(parent.end, margin = 8.dp)
+                    })
                 Button(
                     iconId = R.drawable.ic_outline_tip_24, textId = R.string.tip,
-                    onButtonClick = { navController.navigate(Tip.name) })
+                    onButtonClick = { navController.navigate(Tip.name) },
+                    modifier = Modifier.constrainAs(tip) {
+                        top.linkTo(label.bottom, margin = 16.dp)
+                        end.linkTo(trash.start, margin = 8.dp)
+                        start.linkTo(parent.start, margin = 8.dp)
+                    })
                 Button(
                     iconId = R.drawable.ic_baseline_delete_outline_24, textId = R.string.recycleBin,
-                    onButtonClick = { navController.navigate(Trash.name) }
+                    onButtonClick = { navController.navigate(Trash.name) },
+                    modifier = Modifier.constrainAs(trash) {
+                        top.linkTo(folder.bottom, margin = 16.dp)
+                        start.linkTo(tip.end, margin = 8.dp)
+                        end.linkTo(parent.end, margin = 8.dp)
+                    }
                 )
             }
         }
@@ -44,8 +63,10 @@ fun LibraryScreen(navController: NavHostController) {
 }
 
 @Composable
-private fun Button(iconId: Int, textId: Int, onButtonClick: () -> Unit) {
-    FilledTonalButton(onClick = onButtonClick, modifier = Modifier.size(147.dp, 60.dp)) {
+private fun Button(iconId: Int, textId: Int, onButtonClick: () -> Unit, modifier: Modifier) {
+    FilledTonalButton(onClick = onButtonClick, modifier = modifier
+        .height(70.dp)
+        .width(150.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Start,
@@ -57,6 +78,7 @@ private fun Button(iconId: Int, textId: Int, onButtonClick: () -> Unit) {
                 modifier = Modifier.padding(end = 10.dp)
             )
             Text(stringResource(textId), style = MaterialTheme.typography.titleMedium)
+
         }
     }
 }
