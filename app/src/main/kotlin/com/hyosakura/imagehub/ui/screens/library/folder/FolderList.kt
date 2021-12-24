@@ -14,14 +14,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hyosakura.imagehub.R
-import com.hyosakura.imagehub.repository.DataRepository
-import com.hyosakura.imagehub.ui.screens.main.ImageListWithDate
 import com.hyosakura.imagehub.viewmodel.DirManageViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FolderList(
-    repository: DataRepository,
     viewModel: DirManageViewModel
 ) {
     // 文件夹显示 todo (可单独滚动)

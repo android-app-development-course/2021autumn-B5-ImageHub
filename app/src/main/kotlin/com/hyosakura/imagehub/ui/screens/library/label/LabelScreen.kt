@@ -13,9 +13,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -28,9 +25,10 @@ import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavHostController
+import com.hyosakura.imagehub.R
+import com.hyosakura.imagehub.entity.TagEntity
 import com.hyosakura.imagehub.entity.toDateTime
 import com.hyosakura.imagehub.repository.DataRepository
 import com.hyosakura.imagehub.viewmodel.TagManageViewModel
@@ -53,7 +51,8 @@ fun LabelScreen(
     var isEditMode by remember { mutableStateOf(false) }
     var isAddMode by remember { mutableStateOf(false) }
 
-    Scaffold(modifier = Modifier.fillMaxSize(),
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
         topBar = {
             SmallTopAppBar(
                 title = { Text("标签列表") },
@@ -66,8 +65,8 @@ fun LabelScreen(
                     }
                 }
             )
-        })
-    {
+        }
+    ) {
         Column(Modifier.fillMaxSize()) {
             viewModel.allTags.observeAsState().value?.let { entityList ->
                 val map = entityList.stream().collect(Collectors.groupingBy {
@@ -85,13 +84,19 @@ fun LabelScreen(
 
                         LabelItem(
                             label.name!!,
+                            label.star,
                             onEditClick = {
                                 isEditMode = true
                                 oldLabelName = label.name!!
                             },
                             onLabelClick = { navController.navigate("LabelImage/${label.tagId}") },
-                            onStarClick = { TODO("取反当前标签星标状态") },
-                            modifier = Modifier.swipeToDismiss { TODO("删除当前标签") })
+                            onStarClick = {
+                                label.star = if (label.star == 0) 1 else 0
+                            },
+                            modifier = Modifier.swipeToDismiss {
+                                viewModel.deleteTag(label)
+                            }
+                        )
 
                         if (isEditMode) {
                             var editText by remember { mutableStateOf(oldLabelName) }
@@ -112,10 +117,13 @@ fun LabelScreen(
                                     )
                                 },
                                 confirmButton = {
-                                    TextButton(onClick = {
-                                        isEditMode = false;
-                                        TODO("更新当前标签名字为 editText")
-                                    }) { Text("更改标签") }
+                                    TextButton(
+                                        onClick = {
+                                            isEditMode = false
+                                            label.name = editText
+                                            viewModel.updateTag(label)
+                                        }
+                                    ) { Text("更改标签") }
                                 },
                                 dismissButton = {
                                     TextButton(onClick = { isEditMode = false }) { Text("取消") }
@@ -162,7 +170,7 @@ fun LabelScreen(
                         )
                     },
                     confirmButton = {
-                        TODO("添加名称为 editText 的新标签")
+                        viewModel.insertTag(TagEntity(name = editText, addTime = System.currentTimeMillis()))
                         TextButton(onClick = { isAddMode = false }) { Text("添加标签") }
                     },
                     dismissButton = {
@@ -176,6 +184,7 @@ fun LabelScreen(
 @Composable
 private fun LabelItem(
     label: String,
+    initStar: Int,
     onStarClick: () -> Unit,
     onEditClick: () -> Unit,
     onLabelClick: () -> Unit,
@@ -189,18 +198,20 @@ private fun LabelItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        var isStar by remember { mutableStateOf(false) }
+        var isStar by remember { mutableStateOf(initStar != 0) }
 
-        TextButton(onClick = onStarClick.also { isStar = !isStar }, modifier = Modifier.size(60.dp))
-        {
+        TextButton(
+            onClick = onStarClick.also { isStar = !isStar },
+            modifier = Modifier.size(60.dp)
+        ) {
             if (isStar) {
                 Image(
-                    painter = painterResource(id = com.hyosakura.imagehub.R.drawable.ic_baseline_label_24),
+                    painter = painterResource(id = R.drawable.ic_baseline_label_24),
                     contentDescription = null
                 )
             } else {
                 Icon(
-                    painter = painterResource(id = com.hyosakura.imagehub.R.drawable.ic_outline_label_24),
+                    painter = painterResource(id = R.drawable.ic_outline_label_24),
                     contentDescription = null
                 )
             }
@@ -210,8 +221,7 @@ private fun LabelItem(
             onClick = onLabelClick,
             modifier = Modifier
                 .height(60.dp)
-        )
-        {
+        ) {
             Row {
                 Text(label, style = MaterialTheme.typography.titleMedium)
             }
@@ -225,7 +235,7 @@ private fun LabelItem(
                 .offset((-30).dp, 0.dp)
         ) {
             Icon(
-                painter = painterResource(id = com.hyosakura.imagehub.R.drawable.ic_baseline_edit_24),
+                painter = painterResource(id = R.drawable.ic_baseline_edit_24),
                 contentDescription = null
             )
         }

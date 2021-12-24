@@ -77,7 +77,7 @@ class ReceiveActivity : Activity() {
                     name = fileName,
                     url = path,
                     ext = fileName.substringAfterLast('.', ""),
-                    annotation = null,
+                    annotation = "",
                     bitmap.width,
                     bitmap.height,
                     bitmap.byteCount.toDouble(),

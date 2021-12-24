@@ -18,11 +18,14 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.hyosakura.imagehub.R
@@ -67,10 +70,24 @@ fun DetailScreen(
         Scaffold(
             topBar = {
                 MediumTopAppBar(
-                    // TODO: 显示标签列表
-                    title = { Text(text = "这里是标签") },
+                    title = {
+                        // TODO: 显示标签列表
+                        labelList.observeAsState().value?.let { list ->
+                            Text(
+                                text = list.joinToString(separator = " ") { entity ->
+                                    entity.name!!
+                                },
+                                style = TextStyle(
+                                    color = Color.White,
+                                    fontSize = 20.sp
+                                )
+                            )
+                        }
+                    },
                     navigationIcon = {
-                        IconButton(onClick = { navController.popBackStack() }) {
+                        IconButton(
+                            onClick = { navController.popBackStack() }
+                        ) {
                             Icon(imageVector = Icons.Filled.ArrowBack, null)
                         }
                     },
@@ -91,8 +108,7 @@ fun DetailScreen(
                             .alpha(0.8f)
                             .padding(10.dp)
                             .clickable { isAnnotationEdit = true }) {
-                        // TODO：修复图片注释 NPE
-//                        Text(text = image.annotation!!, style = MaterialTheme.typography.bodySmall)
+                        Text(text = image.annotation!!, style = MaterialTheme.typography.bodySmall)
                     }
 
                     when (image.deleted) {
@@ -112,14 +128,17 @@ fun DetailScreen(
                                 NavigationBarItem(
                                     icon = {
                                         Icon(
-                                            painterResource(id = R.drawable.ic_baseline_restore_from_trash_24),
+                                            painterResource(
+                                                id = R.drawable.ic_baseline_restore_from_trash_24
+                                            ),
                                             contentDescription = null
                                         )
                                     },
                                     selected = false,
                                     onClick = {
-                                        navController.popBackStack(); it.deleted =
-                                        0; imageManageViewModel.updateImage(it)
+                                        navController.popBackStack()
+                                        it.deleted = 0
+                                        imageManageViewModel.updateImage(it)
                                     }
                                 )
                             }

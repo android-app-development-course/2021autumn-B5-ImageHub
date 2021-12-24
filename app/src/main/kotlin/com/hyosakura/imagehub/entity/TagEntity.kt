@@ -10,6 +10,8 @@ data class TagEntity(
 
     var name: String? = null,
 
+    var star: Int = 0,
+
     var addTime: Long? = null,
 
     var modifyTime: Long? = null,

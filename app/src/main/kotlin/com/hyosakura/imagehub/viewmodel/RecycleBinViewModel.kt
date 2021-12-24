@@ -1,15 +1,22 @@
 package com.hyosakura.imagehub.viewmodel
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.repository.DataRepository
+import com.hyosakura.imagehub.util.ImageUtil
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class RecycleBinViewModel(private val repository: DataRepository) : ViewModel() {
-    val allDeletedImages = repository.allDeletedImages.asLiveData()
+    val allDeletedImages: LiveData<List<ImageEntity>>
+        get() {
+            return repository.allDeletedImages.map { list ->
+                list.map {
+                    it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
+                    it
+                }
+            }.asLiveData()
+        }
 
     fun deleteAllImages() {
         viewModelScope.launch {
