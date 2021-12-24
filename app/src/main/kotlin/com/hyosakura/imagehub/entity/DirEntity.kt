@@ -10,7 +10,7 @@ data class DirEntity(
     @field:PrimaryKey(autoGenerate = true)
     override var dirId: Int? = null,
 
-    var parentId: Int? = -1,
+    var parentId: Int = -1,
 
     override var name: String? = null,
 
@@ -42,8 +42,9 @@ data class DirEntity(
 
     override fun hashCode(): Int {
         var result = dirId ?: 0
-        result = 31 * result + (parentId ?: 0)
+        result = 31 * result + parentId
         result = 31 * result + (name?.hashCode() ?: 0)
+        result = 31 * result + (url?.hashCode() ?: 0)
         result = 31 * result + (number ?: 0)
         result = 31 * result + (modifyTime?.hashCode() ?: 0)
         result = 31 * result + (latestPicture?.hashCode() ?: 0)
