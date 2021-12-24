@@ -7,7 +7,7 @@ import com.hyosakura.imagehub.util.ImageUtil
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-class ImageViewViewModel(private val repository: DataRepository) : ViewModel() {
+class ImageManageViewModel(private val repository: DataRepository) : ViewModel() {
     lateinit var image: LiveData<ImageEntity>
 
     fun getImageById(id: Int): LiveData<ImageEntity> {
@@ -26,12 +26,12 @@ class ImageViewViewModel(private val repository: DataRepository) : ViewModel() {
     }
 }
 
-class ImageViewViewModelFactory(private val repository: DataRepository) :
+class ImageManageViewModelFactory(private val repository: DataRepository) :
     ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(ImageViewViewModel::class.java)) {
+        if (modelClass.isAssignableFrom(ImageManageViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return ImageViewViewModel(repository) as T
+            return ImageManageViewModel(repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

@@ -17,17 +17,17 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.hyosakura.imagehub.R
+import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.repository.DataRepository
-import com.hyosakura.imagehub.viewmodel.DirManageViewModel
-import com.hyosakura.imagehub.viewmodel.DirManageViewModelFactory
-import com.hyosakura.imagehub.viewmodel.ImageViewViewModel
-import com.hyosakura.imagehub.viewmodel.ImageViewViewModelFactory
+import com.hyosakura.imagehub.util.ImageUtil.share
+import com.hyosakura.imagehub.viewmodel.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,23 +36,22 @@ fun DetailScreen(
     repository: DataRepository,
     navController: NavHostController
 ) {
-    val imageViewViewModel: ImageViewViewModel =
-        viewModel(factory = ImageViewViewModelFactory(repository))
+    val imageManageViewModel: ImageManageViewModel =
+        viewModel(factory = ImageManageViewModelFactory(repository))
     val dirViewModel: DirManageViewModel =
         viewModel(factory = DirManageViewModelFactory(repository))
+    val tagViewModel: TagManageViewModel =
+        viewModel(factory = TagManageViewModelFactory(repository))
 
-    imageViewViewModel.also {
+    imageManageViewModel.also {
         it.getImageById(imageId!!)
     }.image.observeAsState().value?.let {
 
         val image = it
 
-        // TODO: 显示读取文件夹名称
-//        val folderName = dirViewModel.visitDir(it.dirId).observeAsState().value?.name
-        val folderName = "NULL"
+        val folderName = dirViewModel.visitDir(it.dirId).observeAsState().value?.name
 
-        // TODO：读取标签列表
-//        val labelList = image.
+        val labelList = tagViewModel.allTags
 
         var isAnnotationEdit by remember { mutableStateOf(false) }
         var isAddLabel by remember { mutableStateOf(false) }
@@ -78,6 +77,7 @@ fun DetailScreen(
             bottomBar = {
                 Column {
                     // TODO: 显示图像注释
+                    val annotation = image.annotation
                     Row(
                         Modifier
                             .fillMaxWidth()
@@ -88,29 +88,32 @@ fun DetailScreen(
                         Text(text = "这里是注释", style = MaterialTheme.typography.bodySmall)
                     }
 
-                    if (image.deleted != 1) {
-                        DetailBottomBar(
-                            folderName = folderName
-                        ) {
-                            navController.popBackStack(); it.deleted =
-                            1; imageViewViewModel.updateImage(it)
+                    when (image.deleted) {
+                        0 -> {
+                            DetailBottomBar(
+                                folderName = folderName,
+                                image
+                            ) {
+                                navController.popBackStack(); it.deleted =
+                                1; imageManageViewModel.updateImage(it)
+                            }
                         }
-                    }
-                    if (image.deleted == 1) {
-                        NavigationBar {
-                            NavigationBarItem(
-                                icon = {
-                                    Icon(
-                                        painterResource(id = R.drawable.ic_baseline_restore_from_trash_24),
-                                        contentDescription = null
-                                    )
-                                },
-                                selected = false,
-                                onClick = {
-                                    navController.popBackStack(); it.deleted =
-                                    0; imageViewViewModel.updateImage(it)
-                                }
-                            )
+                        else -> {
+                            NavigationBar {
+                                NavigationBarItem(
+                                    icon = {
+                                        Icon(
+                                            painterResource(id = R.drawable.ic_baseline_restore_from_trash_24),
+                                            contentDescription = null
+                                        )
+                                    },
+                                    selected = false,
+                                    onClick = {
+                                        navController.popBackStack(); it.deleted =
+                                        0; imageManageViewModel.updateImage(it)
+                                    }
+                                )
+                            }
                         }
                     }
                 }
@@ -147,7 +150,8 @@ fun DetailScreen(
                     confirmButton = {
                         TextButton(
                             onClick = {
-                                // TODO：给当前图片实体添加内容为 editText 的注释
+                                image.annotation = editText
+                                imageManageViewModel.updateImage(image)
                                 isAnnotationEdit = false
                             }
                         ) {
@@ -189,7 +193,7 @@ fun DetailScreen(
                     confirmButton = {
                         TextButton(
                             onClick = {
-                                // TODO：给当前图片实体添加名称为 editText 的标签
+                                tagViewModel.insertTag(editText)
                                 isAddLabel = false
                             }
                         ) {
@@ -212,7 +216,8 @@ fun DetailScreen(
 }
 
 @Composable
-fun DetailBottomBar(folderName: String?, onDeleteClick: () -> Unit) {
+fun DetailBottomBar(folderName: String?, image: ImageEntity, onDeleteClick: () -> Unit) {
+    val context = LocalContext.current
     NavigationBar {
         NavigationBarItem(
             icon = { Icon(imageVector = Icons.Outlined.Share, null) },
@@ -223,8 +228,9 @@ fun DetailBottomBar(folderName: String?, onDeleteClick: () -> Unit) {
                     style = MaterialTheme.typography.labelLarge
                 )
             },
-            // TODO: 通过 Intend 分享 Bitmap 出去
-            onClick = { }
+            onClick = {
+                context.share(image.url!!)
+            }
         )
         NavigationBarItem(
             icon = { Icon(painterResource(id = R.drawable.ic_outline_folder_24), null) },

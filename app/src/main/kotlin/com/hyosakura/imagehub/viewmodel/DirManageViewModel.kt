@@ -36,7 +36,7 @@ class DirManageViewModel(private val repository: DataRepository) : ViewModel() {
     }
 
     private fun visitImages(dirId: Int) {
-        imagesInCurrentDir = repository.dirWithImages(-1).map { relation ->
+        imagesInCurrentDir = repository.dirWithImages(dirId).map { relation ->
             relation.images.map {
                 it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
                 it
@@ -48,7 +48,7 @@ class DirManageViewModel(private val repository: DataRepository) : ViewModel() {
         viewModelScope.launch {
             val entity = DirEntity(
                 dirId = null,
-                parentId = null,
+                parentId = -1,
                 name = name,
                 number = 0,
                 modifyTime = System.currentTimeMillis()
@@ -59,7 +59,7 @@ class DirManageViewModel(private val repository: DataRepository) : ViewModel() {
 
     fun moveDir(sourceDir: DirEntity, targetDir: DirEntity) {
         viewModelScope.launch {
-            sourceDir.parentId = targetDir.dirId
+            sourceDir.parentId = targetDir.dirId!!
             val time = System.currentTimeMillis()
             sourceDir.modifyTime = time
             targetDir.modifyTime = time

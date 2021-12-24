@@ -45,7 +45,7 @@ abstract class AppDatabase : RoomDatabase() {
                             scope.launch(Dispatchers.IO) {
                                 INSTANCE
                                     ?.dirDao()
-                                    ?.insertDirs(DirEntity(dirId = -1, parentId = -2, name = "根目录"))
+                                    ?.insertDirs(DirEntity(dirId = -1, parentId = -2, name = "无文件夹"))
                             }
                         }
                     })
