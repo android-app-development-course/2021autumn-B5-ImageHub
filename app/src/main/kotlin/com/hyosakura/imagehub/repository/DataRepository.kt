@@ -3,6 +3,7 @@ package com.hyosakura.imagehub.repository
 import com.hyosakura.imagehub.entity.DirEntity
 import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.entity.TagEntity
+import com.hyosakura.imagehub.entity.relation.ImageTagCrossRef
 import com.hyosakura.imagehub.util.AppDatabase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -47,6 +48,10 @@ class DataRepository(private val database: AppDatabase) {
     fun recentDirWithImages(limit: Int) = database.dirDao().recentDirWithImages(limit)
 
     val allTags = database.tagDao().getAllTags(20)
+
+    fun getTagByName(name: String) = database.tagDao().getTagByName(name)
+
+    suspend fun insertTagToImage(vararg relation: ImageTagCrossRef) = database.imageDao().insertTags(*relation)
 
     fun tagWithImages(tagId: Int) = database.tagDao().getTagWithImagesById(tagId)
 

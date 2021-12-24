@@ -4,6 +4,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
@@ -25,9 +27,15 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.hyosakura.imagehub.R
 import com.hyosakura.imagehub.entity.ImageEntity
+import com.hyosakura.imagehub.entity.TagEntity
 import com.hyosakura.imagehub.repository.DataRepository
 import com.hyosakura.imagehub.util.ImageUtil.share
 import com.hyosakura.imagehub.viewmodel.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+
+private val coroutine = CoroutineScope(Dispatchers.IO)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -173,13 +181,19 @@ fun DetailScreen(
 
             if (isAddLabel) {
                 var editText by remember { mutableStateOf("") }
+                var choose by remember { mutableStateOf(false) }
+                var tag by remember { mutableStateOf<TagEntity?>(null) }
                 AlertDialog(
                     onDismissRequest = { isAddLabel = false },
                     title = { Text(text = "添加标签") },
                     text = {
+                        var menuExpanded by remember { mutableStateOf(true) }
                         OutlinedTextField(
-                            value = editText, onValueChange = { string ->
+                            value = editText,
+                            onValueChange = { string ->
                                 editText = string
+                                menuExpanded = true
+                                choose = false
                             },
                             singleLine = true,
                             textStyle = MaterialTheme.typography.titleMedium,
@@ -190,12 +204,41 @@ fun DetailScreen(
                                 unfocusedBorderColor = MaterialTheme.colorScheme.onSurface
                             )
                         )
+                        DropdownMenu(
+                            expanded = menuExpanded,
+                            onDismissRequest = {
+                                menuExpanded = false
+                            },
+                        ) {
+                            if (editText.isNotEmpty()) {
+                                tagViewModel.getTagByName(editText)
+                                    .observeAsState().value?.let { list ->
+                                        list.forEach {
+                                            DropdownMenuItem(onClick = {
+                                                menuExpanded = false
+                                                editText = it.name!!
+                                                choose = true
+                                                tag = it
+                                            }) {
+                                                Text(it.name!!)
+                                            }
+                                        }
+                                    }
+                            }
+                        }
                     },
                     confirmButton = {
                         TextButton(
                             onClick = {
-                                tagViewModel.insertTag(editText)
-                                isAddLabel = false
+                                coroutine.launch {
+                                    if (!choose) {
+                                        tag = TagEntity(name = editText)
+                                        tag!!.tagId =
+                                            tagViewModel.insertTagAndGetId(tag!!).first().toInt()
+                                    }
+                                    imageManageViewModel.addTagToImage(image, tag!!)
+                                    isAddLabel = false
+                                }
                             }
                         ) {
                             Text("确定")

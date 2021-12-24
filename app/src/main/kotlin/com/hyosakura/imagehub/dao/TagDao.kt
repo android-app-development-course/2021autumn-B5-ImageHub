@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface TagDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertTags(vararg tags: TagEntity)
+    suspend fun insertTags(vararg tags: TagEntity): List<Long>
 
     @Update
     suspend fun updateTags(vararg tags: TagEntity)
@@ -19,6 +19,9 @@ interface TagDao {
 
     @Query("SELECT * FROM tag limit :limit")
     fun getAllTags(limit: Int = 20): Flow<List<TagEntity>>
+
+    @Query("SELECT * FROM tag where name like :name")
+    fun getTagByName(name: String): Flow<List<TagEntity>>
 
     @Query("SELECT * FROM tag WHERE name like :condition")
     fun searchImage(condition: String): Flow<MutableList<TagWithImages>>

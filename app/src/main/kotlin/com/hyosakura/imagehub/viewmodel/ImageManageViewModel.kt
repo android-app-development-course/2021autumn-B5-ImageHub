@@ -2,6 +2,8 @@ package com.hyosakura.imagehub.viewmodel
 
 import androidx.lifecycle.*
 import com.hyosakura.imagehub.entity.ImageEntity
+import com.hyosakura.imagehub.entity.TagEntity
+import com.hyosakura.imagehub.entity.relation.ImageTagCrossRef
 import com.hyosakura.imagehub.repository.DataRepository
 import com.hyosakura.imagehub.util.ImageUtil
 import kotlinx.coroutines.flow.map
@@ -22,6 +24,13 @@ class ImageManageViewModel(private val repository: DataRepository) : ViewModel()
     fun updateImage(entity: ImageEntity) {
         viewModelScope.launch {
             repository.updateImage(entity)
+        }
+    }
+
+    fun addTagToImage(image: ImageEntity, tag: TagEntity) {
+        viewModelScope.launch {
+            val relation = ImageTagCrossRef(image.imageId!!, tag.tagId!!)
+            repository.insertTagToImage(relation)
         }
     }
 }

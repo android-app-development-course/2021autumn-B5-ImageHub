@@ -33,7 +33,7 @@ fun LabelScreen(
         },
         actions = {
             IconButton(onClick = {
-                viewModel.insertTag("tag名")
+                // viewModel.insertTag("tag名")
             }) {
                 Icon(Icons.Filled.Share, "添加")
             }

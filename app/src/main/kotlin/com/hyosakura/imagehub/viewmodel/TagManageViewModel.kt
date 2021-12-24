@@ -1,15 +1,14 @@
 package com.hyosakura.imagehub.viewmodel
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.hyosakura.imagehub.entity.TagEntity
 import com.hyosakura.imagehub.repository.DataRepository
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class TagManageViewModel(private val repository: DataRepository) : ViewModel() {
     val allTags = repository.allTags.asLiveData()
+    lateinit var candidateTagWithName: LiveData<List<TagEntity>>
 
     fun updateTag(entity: TagEntity) {
         viewModelScope.launch {
@@ -17,10 +16,23 @@ class TagManageViewModel(private val repository: DataRepository) : ViewModel() {
         }
     }
 
-    fun insertTag(tagName: String) {
+    fun insertTag(tag: TagEntity) {
         viewModelScope.launch {
-            val entity = TagEntity(tagId = null, name = tagName, addTime = System.currentTimeMillis())
-            repository.insertTag(entity)
+            tag.addTime = System.currentTimeMillis()
+            repository.insertTag(tag)
+        }
+    }
+
+    suspend fun insertTagAndGetId(tag: TagEntity): List<Long> {
+        return withContext(viewModelScope.coroutineContext) {
+            tag.addTime = System.currentTimeMillis()
+            repository.insertTag(tag)
+        }
+    }
+
+    fun getTagByName(name: String): LiveData<List<TagEntity>> {
+        return repository.getTagByName("%$name%").asLiveData().also {
+            candidateTagWithName = it
         }
     }
 

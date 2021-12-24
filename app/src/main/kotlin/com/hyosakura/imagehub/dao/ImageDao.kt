@@ -38,7 +38,7 @@ interface ImageDao {
     fun getImageWithTagsByName(name: String): Flow<List<ImageWithTags>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertTags(vararg relation: ImageTagCrossRef)
+    suspend fun insertTags(vararg relation: ImageTagCrossRef)
 
     @Delete
     suspend fun removeDeletedImages(vararg images: ImageEntity)
