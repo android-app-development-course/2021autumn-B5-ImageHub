@@ -11,7 +11,6 @@
     <string name="tool">工具</string>
     <string name="tip">助手</string>
     <string name="share">分享</string>
-    <string name="no_folder">无文件夹</string>
     <string name="delete">删除</string>
     <string name="restoreFromTrash">从回收站恢复</string>
 </resources>

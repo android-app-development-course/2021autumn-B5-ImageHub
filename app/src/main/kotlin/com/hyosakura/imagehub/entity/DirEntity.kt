@@ -12,7 +12,7 @@ data class DirEntity(
 
     var parentId: Int = -1,
 
-    override var name: String? = null,
+    override var name: String = "未命名",
 
     @Ignore
     override var url: String? = null,
@@ -23,7 +23,7 @@ data class DirEntity(
 
     @Ignore
     override var latestPicture: Bitmap? = null
-) : DeviceDirEntity() {
+) : DeviceDirEntity(name = name) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -58,7 +58,7 @@ data class DirEntity(
  */
 abstract class DeviceDirEntity(
     open var dirId: Int? = null,
-    open var name: String? = null,
+    open var name: String,
     open var url: String? = null,
     open var latestPicture: Bitmap? = null
 )

@@ -114,11 +114,12 @@ fun DetailScreen(
                     when (image.deleted) {
                         0 -> {
                             DetailBottomBar(
-                                folderName = folder?.name,
+                                folderName = folder!!.name,
                                 imageEntity = image,
                                 onDeleteClick = {
-                                    navController.popBackStack(); it.deleted =
-                                    1; imageManageViewModel.updateImage(it)
+                                    navController.popBackStack()
+                                    it.deleted = 1
+                                    imageManageViewModel.updateImage(it)
                                 },
                                 onFolderClick = { navController.navigate("Folder/${folder?.dirId}") }
                             )
@@ -280,7 +281,7 @@ fun DetailScreen(
 
 @Composable
 fun DetailBottomBar(
-    folderName: String?,
+    folderName: String,
     imageEntity: ImageEntity,
     onDeleteClick: () -> Unit,
     onFolderClick: () -> Unit,
@@ -304,14 +305,7 @@ fun DetailBottomBar(
             icon = { Icon(painterResource(id = R.drawable.ic_outline_folder_24), null) },
             selected = false,
             label = {
-                if (folderName != null) {
-                    Text(text = folderName, style = MaterialTheme.typography.labelLarge)
-                } else {
-                    Text(
-                        text = stringResource(R.string.no_folder),
-                        style = MaterialTheme.typography.labelLarge
-                    )
-                }
+                Text(text = folderName, style = MaterialTheme.typography.labelLarge)
             },
             onClick = onFolderClick
         )
