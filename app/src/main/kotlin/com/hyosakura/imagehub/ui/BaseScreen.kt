@@ -66,7 +66,12 @@ fun BaseScreen(
                     LabelScreen(repository, navController)
                 }
                 composable(Folder.name) {
-                    FolderScreen(repository)
+                    FolderScreen(repository, null)
+                }
+                composable("${Folder.name}/{folderId}",
+                    arguments = listOf(navArgument("folderId") { type = NavType.IntType })
+                ) {
+                    FolderScreen(repository, it.arguments?.getInt("folderId"))
                 }
                 composable(Tip.name) {
                     TipScreen()
@@ -75,12 +80,14 @@ fun BaseScreen(
                     TrashScreen(repository, navController)
                 }
                 composable(
-                    "${ Detail.name }/{imageId}",
-                    arguments = listOf(navArgument("imageId") { type = NavType.IntType })){
+                    "${Detail.name}/{imageId}",
+                    arguments = listOf(navArgument("imageId") { type = NavType.IntType })
+                ) {
                     DetailScreen(it.arguments?.getInt("imageId"), repository, navController)
                 }
-                composable("${ LabelImage.name }/{labelId}",
-                    arguments = listOf(navArgument("labelId") {type = NavType.IntType})){
+                composable("${LabelImage.name}/{labelId}",
+                    arguments = listOf(navArgument("labelId") { type = NavType.IntType })
+                ) {
                     LabelImageScreen(it.arguments?.getInt("labelId"))
                 }
 

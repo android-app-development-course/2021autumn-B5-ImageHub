@@ -17,6 +17,7 @@ fun TrashScreen(
     repository: DataRepository,
     navController: NavHostController,
 ) {
+    // TODO：修复访问回收站 NPE
     val viewModel: RecycleBinViewModel = RecycleBinViewModelFactory(repository).create(
         RecycleBinViewModel::class.java
     )
