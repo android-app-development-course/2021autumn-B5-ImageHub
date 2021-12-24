@@ -2,7 +2,6 @@ package com.hyosakura.imagehub.ui.screens.library.label
 
 import android.util.Log
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -45,7 +44,6 @@ fun LabelScreen(
         TagManageViewModelFactory(repository).create(TagManageViewModel::class.java)
 
     var isEditMode by remember { mutableStateOf(false) }
-    var editingId = 0
     var isAddMode by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -76,22 +74,25 @@ fun LabelScreen(
                     val date = entry.key
                     val list = entry.value
 
-                    var oldLabelName = ""
                     // 展示tag
                     val lazyListState = rememberLazyListState()
+
+                    var currentLabel by remember { mutableStateOf<TagEntity?>(null) }
 
                     LazyColumn(state = lazyListState, modifier = Modifier) {
                         items(list) { label ->
                             var isStarChange by remember { mutableStateOf(label.star) }
-
                             LabelItem(
                                 label,
                                 isStarChange,
                                 onEditClick = {
                                     isEditMode = true
-                                    oldLabelName = label.name!!
+                                    currentLabel = label
                                 },
-                                onLabelClick = { navController.navigate("LabelImage/${label.tagId}") },
+                                onLabelClick = {
+                                    navController.navigate("LabelImage/${label.tagId}")
+                                    currentLabel = label
+                                },
                                 onStarClick = {
                                     label.star = if (label.star == 0) 1 else 0
                                     isStarChange = label.star
@@ -100,60 +101,60 @@ fun LabelScreen(
                                     viewModel.deleteTag(labelToDelete)
                                 }
                             )
-
-                            if (isEditMode) {
-                                var editText by remember { mutableStateOf(oldLabelName) }
-                                AlertDialog(
-                                    onDismissRequest = { isEditMode = false },
-                                    title = {
-                                        // TODO: 有 Bug，label 对象引用是最新的
-                                        Row(
-                                            Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.SpaceBetween
-                                        ) {
-                                            // Row(Modifier.fillMaxWidth()) {
-                                            Text(text = "编辑标签")
-                                            Icon(
-                                                imageVector = Icons.Filled.Delete,
-                                                contentDescription = null,
-                                                Modifier.clickable {
-                                                    Log.i("label", label.toString())
-
-                                                    viewModel.deleteTag(label)
-                                                    isEditMode = false
-                                                }
-                                            )
-                                        }
-                                    },
-                                    text = {
-                                        OutlinedTextField(
-                                            value = editText, onValueChange = { editText = it },
-                                            singleLine = true,
-                                            textStyle = MaterialTheme.typography.titleMedium,
-                                            colors = TextFieldDefaults.outlinedTextFieldColors(
-                                                textColor = MaterialTheme.colorScheme.primary,
-                                                cursorColor = MaterialTheme.colorScheme.inversePrimary,
-                                                focusedBorderColor = MaterialTheme.colorScheme.secondary,
-                                                unfocusedBorderColor = MaterialTheme.colorScheme.onSurface
-                                            )
-                                        )
-                                    },
-                                    confirmButton = {
-                                        TextButton(
-                                            onClick = {
-                                                isEditMode = false
-                                                label.name = editText
-                                                viewModel.updateTag(label)
-                                            }
-                                        ) { Text("更改标签") }
-                                    },
-                                    dismissButton = {
-                                        TextButton(onClick = { isEditMode = false }) { Text("取消") }
-                                    }
-                                )
-                            }
-
                         }
+                    }
+
+                    if (isEditMode) {
+                        var editText by remember { mutableStateOf(currentLabel!!.name!!) }
+                        AlertDialog(
+                            onDismissRequest = { isEditMode = false },
+                            title = {
+                                // TODO: 有 Bug，label 对象引用是最新的
+                                Row(
+                                    Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    // Row(Modifier.fillMaxWidth()) {
+                                    Text(text = "编辑标签")
+                                    TextButton(
+                                        onClick = {
+                                            viewModel.deleteTag(currentLabel!!)
+                                            isEditMode = false
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Delete,
+                                            contentDescription = null
+                                        )
+                                    }
+                                }
+                            },
+                            text = {
+                                OutlinedTextField(
+                                    value = editText, onValueChange = { editText = it },
+                                    singleLine = true,
+                                    textStyle = MaterialTheme.typography.titleMedium,
+                                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                                        textColor = MaterialTheme.colorScheme.primary,
+                                        cursorColor = MaterialTheme.colorScheme.inversePrimary,
+                                        focusedBorderColor = MaterialTheme.colorScheme.secondary,
+                                        unfocusedBorderColor = MaterialTheme.colorScheme.onSurface
+                                    )
+                                )
+                            },
+                            confirmButton = {
+                                TextButton(
+                                    onClick = {
+                                        isEditMode = false
+                                        currentLabel!!.name = editText
+                                        viewModel.updateTag(currentLabel!!)
+                                    }
+                                ) { Text("更改标签") }
+                            },
+                            dismissButton = {
+                                TextButton(onClick = { isEditMode = false }) { Text("取消") }
+                            }
+                        )
                     }
                 }
             }
