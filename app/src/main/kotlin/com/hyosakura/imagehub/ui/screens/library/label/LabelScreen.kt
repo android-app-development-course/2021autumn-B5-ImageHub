@@ -1,29 +1,23 @@
 package com.hyosakura.imagehub.ui.screens.library.label
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.calculateTargetValue
-import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.horizontalDrag
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
-import androidx.compose.ui.input.pointer.consumePositionChange
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.positionChange
-import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavHostController
@@ -33,11 +27,7 @@ import com.hyosakura.imagehub.entity.toDateTime
 import com.hyosakura.imagehub.repository.DataRepository
 import com.hyosakura.imagehub.viewmodel.TagManageViewModel
 import com.hyosakura.imagehub.viewmodel.TagManageViewModelFactory
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 import java.util.stream.Collectors
-import kotlin.math.absoluteValue
-import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,6 +39,7 @@ fun LabelScreen(
         TagManageViewModelFactory(repository).create(TagManageViewModel::class.java)
 
     var isEditMode by remember { mutableStateOf(false) }
+    var editingId = 0
     var isAddMode by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -68,8 +59,9 @@ fun LabelScreen(
         }
     ) {
         Column(Modifier.fillMaxSize()) {
-            viewModel.allTags.observeAsState().value?.let { entityList ->
-                val map = entityList.stream().collect(Collectors.groupingBy {
+            val entityList by viewModel.allTags.observeAsState()
+            if (entityList != null) {
+                val map = entityList!!.stream().collect(Collectors.groupingBy {
                     it.addTime!!.toDateTime().toLocalDate()
                 })
                 val iterator = map.iterator()
@@ -80,78 +72,78 @@ fun LabelScreen(
 
                     var oldLabelName = ""
                     // 展示tag
-                    for (label in list) {
+                    val lazyListState = rememberLazyListState()
 
-                        var isStarChange by remember { mutableStateOf(label.star) }
+                    LazyColumn(state = lazyListState, modifier = Modifier) {
+                        items(list) { label ->
+                            var isStarChange by remember { mutableStateOf(label.star) }
 
-                        LabelItem(
-                            label.name!!,
-                            isStarChange,
-                            onEditClick = {
-                                isEditMode = true
-                                oldLabelName = label.name!!
-                            },
-                            onLabelClick = { navController.navigate("LabelImage/${label.tagId}") },
-                            onStarClick = {
-                                label.star = if (label.star == 0) 1 else 0
-                                isStarChange = label.star
-                            },
-                            modifier = Modifier.swipeToDismiss {
-                                viewModel.deleteTag(label)
-                            }
-                        )
-
-                        if (isEditMode) {
-                            var editText by remember { mutableStateOf(oldLabelName) }
-                            AlertDialog(
-                                onDismissRequest = { isEditMode = false },
-                                title = { Text(text = "编辑标签") },
-                                text = {
-                                    OutlinedTextField(
-                                        value = editText, onValueChange = { editText = it },
-                                        singleLine = true,
-                                        textStyle = MaterialTheme.typography.titleMedium,
-                                        colors = TextFieldDefaults.outlinedTextFieldColors(
-                                            textColor = MaterialTheme.colorScheme.primary,
-                                            cursorColor = MaterialTheme.colorScheme.inversePrimary,
-                                            focusedBorderColor = MaterialTheme.colorScheme.secondary,
-                                            unfocusedBorderColor = MaterialTheme.colorScheme.onSurface
-                                        )
-                                    )
+                            LabelItem(
+                                label,
+                                isStarChange,
+                                onEditClick = {
+                                    isEditMode = true
+                                    oldLabelName = label.name!!
                                 },
-                                confirmButton = {
-                                    TextButton(
-                                        onClick = {
-                                            isEditMode = false
-                                            label.name = editText
-                                            viewModel.updateTag(label)
-                                        }
-                                    ) { Text("更改标签") }
+                                onLabelClick = { navController.navigate("LabelImage/${label.tagId}") },
+                                onStarClick = {
+                                    label.star = if (label.star == 0) 1 else 0
+                                    isStarChange = label.star
                                 },
-                                dismissButton = {
-                                    TextButton(onClick = { isEditMode = false }) { Text("取消") }
+                                onDeleteClick = { labelToDelete ->
+                                    viewModel.deleteTag(labelToDelete)
                                 }
                             )
+
+                            if (isEditMode) {
+                                var editText by remember { mutableStateOf(oldLabelName) }
+                                AlertDialog(
+                                    onDismissRequest = { isEditMode = false },
+                                    title = {
+                                        // TODO: 有 Bug，label 对象引用是最新的
+//                                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                        Row(Modifier.fillMaxWidth()) {
+                                            Text(text = "编辑标签")
+//                                            Icon(
+//                                                imageVector = Icons.Filled.Delete,
+//                                                contentDescription = null,
+//                                                Modifier.clickable { viewModel.deleteTag(label); isEditMode = false }
+//                                            )
+                                        }
+                                    },
+                                    text = {
+                                        OutlinedTextField(
+                                            value = editText, onValueChange = { editText = it },
+                                            singleLine = true,
+                                            textStyle = MaterialTheme.typography.titleMedium,
+                                            colors = TextFieldDefaults.outlinedTextFieldColors(
+                                                textColor = MaterialTheme.colorScheme.primary,
+                                                cursorColor = MaterialTheme.colorScheme.inversePrimary,
+                                                focusedBorderColor = MaterialTheme.colorScheme.secondary,
+                                                unfocusedBorderColor = MaterialTheme.colorScheme.onSurface
+                                            )
+                                        )
+                                    },
+                                    confirmButton = {
+                                        TextButton(
+                                            onClick = {
+                                                isEditMode = false
+                                                label.name = editText
+                                                viewModel.updateTag(label)
+                                            }
+                                        ) { Text("更改标签") }
+                                    },
+                                    dismissButton = {
+                                        TextButton(onClick = { isEditMode = false }) { Text("取消") }
+                                    }
+                                )
+                            }
+
                         }
                     }
                 }
             }
 
-            ConstraintLayout(modifier = Modifier.fillMaxSize()) {
-                val fab = createRef()
-                ExtendedFloatingActionButton(
-                    onClick = {
-                        isAddMode = !isAddMode
-                    },
-                    icon = { Icon(Icons.Filled.Add, "添加标签") },
-                    text = { Text(text = "添加标签") },
-                    modifier = Modifier.constrainAs(fab) {
-
-                        bottom.linkTo(parent.bottom, 16.dp)
-                        end.linkTo(parent.end, 16.dp)
-                    }
-                )
-            }
 
             if (isAddMode) {
                 var editText by remember { mutableStateOf("") }
@@ -173,29 +165,52 @@ fun LabelScreen(
                         )
                     },
                     confirmButton = {
-                        viewModel.insertTag(TagEntity(name = editText, addTime = System.currentTimeMillis()))
-                        TextButton(onClick = { isAddMode = false }) { Text("添加标签") }
+                        TextButton(onClick = {
+                            isAddMode = false
+                            viewModel.insertTag(
+                                TagEntity(
+                                    name = editText,
+                                    addTime = System.currentTimeMillis()
+                                )
+                            )
+                        }) { Text("添加标签") }
                     },
                     dismissButton = {
                         TextButton(onClick = { isAddMode = false }) { Text("取消") }
                     })
+
             }
+        }
+        ConstraintLayout(modifier = Modifier.fillMaxSize()) {
+            val fab = createRef()
+            ExtendedFloatingActionButton(
+                onClick = {
+                    isAddMode = !isAddMode
+                },
+                icon = { Icon(Icons.Filled.Add, "添加标签") },
+                text = { Text(text = "添加标签") },
+                modifier = Modifier.constrainAs(fab) {
+                    bottom.linkTo(parent.bottom, 16.dp)
+                    end.linkTo(parent.end, 16.dp)
+                    start.linkTo(parent.start, 16.dp)
+                }
+            )
         }
     }
 }
 
 @Composable
 private fun LabelItem(
-    label: String,
+    label: TagEntity,
     isStar: Int,
     onStarClick: () -> Unit,
     onEditClick: () -> Unit,
     onLabelClick: () -> Unit,
-    modifier: Modifier
+    onDeleteClick: (TagEntity) -> Unit
 ) {
 
     Row(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
             .height(70.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -224,7 +239,7 @@ private fun LabelItem(
                 .height(60.dp)
         ) {
             Row {
-                Text(label, style = MaterialTheme.typography.titleMedium)
+                Text(label.name!!, style = MaterialTheme.typography.titleMedium)
             }
         }
 
@@ -233,63 +248,22 @@ private fun LabelItem(
         TextButton(
             onClick = onEditClick, modifier = Modifier
                 .requiredSize(60.dp)
-                .offset((-30).dp, 0.dp)
+                .offset((-90).dp, 0.dp)
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_baseline_edit_24),
                 contentDescription = null
             )
         }
-    }
-}
-
-private fun Modifier.swipeToDismiss(
-    onDismissed: () -> Unit
-): Modifier = composed {
-    val offsetX = remember { Animatable(0f) } // Add this line
-    pointerInput(Unit) {
-        val decay = splineBasedDecay<Float>(this)
-        // Wrap in a coroutine scope to use suspend functions for touch events and animation.
-        coroutineScope {
-            while (true) {
-                // Wait for a touch down event.
-                val pointerId = awaitPointerEventScope { awaitFirstDown().id }
-                offsetX.stop()
-                // Prepare for drag events and record velocity of a fling.
-                val velocityTracker = VelocityTracker()
-                // Wait for drag events.
-                awaitPointerEventScope {
-                    horizontalDrag(pointerId) { change ->
-                        val horizontalDragOffset = offsetX.value + change.positionChange().x
-                        launch {
-                            offsetX.snapTo(horizontalDragOffset)
-                        }
-                        // Record the velocity of the drag.
-                        velocityTracker.addPosition(change.uptimeMillis, change.position)
-                        // Consume the gesture event, not passed to external
-                        change.consumePositionChange()
-                    }
-                }                // Dragging finished. Calculate the velocity of the fling.
-                val velocity = velocityTracker.calculateVelocity().x
-                val targetOffsetX = decay.calculateTargetValue(offsetX.value, velocity)
-                offsetX.updateBounds(
-                    lowerBound = -size.width.toFloat(),
-                    upperBound = size.width.toFloat()
-                )
-                launch {
-                    if (targetOffsetX.absoluteValue <= size.width) {
-                        // Not enough velocity; Slide back.
-                        offsetX.animateTo(targetValue = 0f, initialVelocity = velocity)
-                    } else {
-                        // Enough velocity to slide away the element to the edge.
-                        offsetX.animateDecay(velocity, decay)
-                        // The element was swiped away.
-                        onDismissed()
-                    }
-                }
-            }
+        TextButton(
+            onClick = { onDeleteClick(label) }, modifier = Modifier
+                .requiredSize(60.dp)
+                .offset((-30).dp, 0.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Delete,
+                contentDescription = null
+            )
         }
-    }.offset {
-        IntOffset(offsetX.value.roundToInt(), 0)
     }
 }
