@@ -1,66 +1,284 @@
 package com.hyosakura.imagehub.ui.screens.library.label
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.calculateTargetValue
+import androidx.compose.animation.splineBasedDecay
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.horizontalDrag
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
+import androidx.compose.ui.input.pointer.consumePositionChange
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChange
+import androidx.compose.ui.input.pointer.util.VelocityTracker
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.navigation.NavHostController
 import com.hyosakura.imagehub.entity.toDateTime
 import com.hyosakura.imagehub.repository.DataRepository
 import com.hyosakura.imagehub.viewmodel.TagManageViewModel
 import com.hyosakura.imagehub.viewmodel.TagManageViewModelFactory
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import java.util.stream.Collectors
+import kotlin.math.absoluteValue
+import kotlin.math.roundToInt
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LabelScreen(
     repository: DataRepository,
-    viewModel: TagManageViewModel = TagManageViewModelFactory(repository).create(
-        TagManageViewModel::class.java
-    )
+    navController: NavHostController,
 ) {
-    TopAppBar(
-        title = { Text("这是标题") },
-        navigationIcon = {
-            IconButton(onClick = { }) {
-                Icon(Icons.Filled.ArrowBack, null)
+    val viewModel: TagManageViewModel =
+        TagManageViewModelFactory(repository).create(TagManageViewModel::class.java)
+
+    var isEditMode by remember { mutableStateOf(false) }
+    var isAddMode by remember { mutableStateOf(false) }
+
+    Scaffold(modifier = Modifier.fillMaxSize(),
+        topBar = {
+            SmallTopAppBar(
+                title = { Text("标签列表") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBack,
+                            contentDescription = "标签列表"
+                        )
+                    }
+                }
+            )
+        })
+    {
+        Column(Modifier.fillMaxSize()) {
+            viewModel.allTags.observeAsState().value?.let { entityList ->
+                val map = entityList.stream().collect(Collectors.groupingBy {
+                    it.addTime!!.toDateTime().toLocalDate()
+                })
+                val iterator = map.iterator()
+                while (iterator.hasNext()) {
+                    val entry = iterator.next()
+                    val date = entry.key
+                    val list = entry.value
+
+                    var oldLabelName = ""
+                    // 展示tag
+                    for (label in list) {
+
+                        LabelItem(
+                            label.name!!,
+                            onEditClick = {
+                                isEditMode = true
+                                oldLabelName = label.name!!
+                            },
+                            onLabelClick = { navController.navigate("LabelImage/${label.tagId}") },
+                            onStarClick = { TODO("取反当前标签星标状态") },
+                            modifier = Modifier.swipeToDismiss { TODO("删除当前标签") })
+
+                        if (isEditMode) {
+                            var editText by remember { mutableStateOf(oldLabelName) }
+                            AlertDialog(
+                                onDismissRequest = { isEditMode = false },
+                                title = { Text(text = "编辑标签") },
+                                text = {
+                                    OutlinedTextField(
+                                        value = editText, onValueChange = { editText = it },
+                                        singleLine = true,
+                                        textStyle = MaterialTheme.typography.titleMedium,
+                                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                                            textColor = MaterialTheme.colorScheme.primary,
+                                            cursorColor = MaterialTheme.colorScheme.inversePrimary,
+                                            focusedBorderColor = MaterialTheme.colorScheme.secondary,
+                                            unfocusedBorderColor = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    )
+                                },
+                                confirmButton = {
+                                    TextButton(onClick = {
+                                        isEditMode = false;
+                                        TODO("更新当前标签名字为 editText")
+                                    }) { Text("更改标签") }
+                                },
+                                dismissButton = {
+                                    TextButton(onClick = { isEditMode = false }) { Text("取消") }
+                                }
+                            )
+                        }
+                    }
+                }
             }
-        },
-        actions = {
-            IconButton(onClick = {
-                // viewModel.insertTag("tag名")
-            }) {
-                Icon(Icons.Filled.Share, "添加")
+
+            ConstraintLayout(modifier = Modifier.fillMaxSize()) {
+                val fab = createRef()
+                ExtendedFloatingActionButton(
+                    onClick = {
+                        isAddMode = !isAddMode
+                    },
+                    icon = { Icon(Icons.Filled.Add, "添加标签") },
+                    text = { Text(text = "添加标签") },
+                    modifier = Modifier.constrainAs(fab) {
+
+                        bottom.linkTo(parent.bottom, 16.dp)
+                        end.linkTo(parent.end, 16.dp)
+                    }
+                )
             }
-            IconButton(onClick = {
-                // viewModel.updateTag()
-            }) {
-                Icon(Icons.Filled.Settings, "修改")
-            }
-            IconButton(onClick = {
-                // viewModel.deleteTag()
-            }) {
-                Icon(Icons.Filled.Settings, "删除")
+
+            if (isAddMode) {
+                var editText by remember { mutableStateOf("") }
+                AlertDialog(
+                    onDismissRequest = { isAddMode = false },
+                    title = { Text(text = "添加标签") },
+                    text = {
+                        OutlinedTextField(
+                            value = editText,
+                            onValueChange = { editText = it },
+                            singleLine = true,
+                            textStyle = MaterialTheme.typography.titleMedium,
+                            colors = TextFieldDefaults.outlinedTextFieldColors(
+                                textColor = MaterialTheme.colorScheme.primary,
+                                cursorColor = MaterialTheme.colorScheme.inversePrimary,
+                                focusedBorderColor = MaterialTheme.colorScheme.secondary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.onSurface
+                            )
+                        )
+                    },
+                    confirmButton = {
+                        TODO("添加名称为 editText 的新标签")
+                        TextButton(onClick = { isAddMode = false }) { Text("添加标签") }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { isAddMode = false }) { Text("取消") }
+                    })
             }
         }
-    )
-    Column {
-        viewModel.allTags.observeAsState().value?.let { entityList ->
-            val map = entityList.stream().collect(Collectors.groupingBy {
-                it.addTime!!.toDateTime().toLocalDate()
-            })
-            val iterator = map.iterator()
-            while (iterator.hasNext()) {
-                val entry = iterator.next()
-                val date = entry.key
-                val list = entry.value
-                // 展示tag
+    }
+}
+
+@Composable
+private fun LabelItem(
+    label: String,
+    onStarClick: () -> Unit,
+    onEditClick: () -> Unit,
+    onLabelClick: () -> Unit,
+    modifier: Modifier
+) {
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(70.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        var isStar by remember { mutableStateOf(false) }
+
+        TextButton(onClick = onStarClick.also { isStar = !isStar }, modifier = Modifier.size(60.dp))
+        {
+            if (isStar) {
+                Image(
+                    painter = painterResource(id = com.hyosakura.imagehub.R.drawable.ic_baseline_label_24),
+                    contentDescription = null
+                )
+            } else {
+                Icon(
+                    painter = painterResource(id = com.hyosakura.imagehub.R.drawable.ic_outline_label_24),
+                    contentDescription = null
+                )
             }
         }
+
+        TextButton(
+            onClick = onLabelClick,
+            modifier = Modifier
+                .height(60.dp)
+        )
+        {
+            Row {
+                Text(label, style = MaterialTheme.typography.titleMedium)
+            }
+        }
+
+        Spacer(modifier = Modifier.fillMaxWidth())
+
+        TextButton(
+            onClick = onEditClick, modifier = Modifier
+                .requiredSize(60.dp)
+                .offset((-30).dp, 0.dp)
+        ) {
+            Icon(
+                painter = painterResource(id = com.hyosakura.imagehub.R.drawable.ic_baseline_edit_24),
+                contentDescription = null
+            )
+        }
+    }
+}
+
+private fun Modifier.swipeToDismiss(
+    onDismissed: () -> Unit
+): Modifier = composed {
+    val offsetX = remember { Animatable(0f) } // Add this line
+    pointerInput(Unit) {
+        val decay = splineBasedDecay<Float>(this)
+        // Wrap in a coroutine scope to use suspend functions for touch events and animation.
+        coroutineScope {
+            while (true) {
+                // Wait for a touch down event.
+                val pointerId = awaitPointerEventScope { awaitFirstDown().id }
+                offsetX.stop()
+                // Prepare for drag events and record velocity of a fling.
+                val velocityTracker = VelocityTracker()
+                // Wait for drag events.
+                awaitPointerEventScope {
+                    horizontalDrag(pointerId) { change ->
+                        val horizontalDragOffset = offsetX.value + change.positionChange().x
+                        launch {
+                            offsetX.snapTo(horizontalDragOffset)
+                        }
+                        // Record the velocity of the drag.
+                        velocityTracker.addPosition(change.uptimeMillis, change.position)
+                        // Consume the gesture event, not passed to external
+                        change.consumePositionChange()
+                    }
+                }                // Dragging finished. Calculate the velocity of the fling.
+                val velocity = velocityTracker.calculateVelocity().x
+                val targetOffsetX = decay.calculateTargetValue(offsetX.value, velocity)
+                offsetX.updateBounds(
+                    lowerBound = -size.width.toFloat(),
+                    upperBound = size.width.toFloat()
+                )
+                launch {
+                    if (targetOffsetX.absoluteValue <= size.width) {
+                        // Not enough velocity; Slide back.
+                        offsetX.animateTo(targetValue = 0f, initialVelocity = velocity)
+                    } else {
+                        // Enough velocity to slide away the element to the edge.
+                        offsetX.animateDecay(velocity, decay)
+                        // The element was swiped away.
+                        onDismissed()
+                    }
+                }
+            }
+        }
+    }.offset {
+        IntOffset(offsetX.value.roundToInt(), 0)
     }
 }

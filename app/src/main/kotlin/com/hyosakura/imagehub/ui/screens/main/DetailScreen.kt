@@ -84,8 +84,6 @@ fun DetailScreen(
 
             bottomBar = {
                 Column {
-                    // TODO: 显示图像注释
-                    val annotation = image.annotation
                     Row(
                         Modifier
                             .fillMaxWidth()
@@ -93,7 +91,8 @@ fun DetailScreen(
                             .alpha(0.8f)
                             .padding(10.dp)
                             .clickable { isAnnotationEdit = true }) {
-                        Text(text = "这里是注释", style = MaterialTheme.typography.bodySmall)
+                        // TODO：修复图片注释 NPE
+//                        Text(text = image.annotation!!, style = MaterialTheme.typography.bodySmall)
                     }
 
                     when (image.deleted) {

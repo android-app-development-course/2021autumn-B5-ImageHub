@@ -25,6 +25,7 @@ enum class Screen(
     SearchResults(),
     Folder(),
     Label(),
+    LabelImage(),
     Tip(),
     Trash(),
     Detail();
@@ -38,6 +39,7 @@ enum class Screen(
                 SearchResults.name -> SearchResults
                 Folder.name -> Folder
                 Label.name -> Label
+                LabelImage.name -> LabelImage
                 Tip.name -> Tip
                 Trash.name -> Trash
                 Detail.name -> Detail
