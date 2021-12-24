@@ -51,6 +51,8 @@ class DataRepository(private val database: AppDatabase) {
 
     fun getTagByName(name: String) = database.tagDao().getTagByName(name)
 
+    suspend fun getTagByNameWithOutFlow(name: String) = database.tagDao().getTagByNameWithOutFlow(name)
+
     suspend fun insertTagToImage(vararg relation: ImageTagCrossRef) = database.imageDao().insertTags(*relation)
 
     fun tagWithImages(tagId: Int) = database.tagDao().getTagWithImagesById(tagId)

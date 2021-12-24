@@ -38,11 +38,16 @@ class TagManageViewModel(private val repository: DataRepository) : ViewModel() {
         }
     }
 
-    fun getTagByName(name: String): LiveData<List<TagEntity>> {
-        return repository.getTagByName("%$name%").asLiveData().also {
+    fun getTagByName(name: String, fuzz: Boolean = true): LiveData<List<TagEntity>> {
+        return repository.getTagByName(if (fuzz) "%$name%" else name).asLiveData().also {
             candidateTagWithName = it
         }
     }
+
+    suspend fun getTagByNameWithOutFlow(name: String, fuzz: Boolean = true): List<TagEntity> =
+        withContext(viewModelScope.coroutineContext) {
+            repository.getTagByNameWithOutFlow(if (fuzz) "%$name%" else name)
+        }
 
     fun deleteTag(entity: TagEntity) {
         viewModelScope.launch {

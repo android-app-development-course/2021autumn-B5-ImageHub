@@ -23,6 +23,9 @@ interface TagDao {
     @Query("SELECT * FROM tag where name like :name")
     fun getTagByName(name: String): Flow<List<TagEntity>>
 
+    @Query("SELECT * FROM tag where name like :name")
+    suspend fun getTagByNameWithOutFlow(name: String): List<TagEntity>
+
     @Query("SELECT * FROM tag WHERE name like :condition")
     fun searchImage(condition: String): Flow<MutableList<TagWithImages>>
 

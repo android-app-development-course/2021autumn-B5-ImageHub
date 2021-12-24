@@ -1,5 +1,6 @@
 package com.hyosakura.imagehub.ui.screens.library.label
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -27,7 +28,12 @@ import com.hyosakura.imagehub.entity.toDateTime
 import com.hyosakura.imagehub.repository.DataRepository
 import com.hyosakura.imagehub.viewmodel.TagManageViewModel
 import com.hyosakura.imagehub.viewmodel.TagManageViewModelFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.stream.Collectors
+
+private val coroutine = CoroutineScope(Dispatchers.IO)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -101,14 +107,22 @@ fun LabelScreen(
                                     onDismissRequest = { isEditMode = false },
                                     title = {
                                         // TODO: 有 Bug，label 对象引用是最新的
-//                                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                        Row(Modifier.fillMaxWidth()) {
+                                        Row(
+                                            Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween
+                                        ) {
+                                            // Row(Modifier.fillMaxWidth()) {
                                             Text(text = "编辑标签")
-//                                            Icon(
-//                                                imageVector = Icons.Filled.Delete,
-//                                                contentDescription = null,
-//                                                Modifier.clickable { viewModel.deleteTag(label); isEditMode = false }
-//                                            )
+                                            Icon(
+                                                imageVector = Icons.Filled.Delete,
+                                                contentDescription = null,
+                                                Modifier.clickable {
+                                                    Log.i("label", label.toString())
+
+                                                    viewModel.deleteTag(label)
+                                                    isEditMode = false
+                                                }
+                                            )
                                         }
                                     },
                                     text = {
@@ -167,18 +181,25 @@ fun LabelScreen(
                     confirmButton = {
                         TextButton(onClick = {
                             isAddMode = false
-                            viewModel.insertTag(
-                                TagEntity(
-                                    name = editText,
-                                    addTime = System.currentTimeMillis()
-                                )
-                            )
+                            coroutine.launch {
+                                val list = viewModel.getTagByNameWithOutFlow(editText, false)
+                                if (list.isEmpty()) {
+                                    viewModel.insertTag(
+                                        TagEntity(
+                                            name = editText,
+                                            addTime = System.currentTimeMillis()
+                                        )
+                                    )
+                                } else {
+                                    // todo 修改弹窗
+                                    Log.i("tag", "已经有标签")
+                                }
+                            }
                         }) { Text("添加标签") }
                     },
                     dismissButton = {
                         TextButton(onClick = { isAddMode = false }) { Text("取消") }
                     })
-
             }
         }
         ConstraintLayout(modifier = Modifier.fillMaxSize()) {
