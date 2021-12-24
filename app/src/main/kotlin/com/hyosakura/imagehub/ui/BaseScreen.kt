@@ -1,11 +1,6 @@
 package com.hyosakura.imagehub.ui
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.FastOutLinearInEasing
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -25,6 +20,7 @@ import com.hyosakura.imagehub.ui.screens.Screen
 import com.hyosakura.imagehub.ui.screens.Screen.*
 import com.hyosakura.imagehub.ui.screens.library.LibraryScreen
 import com.hyosakura.imagehub.ui.screens.library.folder.FolderScreen
+import com.hyosakura.imagehub.ui.screens.library.label.LabelImageScreen
 import com.hyosakura.imagehub.ui.screens.library.label.LabelScreen
 import com.hyosakura.imagehub.ui.screens.library.tip.TipScreen
 import com.hyosakura.imagehub.ui.screens.library.trash.TrashScreen
@@ -67,7 +63,7 @@ fun BaseScreen(
                     SearchResultsScreen(repository, navController)
                 }
                 composable(Label.name) {
-                    LabelScreen(repository)
+                    LabelScreen(repository, navController)
                 }
                 composable(Folder.name) {
                     FolderScreen(repository)
@@ -83,6 +79,11 @@ fun BaseScreen(
                     arguments = listOf(navArgument("imageId") { type = NavType.IntType })){
                     DetailScreen(it.arguments?.getInt("imageId"), repository, navController)
                 }
+                composable("${ LabelImage.name }/{labelId}",
+                    arguments = listOf(navArgument("labelId") {type = NavType.IntType})){
+                    LabelImageScreen(it.arguments?.getInt("labelId"))
+                }
+
             }
         },
         bottomBar = {
