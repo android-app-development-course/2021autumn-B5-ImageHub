@@ -105,10 +105,8 @@ fun LibraryScreen(
                 cells = GridCells.Adaptive(minSize = 120.dp),
             ) {
                 imageList?.let {
-                    coroutine.launch {
-                        items(it.toList()) { image ->
-                            ImageItem(image) { navController.navigate("${AddDeviceImage.name}/${image.imageId}") }
-                        }
+                    items(it.toList()) { image ->
+                        ImageItem(image) { navController.navigate("${AddDeviceImage.name}/${image.imageId}") }
                     }
                 }
             }
