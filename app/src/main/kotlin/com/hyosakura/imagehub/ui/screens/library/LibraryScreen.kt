@@ -8,11 +8,13 @@ import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -25,6 +27,7 @@ import com.hyosakura.imagehub.repository.DataRepository
 import com.hyosakura.imagehub.ui.screens.Screen.*
 import com.hyosakura.imagehub.viewmodel.DeviceImageViewModel
 import com.hyosakura.imagehub.viewmodel.DeviceImageViewModelFactory
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -33,9 +36,12 @@ fun LibraryScreen(
     navController: NavHostController,
     viewModel: DeviceImageViewModel = viewModel(factory = DeviceImageViewModelFactory(repository))
 ) {
-    val imageList by viewModel.also {
-        it.getDeviceImage()
-    }.imageList.observeAsState()
+    LaunchedEffect(LocalContext.current) {
+        launch {
+            viewModel.getDeviceImage()
+        }
+    }
+    val imageList by DeviceImageViewModel.imageList.observeAsState()
 
     Column {
         // 上半部分
@@ -95,7 +101,7 @@ fun LibraryScreen(
                 cells = GridCells.Adaptive(minSize = 120.dp),
             ) {
                 imageList?.let {
-                    items(it) { image ->
+                    items(it.toList()) { image ->
                         ImageItem(image) { navController.navigate("${AddDeviceImage.name}/${image.imageId}") }
                     }
                 }
@@ -120,7 +126,6 @@ private fun Button(iconId: Int, textId: Int, onButtonClick: () -> Unit, modifier
                 modifier = Modifier.padding(end = 10.dp)
             )
             Text(stringResource(textId), style = MaterialTheme.typography.titleMedium)
-
         }
     }
 }

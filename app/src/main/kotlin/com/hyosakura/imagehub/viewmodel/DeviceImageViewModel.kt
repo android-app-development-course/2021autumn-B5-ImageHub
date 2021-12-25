@@ -23,13 +23,15 @@ import kotlin.io.path.pathString
 @SuppressLint("Range")
 class DeviceImageViewModel(private val repository: DataRepository) : ViewModel() {
     lateinit var dirList: LiveData<List<DeviceDirEntity>>
-    private val map = mutableMapOf<Int, DeviceImageEntity>()
-    val imageList: LiveData<List<DeviceImageEntity>>
-        get() {
-            return flow<List<DeviceImageEntity>> {
-                emit(map.values.toList())
-            }.asLiveData()
-        }
+    companion object {
+        private val map = mutableMapOf<Int, DeviceImageEntity>()
+        val imageList: LiveData<Collection<DeviceImageEntity>>
+            get() {
+                return flow {
+                    emit(map.values)
+                }.asLiveData()
+            }
+    }
 
     private fun getCursor(context: Context): Cursor {
         val resolver = context.contentResolver
@@ -45,6 +47,7 @@ class DeviceImageViewModel(private val repository: DataRepository) : ViewModel()
     fun getImageById(id: Int) = map[id]
 
     fun getDeviceImage() {
+        if (map.isNotEmpty()) return
         val root = "/storage/emulated/0/"
         val path = arrayOf("$root/Download", "$root/Pictures")
         val imageList = mutableListOf<DeviceImageEntity>()
@@ -80,7 +83,6 @@ class DeviceImageViewModel(private val repository: DataRepository) : ViewModel()
                 }
             })
         }
-
     }
 
     suspend fun importImage(image: DeviceImageEntity): Int =

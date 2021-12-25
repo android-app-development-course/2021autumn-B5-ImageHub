@@ -20,7 +20,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-private val coroutine = CoroutineScope(Dispatchers.IO)
+private val coroutine = CoroutineScope(Dispatchers.Main)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,7 +30,7 @@ fun ImportDeviceImageScreen(
     navController: NavHostController,
     viewModel: DeviceImageViewModel = viewModel(factory = DeviceImageViewModelFactory(repository))
 ) {
-    val image = viewModel.getImageById(imageId!!)!!
+    val image = viewModel.getImageById(imageId!!)
 
     Scaffold(modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -57,7 +57,7 @@ fun ImportDeviceImageScreen(
             FilledTonalButton(
                 onClick = {
                     coroutine.launch {
-                        val id = viewModel.importImage(image)
+                        val id = viewModel.importImage(image!!)
                         navController.popBackStack()
                         navController.navigate("${Screen.Detail.name}/$id")
                     }
