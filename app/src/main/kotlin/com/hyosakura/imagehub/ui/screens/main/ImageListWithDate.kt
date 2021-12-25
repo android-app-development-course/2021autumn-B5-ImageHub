@@ -82,10 +82,3 @@ private fun ImageItem(image: ImageEntity, toDetailScreens: () -> Unit) {
             .clickable(onClick = toDetailScreens)
     )
 }
-
-
-@Preview
-@Composable
-fun PictureListWithDatePreview() {
-
-}

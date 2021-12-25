@@ -99,6 +99,7 @@ fun LabelScreen(
                                     currentLabel = label
                                 },
                                 onStarClick = {
+                                    // TODO: 更新数据库
                                     label.star = if (label.star == 0) 1 else 0
                                     isStarChange = label.star
                                 },
@@ -294,7 +295,8 @@ private fun LabelItem(
         ) {
             Icon(
                 imageVector = Icons.Filled.Delete,
-                contentDescription = null
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.error
             )
         }
     }

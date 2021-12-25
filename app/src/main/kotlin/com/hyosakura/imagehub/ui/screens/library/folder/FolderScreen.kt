@@ -12,6 +12,7 @@ fun FolderScreen(
     folderId: Int?,
     viewModel: DirManageViewModel = viewModel(factory = DirManageViewModelFactory(repository))
 ) {
+    // TODO 文件夹图片会显示删除图片
     viewModel.visitDir(folderId ?: -1)
     FolderList(viewModel)
 }

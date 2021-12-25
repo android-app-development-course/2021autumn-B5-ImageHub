@@ -71,21 +71,12 @@ fun DetailScreen(
                 topBar = {
                     SmallTopAppBar(
                         title = {
-                            if (labelList != null) {
-                                LazyRow {
-                                    items(labelList!!) { tag ->
-                                        LabelItem(tag,
-                                            onLabelClick = {
-                                                navController.navigate("LabelImage/${tag.tagId}")
-                                            },
-                                            onDeleteClick = {
-                                                imageViewModel.removeTag(image, tag)
-                                            }
-                                        )
-                                    }
-                                    item { Spacer(modifier = Modifier.width(10.dp)) }
-                                }
-                            }
+                            LabelRowWithClose(
+                                labelList,
+                                onLabelClick = onLabelClick(navController),
+                                onDeleteClick = { tagEntity ->
+                                    imageViewModel.removeTag(image, tagEntity)
+                                })
                         },
                         navigationIcon = {
                             IconButton(onClick = { navController.popBackStack() }) {
@@ -220,6 +211,7 @@ fun DetailScreen(
                         title = { Text(text = "添加标签") },
                         text = {
                             Column {
+                                LabelRow(labelList = starTags, onLabelClick = onLabelClick(navController = navController))
                                 Row {
                                     OutlinedTextField(
                                         value = editText,
@@ -292,7 +284,36 @@ fun DetailScreen(
 }
 
 @Composable
-fun LabelItem(it: TagEntity, onLabelClick: () -> Unit, onDeleteClick: () -> Unit) {
+private fun onLabelClick(navController: NavHostController) = { tagEntity:TagEntity ->
+    navController.navigate("LabelImage/${tagEntity.tagId}")
+}
+
+@Composable
+private fun LabelRowWithClose(
+    labelList: List<TagEntity>?,
+    onLabelClick: (TagEntity) -> Unit,
+    onDeleteClick: (TagEntity) -> Unit
+) {
+    if (labelList != null) {
+        LazyRow {
+            items(labelList) { tag ->
+                LabelItemWithClose(
+                    tag,
+                    onLabelClick = {
+                        onLabelClick(tag)
+                    },
+                    onDeleteClick = {
+                        onDeleteClick(tag)
+                    },
+                )
+            }
+            item { Spacer(modifier = Modifier.width(10.dp)) }
+        }
+    }
+}
+
+@Composable
+fun LabelItemWithClose(it: TagEntity, onLabelClick: () -> Unit, onDeleteClick: () -> Unit) {
     Row(Modifier.padding(2.dp), verticalAlignment = Alignment.CenterVertically) {
         OutlinedButton(
             onClick = onLabelClick,
@@ -306,6 +327,38 @@ fun LabelItem(it: TagEntity, onLabelClick: () -> Unit, onDeleteClick: () -> Unit
             modifier = Modifier
                 .offset(x = (-30).dp)
                 .clickable { onDeleteClick() })
+    }
+}
+
+@Composable
+private fun LabelRow(
+    labelList: List<TagEntity>?,
+    onLabelClick: (TagEntity) -> Unit,
+) {
+    if (labelList != null) {
+        LazyRow {
+            items(labelList) { tag ->
+                LabelItem(
+                    tag,
+                    onLabelClick = {
+                        onLabelClick(tag)
+                    }
+                )
+            }
+            item { Spacer(modifier = Modifier.width(10.dp)) }
+        }
+    }
+}
+
+@Composable
+fun LabelItem(it: TagEntity, onLabelClick: () -> Unit) {
+    Row(Modifier.padding(2.dp), verticalAlignment = Alignment.CenterVertically) {
+        OutlinedButton(
+            onClick = onLabelClick,
+            modifier = Modifier.padding(1.dp)
+        ) {
+            Text(it.name!!)
+        }
     }
 }
 
