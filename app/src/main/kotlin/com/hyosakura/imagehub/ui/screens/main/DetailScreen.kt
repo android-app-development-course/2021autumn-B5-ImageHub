@@ -6,8 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
@@ -41,7 +39,7 @@ import kotlinx.coroutines.launch
 
 private val coroutine = CoroutineScope(Dispatchers.IO)
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
 fun DetailScreen(
     imageId: Int?,
@@ -208,46 +206,43 @@ fun DetailScreen(
                         onDismissRequest = { isAddLabel = false },
                         title = { Text(text = "添加标签") },
                         text = {
-                            var menuExpanded by remember { mutableStateOf(true) }
-                            OutlinedTextField(
-                                value = editText,
-                                onValueChange = { string ->
-                                    editText = string
-                                    menuExpanded = true
-                                    choose = false
-                                },
-                                singleLine = true,
-                                textStyle = MaterialTheme.typography.titleMedium,
-                                colors = TextFieldDefaults.outlinedTextFieldColors(
-                                    textColor = MaterialTheme.colorScheme.primary,
-                                    cursorColor = MaterialTheme.colorScheme.inversePrimary,
-                                    focusedBorderColor = MaterialTheme.colorScheme.secondary,
-                                    unfocusedBorderColor = MaterialTheme.colorScheme.onSurface
-                                )
-                            )
-                            //TODO BUG：每输入一个词后会导致键盘状态收起，需要调节键盘行为
-                            DropdownMenu(
-                                expanded = menuExpanded,
-                                onDismissRequest = {
-                                    menuExpanded = false
-                                },
-                            ) {
-                                if (editText.isNotEmpty()) {
+                            Column {
+                                Row {
+                                    OutlinedTextField(
+                                        value = editText,
+                                        onValueChange = { string ->
+                                            editText = string
+                                            choose = false
+                                        },
+                                        singleLine = true,
+                                        textStyle = MaterialTheme.typography.titleMedium,
+                                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                                            textColor = MaterialTheme.colorScheme.primary,
+                                            cursorColor = MaterialTheme.colorScheme.inversePrimary,
+                                            focusedBorderColor = MaterialTheme.colorScheme.secondary,
+                                            unfocusedBorderColor = MaterialTheme.colorScheme.onSurface
+                                        ),
+                                    )
+                                }
+                                if (editText.isNotEmpty() && !choose) {
                                     tagViewModel.getTagByName(editText)
                                         .observeAsState().value?.let { list ->
                                             list.forEach {
-                                                DropdownMenuItem(onClick = {
-                                                    menuExpanded = false
-                                                    editText = it.name!!
-                                                    choose = true
-                                                    tag = it
-                                                }) {
-                                                    Text(it.name!!)
+                                                Row {
+                                                    // todo 改样式
+                                                    Box(modifier = Modifier.clickable {
+                                                        editText = it.name!!
+                                                        choose = true
+                                                        tag = it
+                                                    }) {
+                                                        Text(it.name!!)
+                                                    }
                                                 }
                                             }
                                         }
                                 }
                             }
+
                         },
                         confirmButton = {
                             TextButton(
