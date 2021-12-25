@@ -82,7 +82,8 @@ fun LibraryScreen(
             LazyRow() {
                 imageList?.let {
                     val list = it.toList()
-                    items(9) { i ->
+                    val count = if (list.size > 10) 10 else list.size
+                    items(count) { i ->
                         val image = list[i]
                         ImageItem(image) { navController.navigate("${AddDeviceImage.name}/${image.imageId}") }
                     }
