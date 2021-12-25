@@ -1,10 +1,8 @@
 package com.hyosakura.imagehub.viewmodel
 
 import android.annotation.SuppressLint
-import android.content.ContentUris
 import android.content.Context
 import android.database.Cursor
-import android.graphics.Bitmap
 import android.provider.MediaStore
 import androidx.lifecycle.*
 import com.hyosakura.imagehub.entity.DeviceDirEntity
@@ -15,7 +13,11 @@ import com.hyosakura.imagehub.util.ImageUtil
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import java.io.File
-import kotlin.collections.set
+import java.nio.file.*
+import java.nio.file.attribute.BasicFileAttributes
+import kotlin.io.path.extension
+import kotlin.io.path.name
+import kotlin.io.path.pathString
 
 
 @SuppressLint("Range")
@@ -42,60 +44,43 @@ class DeviceImageViewModel(private val repository: DataRepository) : ViewModel()
 
     fun getImageById(id: Int) = map[id]
 
-    fun getDeviceImage(context: Context) {
-        val cursor = context.contentResolver
-            .query(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                arrayOf(MediaStore.MediaColumns._ID, MediaStore.MediaColumns.DATE_MODIFIED),
-                null,
-                null,
-                "${MediaStore.MediaColumns.DATE_MODIFIED} desc"
-            )!!
-        val dirUrls = mutableListOf<String>()
-        val folderMap = mutableMapOf<File, Bitmap>()
-        cursor.use {
-            val columnIndexID = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
-            while (cursor.moveToNext()) {
-                val imageId = cursor.getLong(columnIndexID)
-                val uri = ContentUris.withAppendedId(
-                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                    imageId
-                )
-                val path = ImageUtil.getFilePathFromContentUri(uri, context.contentResolver)!!
-                val folder = File(path).parentFile!!
-                if (folderMap.containsKey(folder)) {
-                    continue
-                }
-                dirUrls.add(folder.path)
-            }
-        }
+    fun getDeviceImage() {
+        val root = "/storage/emulated/0/"
+        val path = arrayOf("$root/Download", "$root/Pictures")
         val imageList = mutableListOf<DeviceImageEntity>()
-        dirUrls.forEach { dir ->
-            val file = File(dir).listFiles()
-            var id = 1
-            file?.forEach {
-                if (it.extension == "jpg" ||
-                    it.extension == "png" ||
-                    it.extension == "gif" ||
-                    it.extension == "jpeg" ||
-                    it.extension == "bmp"
-                ) {
-                    val bitmap = ImageUtil.decodeFile(it.absolutePath, 1)
-                    val image = object : DeviceImageEntity(
-                        imageId = id++,
-                        name = it.name,
-                        url = it.path,
-                        ext = it.extension,
-                        width = bitmap.width,
-                        height = bitmap.height,
-                        size = it.length().toDouble(),
-                        bitmap = bitmap
-                    ) {}
-                    map[image.imageId!!] = image
-                    imageList.add(image)
-                }
-            }
+        fun match(file: File): Boolean {
+            return (
+                    file.extension == "jpg" ||
+                            file.extension == "png" ||
+                            file.extension == "gif" ||
+                            file.extension == "jpeg" ||
+                            file.extension == "bmp"
+                    )
         }
+        var id = 1
+        path.forEach {
+            Files.walkFileTree(Paths.get(it), object : SimpleFileVisitor<Path>() {
+                override fun visitFile(file: Path, attrs: BasicFileAttributes?): FileVisitResult {
+                    if (match(file.toFile())) {
+                        val bitmap = ImageUtil.decodeFile(file.pathString, 2)
+                        val image = object : DeviceImageEntity(
+                            imageId = id++,
+                            name = file.name,
+                            url = file.pathString,
+                            ext = file.extension,
+                            width = bitmap.width,
+                            height = bitmap.height,
+                            size = file.toFile().length().toDouble(),
+                            bitmap = bitmap
+                        ) {}
+                        map[image.imageId!!] = image
+                        imageList.add(image)
+                    }
+                    return super.visitFile(file, attrs)
+                }
+            })
+        }
+
     }
 
     suspend fun importImage(image: DeviceImageEntity): Int =

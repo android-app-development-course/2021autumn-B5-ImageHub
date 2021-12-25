@@ -32,7 +32,7 @@ class TagManageViewModel(private val repository: DataRepository) : ViewModel() {
             relation.images.filter {
                 it.deleted == 0
             }.map {
-                it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
+                it.bitmap = ImageUtil.decodeFile(it.url!!, 2)
                 it
             }
         }.asLiveData()

@@ -28,7 +28,7 @@ class DirManageViewModel(private val repository: DataRepository) : ViewModel() {
                 innerList.forEach {
                     it.latestPicture = repository.dirWithImages(it.dirId!!)
                         .firstOrNull()?.images?.firstOrNull()?.url?.let { s ->
-                            ImageUtil.decodeFile(s, 100)
+                            ImageUtil.decodeFile(s, 2)
                         }
                 }
             }
@@ -40,7 +40,7 @@ class DirManageViewModel(private val repository: DataRepository) : ViewModel() {
             relation.images.filter {
                 it.deleted == 0
             }.map {
-                it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
+                it.bitmap = ImageUtil.decodeFile(it.url!!, 2)
                 it
             }
         }.asLiveData()
