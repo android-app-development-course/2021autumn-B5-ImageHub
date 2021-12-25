@@ -29,9 +29,11 @@ interface TagDao {
     @Query("SELECT * FROM tag WHERE name like :condition")
     fun searchImage(condition: String): Flow<MutableList<TagWithImages>>
 
-    @Transaction
+    @Query("SELECT * FROM tag where star = 1")
+    fun starTag(): Flow<List<TagEntity>>
+
     @Query("SELECT * FROM tag order by modifyTime desc limit :limit")
-    fun recentTagWithImages(limit: Int): List<TagWithImages>
+    fun recentTag(limit: Int): Flow<List<TagEntity>>
 
     @Transaction
     @Query("SELECT * FROM tag where tagId = :id")

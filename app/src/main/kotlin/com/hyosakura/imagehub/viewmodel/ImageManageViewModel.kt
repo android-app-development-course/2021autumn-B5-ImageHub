@@ -52,6 +52,7 @@ class ImageManageViewModel(private val repository: DataRepository) : ViewModel()
     fun addTagToImage(image: ImageEntity, tag: TagEntity) {
         viewModelScope.launch {
             val relation = ImageTagCrossRef(image.imageId!!, tag.tagId!!)
+            repository.updateTag(tag.also { it.modifyTime = System.currentTimeMillis() })
             repository.insertTagToImage(relation)
         }
     }

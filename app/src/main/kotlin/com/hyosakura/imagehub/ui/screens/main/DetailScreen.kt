@@ -60,7 +60,9 @@ fun DetailScreen(
             val labelList by imageViewModel.tagList.observeAsState()
             val annotation = image.annotation!!
 
-            // TODO 获取星标标签（按最近使用排序）和最近使用标签
+            val starTags by tagViewModel.starTags.observeAsState()
+            val num = 20
+            val recentTags by tagViewModel.getRecentTag(num).observeAsState()
 
             var isAnnotationEdit by remember { mutableStateOf(false) }
             var isAddLabel by remember { mutableStateOf(false) }

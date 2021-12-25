@@ -11,6 +11,7 @@ import kotlinx.coroutines.withContext
 
 class TagManageViewModel(private val repository: DataRepository) : ViewModel() {
     val allTags = repository.allTags.asLiveData()
+    val starTags = repository.starTag.asLiveData()
     lateinit var candidateTagWithName: LiveData<List<TagEntity>>
 
     fun updateTag(entity: TagEntity) {
@@ -28,6 +29,10 @@ class TagManageViewModel(private val repository: DataRepository) : ViewModel() {
                 it
             }
         }.asLiveData()
+    }
+
+    fun getRecentTag(num: Int): LiveData<List<TagEntity>> {
+        return repository.recentTag(num).asLiveData()
     }
 
     fun insertTag(tag: TagEntity) {

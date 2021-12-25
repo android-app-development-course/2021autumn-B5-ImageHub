@@ -25,10 +25,6 @@ interface DirDao {
     fun searchImage(condition: String): Flow<MutableList<DirWithImage>>
 
     @Transaction
-    @Query("SELECT * FROM directory order by modifyTime desc limit :limit")
-    fun recentDirWithImages(limit: Int): List<DirWithImage>
-
-    @Transaction
     @Query("SELECT * FROM directory where dirId = :id")
     fun getChildDirs(id: Int): Flow<DirWithDir>
 
