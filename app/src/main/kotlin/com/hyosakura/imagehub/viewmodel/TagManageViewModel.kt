@@ -13,10 +13,17 @@ class TagManageViewModel(private val repository: DataRepository) : ViewModel() {
     val allTags = repository.allTags.asLiveData()
     val starTags = repository.starTag.asLiveData()
     lateinit var candidateTagWithName: LiveData<List<TagEntity>>
+    lateinit var tag: LiveData<TagEntity>
 
     fun updateTag(entity: TagEntity) {
         viewModelScope.launch {
             repository.updateTag(entity)
+        }
+    }
+
+    fun visitTag(tagId: Int): LiveData<TagEntity> {
+        return repository.getTagById(tagId).asLiveData().also {
+            tag = it
         }
     }
 

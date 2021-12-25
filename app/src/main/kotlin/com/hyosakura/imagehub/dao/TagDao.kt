@@ -20,6 +20,9 @@ interface TagDao {
     @Query("SELECT * FROM tag limit :limit")
     fun getAllTags(limit: Int = 20): Flow<List<TagEntity>>
 
+    @Query("SELECT * FROM tag where tagId = :id")
+    fun getTagById(id: Int): Flow<TagEntity>
+
     @Query("SELECT * FROM tag where name like :name")
     fun getTagByName(name: String): Flow<List<TagEntity>>
 

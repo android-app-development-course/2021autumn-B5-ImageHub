@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.hyosakura.imagehub.R
 import com.hyosakura.imagehub.entity.TagEntity
@@ -42,14 +43,12 @@ private val coroutine = CoroutineScope(Dispatchers.IO)
 fun LabelScreen(
     repository: DataRepository,
     navController: NavHostController,
+    viewModel: TagManageViewModel = viewModel(factory = TagManageViewModelFactory(repository))
 ) {
-    val viewModel: TagManageViewModel =
-        TagManageViewModelFactory(repository).create(TagManageViewModel::class.java)
-
     var isEditMode by remember { mutableStateOf(false) }
     var isAddMode by remember { mutableStateOf(false) }
 
-    val context =  LocalContext.current
+    val context = LocalContext.current
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -99,8 +98,8 @@ fun LabelScreen(
                                     currentLabel = label
                                 },
                                 onStarClick = {
-                                    // TODO: 更新数据库
                                     label.star = if (label.star == 0) 1 else 0
+                                    viewModel.updateTag(label)
                                     isStarChange = label.star
                                 },
                                 onDeleteClick = { labelToDelete ->

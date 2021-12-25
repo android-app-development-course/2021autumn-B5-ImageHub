@@ -37,7 +37,9 @@ class DirManageViewModel(private val repository: DataRepository) : ViewModel() {
 
     private fun visitImages(dirId: Int) {
         imagesInCurrentDir = repository.dirWithImages(dirId).map { relation ->
-            relation.images.map {
+            relation.images.filter {
+                it.deleted == 0
+            }.map {
                 it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
                 it
             }
