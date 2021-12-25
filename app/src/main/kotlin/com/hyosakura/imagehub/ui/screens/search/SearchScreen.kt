@@ -28,7 +28,6 @@ fun SearchScreen(
     viewModel: TagManageViewModel = viewModel(factory = TagManageViewModelFactory(repository))
 ) {
 
-    // TODO 获取星标标签（按最近使用排序）和最近使用标签
     val starTags by viewModel.starTags.observeAsState()
     val num = 20
     val recentTags by viewModel.getRecentTag(num).observeAsState()

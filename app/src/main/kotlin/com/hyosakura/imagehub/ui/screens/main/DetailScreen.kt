@@ -31,6 +31,7 @@ import com.hyosakura.imagehub.R
 import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.entity.TagEntity
 import com.hyosakura.imagehub.repository.DataRepository
+import com.hyosakura.imagehub.ui.screens.Screen
 import com.hyosakura.imagehub.util.ImageUtil.share
 import com.hyosakura.imagehub.viewmodel.*
 import kotlinx.coroutines.CoroutineScope
@@ -57,7 +58,7 @@ fun DetailScreen(
         it.visitImage(imageId!!)
     }.image.observeAsState().value?.let { image ->
         dirViewModel.visitDir(image.dirId).observeAsState().value?.let { folder ->
-            val labelList by imageViewModel.tagList.observeAsState()
+            val tagList by imageViewModel.tagList.observeAsState()
             val annotation = image.annotation!!
 
             val starTags by tagViewModel.starTags.observeAsState()
@@ -65,15 +66,15 @@ fun DetailScreen(
             val recentTags by tagViewModel.getRecentTag(num).observeAsState()
 
             var isAnnotationEdit by remember { mutableStateOf(false) }
-            var isAddLabel by remember { mutableStateOf(false) }
+            var isAddTag by remember { mutableStateOf(false) }
 
             Scaffold(
                 topBar = {
                     SmallTopAppBar(
                         title = {
-                            LabelRowWithClose(
-                                labelList,
-                                onLabelClick = onLabelClick(navController),
+                            TagRowWithClose(
+                                tagList,
+                                onTagClick = onTagClick(navController),
                                 onDeleteClick = { tagEntity ->
                                     imageViewModel.removeTag(image, tagEntity)
                                 })
@@ -84,7 +85,7 @@ fun DetailScreen(
                             }
                         },
                         actions = {
-                            IconButton(onClick = { isAddLabel = true }) {
+                            IconButton(onClick = { isAddTag = true }) {
                                 Icon(imageVector = Icons.Filled.Add, contentDescription = null)
                             }
                         }
@@ -202,16 +203,16 @@ fun DetailScreen(
                     )
                 }
 
-                if (isAddLabel) {
+                if (isAddTag) {
                     var editText by remember { mutableStateOf("") }
                     var choose by remember { mutableStateOf(false) }
                     var tag by remember { mutableStateOf<TagEntity?>(null) }
                     AlertDialog(
-                        onDismissRequest = { isAddLabel = false },
+                        onDismissRequest = { isAddTag = false },
                         title = { Text(text = "添加标签") },
                         text = {
                             Column {
-                                LabelRow(labelList = starTags, onLabelClick = onLabelClick(navController = navController))
+                                TagRow(tagList = starTags, onTagClick = onTagClick(navController = navController))
                                 Row {
                                     OutlinedTextField(
                                         value = editText,
@@ -260,7 +261,7 @@ fun DetailScreen(
                                                     .toInt()
                                         }
                                         imageViewModel.addTagToImage(image, tag!!)
-                                        isAddLabel = false
+                                        isAddTag = false
                                     }
                                 }
                             ) {
@@ -270,7 +271,7 @@ fun DetailScreen(
                         dismissButton = {
                             TextButton(
                                 onClick = {
-                                    isAddLabel = false
+                                    isAddTag = false
                                 }
                             ) {
                                 Text("取消")
@@ -284,23 +285,23 @@ fun DetailScreen(
 }
 
 @Composable
-private fun onLabelClick(navController: NavHostController) = { tagEntity:TagEntity ->
-    navController.navigate("LabelImage/${tagEntity.tagId}")
+private fun onTagClick(navController: NavHostController) = { tagEntity:TagEntity ->
+    navController.navigate("${Screen.TagImage.name}/${tagEntity.tagId}")
 }
 
 @Composable
-private fun LabelRowWithClose(
-    labelList: List<TagEntity>?,
-    onLabelClick: (TagEntity) -> Unit,
+private fun TagRowWithClose(
+    tagList: List<TagEntity>?,
+    onTagClick: (TagEntity) -> Unit,
     onDeleteClick: (TagEntity) -> Unit
 ) {
-    if (labelList != null) {
+    if (tagList != null) {
         LazyRow {
-            items(labelList) { tag ->
-                LabelItemWithClose(
+            items(tagList) { tag ->
+                TagItemWithClose(
                     tag,
-                    onLabelClick = {
-                        onLabelClick(tag)
+                    onTagClick = {
+                        onTagClick(tag)
                     },
                     onDeleteClick = {
                         onDeleteClick(tag)
@@ -313,10 +314,10 @@ private fun LabelRowWithClose(
 }
 
 @Composable
-fun LabelItemWithClose(it: TagEntity, onLabelClick: () -> Unit, onDeleteClick: () -> Unit) {
+fun TagItemWithClose(it: TagEntity, onTagClick: () -> Unit, onDeleteClick: () -> Unit) {
     Row(Modifier.padding(2.dp), verticalAlignment = Alignment.CenterVertically) {
         OutlinedButton(
-            onClick = onLabelClick,
+            onClick = onTagClick,
             modifier = Modifier.padding(1.dp)
         ) {
             Text(it.name!!, Modifier.offset(x = (-10).dp))
@@ -331,17 +332,17 @@ fun LabelItemWithClose(it: TagEntity, onLabelClick: () -> Unit, onDeleteClick: (
 }
 
 @Composable
-private fun LabelRow(
-    labelList: List<TagEntity>?,
-    onLabelClick: (TagEntity) -> Unit,
+private fun TagRow(
+    tagList: List<TagEntity>?,
+    onTagClick: (TagEntity) -> Unit,
 ) {
-    if (labelList != null) {
+    if (tagList != null) {
         LazyRow {
-            items(labelList) { tag ->
-                LabelItem(
+            items(tagList) { tag ->
+                TagItem(
                     tag,
-                    onLabelClick = {
-                        onLabelClick(tag)
+                    onTagClick = {
+                        onTagClick(tag)
                     }
                 )
             }
@@ -351,10 +352,10 @@ private fun LabelRow(
 }
 
 @Composable
-fun LabelItem(it: TagEntity, onLabelClick: () -> Unit) {
+fun TagItem(it: TagEntity, onTagClick: () -> Unit) {
     Row(Modifier.padding(2.dp), verticalAlignment = Alignment.CenterVertically) {
         OutlinedButton(
-            onClick = onLabelClick,
+            onClick = onTagClick,
             modifier = Modifier.padding(1.dp)
         ) {
             Text(it.name!!)

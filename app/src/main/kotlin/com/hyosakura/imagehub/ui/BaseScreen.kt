@@ -18,10 +18,11 @@ import com.hyosakura.imagehub.R
 import com.hyosakura.imagehub.repository.DataRepository
 import com.hyosakura.imagehub.ui.screens.Screen
 import com.hyosakura.imagehub.ui.screens.Screen.*
+import com.hyosakura.imagehub.ui.screens.library.AddDeviceImageScreen
 import com.hyosakura.imagehub.ui.screens.library.LibraryScreen
 import com.hyosakura.imagehub.ui.screens.library.folder.FolderScreen
-import com.hyosakura.imagehub.ui.screens.library.label.LabelImageScreen
-import com.hyosakura.imagehub.ui.screens.library.label.LabelScreen
+import com.hyosakura.imagehub.ui.screens.library.tag.TagImageScreen
+import com.hyosakura.imagehub.ui.screens.library.tag.TagScreen
 import com.hyosakura.imagehub.ui.screens.library.tip.TipScreen
 import com.hyosakura.imagehub.ui.screens.library.trash.TrashScreen
 import com.hyosakura.imagehub.ui.screens.main.DetailScreen
@@ -62,8 +63,8 @@ fun BaseScreen(
                 composable(SearchResults.name) {
                     SearchResultsScreen(repository, navController)
                 }
-                composable(Label.name) {
-                    LabelScreen(repository, navController)
+                composable(Tag.name) {
+                    TagScreen(repository, navController)
                 }
                 composable(Folder.name) {
                     FolderScreen(repository, null)
@@ -85,10 +86,14 @@ fun BaseScreen(
                 ) {
                     DetailScreen(it.arguments?.getInt("imageId"), repository, navController)
                 }
-                composable("${LabelImage.name}/{labelId}",
-                    arguments = listOf(navArgument("labelId") { type = NavType.IntType })
+                composable("${TagImage.name}/{tagId}",
+                    arguments = listOf(navArgument("tagId") { type = NavType.IntType })
                 ) {
-                    LabelImageScreen(repository, it.arguments?.getInt("labelId"), navController)
+                    TagImageScreen(repository, it.arguments?.getInt("tagId"), navController)
+                }
+                composable("${AddDeviceImage.name}/{imageId}",
+                    arguments = listOf(navArgument("imageId") { type = NavType.IntType })) {
+                    AddDeviceImageScreen(it.arguments?.getInt("imageId"), navController)
                 }
 
             }

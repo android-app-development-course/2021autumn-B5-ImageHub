@@ -1,4 +1,4 @@
-package com.hyosakura.imagehub.ui.screens.library.label
+package com.hyosakura.imagehub.ui.screens.library.tag
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -15,9 +15,9 @@ import com.hyosakura.imagehub.viewmodel.TagManageViewModelFactory
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LabelImageScreen(
+fun TagImageScreen(
     repository: DataRepository,
-    labelId: Int?,
+    tagId: Int?,
     navController: NavHostController,
     tagManageViewModel: TagManageViewModel = viewModel(
         factory = TagManageViewModelFactory(
@@ -28,7 +28,7 @@ fun LabelImageScreen(
     Scaffold(topBar = {
         SmallTopAppBar(
             title = {
-                tagManageViewModel.visitTag(labelId!!).observeAsState().value?.let {
+                tagManageViewModel.visitTag(tagId!!).observeAsState().value?.let {
                     Text(it.name!!)
                 }
             },
@@ -42,7 +42,7 @@ fun LabelImageScreen(
             }
         )
     }) {
-        tagManageViewModel.getImageInTag(labelId!!).observeAsState().value?.let { entityList ->
+        tagManageViewModel.getImageInTag(tagId!!).observeAsState().value?.let { entityList ->
             ImageList(entityList, navController)
         }
     }

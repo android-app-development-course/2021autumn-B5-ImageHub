@@ -24,10 +24,11 @@ enum class Screen(
     ),
     SearchResults(),
     Folder(),
-    Label(),
-    LabelImage(),
+    Tag(),
+    TagImage(),
     Tip(),
     Trash(),
+    AddDeviceImage(),
     Detail();
 
     companion object {
@@ -38,11 +39,12 @@ enum class Screen(
                 Search.name -> Search
                 SearchResults.name -> SearchResults
                 Folder.name -> Folder
-                Label.name -> Label
-                LabelImage.name -> LabelImage
+                Tag.name -> Tag
+                TagImage.name -> TagImage
                 Tip.name -> Tip
                 Trash.name -> Trash
                 Detail.name -> Detail
+                AddDeviceImage.name -> AddDeviceImage
                 else -> Main
             }
     }

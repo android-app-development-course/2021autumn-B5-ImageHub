@@ -1,4 +1,4 @@
-package com.hyosakura.imagehub.ui.screens.library.label
+package com.hyosakura.imagehub.ui.screens.library.tag
 
 import android.util.Log
 import android.widget.Toast
@@ -28,6 +28,7 @@ import com.hyosakura.imagehub.R
 import com.hyosakura.imagehub.entity.TagEntity
 import com.hyosakura.imagehub.entity.toDateTime
 import com.hyosakura.imagehub.repository.DataRepository
+import com.hyosakura.imagehub.ui.screens.Screen
 import com.hyosakura.imagehub.viewmodel.TagManageViewModel
 import com.hyosakura.imagehub.viewmodel.TagManageViewModelFactory
 import kotlinx.coroutines.CoroutineScope
@@ -40,7 +41,7 @@ private val coroutine = CoroutineScope(Dispatchers.IO)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LabelScreen(
+fun TagScreen(
     repository: DataRepository,
     navController: NavHostController,
     viewModel: TagManageViewModel = viewModel(factory = TagManageViewModelFactory(repository))
@@ -81,26 +82,26 @@ fun LabelScreen(
                     // 展示tag
                     val lazyListState = rememberLazyListState()
 
-                    var currentLabel by remember { mutableStateOf<TagEntity?>(null) }
+                    var currentTag by remember { mutableStateOf<TagEntity?>(null) }
 
                     LazyColumn(state = lazyListState, modifier = Modifier) {
-                        items(list) { label ->
-                            var isStarChange by remember { mutableStateOf(label.star) }
-                            LabelItem(
-                                label,
+                        items(list) { tag ->
+                            var isStarChange by remember { mutableStateOf(tag.star) }
+                            TagItem(
+                                tag,
                                 isStarChange,
                                 onEditClick = {
                                     isEditMode = true
-                                    currentLabel = label
+                                    currentTag = tag
                                 },
                                 onLabelClick = {
-                                    navController.navigate("LabelImage/${label.tagId}")
-                                    currentLabel = label
+                                    navController.navigate("${Screen.TagImage.name}/${tag.tagId}")
+                                    currentTag = tag
                                 },
                                 onStarClick = {
-                                    label.star = if (label.star == 0) 1 else 0
-                                    viewModel.updateTag(label)
-                                    isStarChange = label.star
+                                    tag.star = if (tag.star == 0) 1 else 0
+                                    viewModel.updateTag(tag)
+                                    isStarChange = tag.star
                                 },
                                 onDeleteClick = { labelToDelete ->
                                     viewModel.deleteTag(labelToDelete)
@@ -110,7 +111,7 @@ fun LabelScreen(
                     }
 
                     if (isEditMode) {
-                        var editText by remember { mutableStateOf(currentLabel!!.name!!) }
+                        var editText by remember { mutableStateOf(currentTag!!.name!!) }
                         AlertDialog(
                             onDismissRequest = { isEditMode = false },
                             title = {
@@ -122,7 +123,7 @@ fun LabelScreen(
                                     Text(text = "编辑标签")
                                     TextButton(
                                         onClick = {
-                                            viewModel.deleteTag(currentLabel!!)
+                                            viewModel.deleteTag(currentTag!!)
                                             isEditMode = false
                                         }
                                     ) {
@@ -150,8 +151,8 @@ fun LabelScreen(
                                 TextButton(
                                     onClick = {
                                         isEditMode = false
-                                        currentLabel!!.name = editText
-                                        viewModel.updateTag(currentLabel!!)
+                                        currentTag!!.name = editText
+                                        viewModel.updateTag(currentTag!!)
                                     }
                                 ) { Text("更改标签") }
                             },
@@ -232,8 +233,8 @@ fun LabelScreen(
 }
 
 @Composable
-private fun LabelItem(
-    label: TagEntity,
+private fun TagItem(
+    tagEntity: TagEntity,
     isStar: Int,
     onStarClick: () -> Unit,
     onEditClick: () -> Unit,
@@ -271,7 +272,7 @@ private fun LabelItem(
                 .height(60.dp)
         ) {
             Row {
-                Text(label.name!!, style = MaterialTheme.typography.titleMedium)
+                Text(tagEntity.name!!, style = MaterialTheme.typography.titleMedium)
             }
         }
 
@@ -288,7 +289,7 @@ private fun LabelItem(
             )
         }
         TextButton(
-            onClick = { onDeleteClick(label) }, modifier = Modifier
+            onClick = { onDeleteClick(tagEntity) }, modifier = Modifier
                 .requiredSize(60.dp)
                 .offset((-30).dp, 0.dp)
         ) {
