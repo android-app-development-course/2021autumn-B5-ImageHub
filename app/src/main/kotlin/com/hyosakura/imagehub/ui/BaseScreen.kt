@@ -18,7 +18,7 @@ import com.hyosakura.imagehub.R
 import com.hyosakura.imagehub.repository.DataRepository
 import com.hyosakura.imagehub.ui.screens.Screen
 import com.hyosakura.imagehub.ui.screens.Screen.*
-import com.hyosakura.imagehub.ui.screens.library.AddDeviceImageScreen
+import com.hyosakura.imagehub.ui.screens.library.ImportDeviceImageScreen
 import com.hyosakura.imagehub.ui.screens.library.LibraryScreen
 import com.hyosakura.imagehub.ui.screens.library.folder.FolderScreen
 import com.hyosakura.imagehub.ui.screens.library.tag.TagImageScreen
@@ -58,7 +58,7 @@ fun BaseScreen(
                     SearchScreen(repository, onSearchBarClick = { navController.navigate(SearchResults.name) })
                 }
                 composable(Library.name) {
-                    LibraryScreen(navController)
+                    LibraryScreen(repository, navController)
                 }
                 composable(SearchResults.name) {
                     SearchResultsScreen(repository, navController)
@@ -93,7 +93,7 @@ fun BaseScreen(
                 }
                 composable("${AddDeviceImage.name}/{imageId}",
                     arguments = listOf(navArgument("imageId") { type = NavType.IntType })) {
-                    AddDeviceImageScreen(it.arguments?.getInt("imageId"), navController)
+                    ImportDeviceImageScreen(repository, it.arguments?.getInt("imageId"), navController)
                 }
 
             }

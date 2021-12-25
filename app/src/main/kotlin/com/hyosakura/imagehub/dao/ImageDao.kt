@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ImageDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertImages(vararg images: ImageEntity)
+    suspend fun insertImages(vararg images: ImageEntity): List<Long>
 
     @Update
     suspend fun updateImages(vararg images: ImageEntity)

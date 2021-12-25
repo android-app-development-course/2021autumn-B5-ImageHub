@@ -8,24 +8,35 @@ import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.hyosakura.imagehub.R
-import com.hyosakura.imagehub.entity.ImageEntity
+import com.hyosakura.imagehub.entity.DeviceImageEntity
+import com.hyosakura.imagehub.repository.DataRepository
 import com.hyosakura.imagehub.ui.screens.Screen.*
+import com.hyosakura.imagehub.viewmodel.DeviceImageViewModel
+import com.hyosakura.imagehub.viewmodel.DeviceImageViewModelFactory
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun LibraryScreen(navController: NavHostController) {
-
-    // TODO: 获取设备上的最近图片，用图片对象保存，该图片对象需要保存到 VM，但不保存到图像表中
-    val imageList: MutableList<ImageEntity> = mutableListOf()
+fun LibraryScreen(
+    repository: DataRepository,
+    navController: NavHostController,
+    viewModel: DeviceImageViewModel = viewModel(factory = DeviceImageViewModelFactory(repository))
+) {
+    val imageList by viewModel.also {
+        it.getDeviceImage(LocalContext.current)
+    }.imageList.observeAsState()
 
     Column {
         // 上半部分
@@ -84,8 +95,10 @@ fun LibraryScreen(navController: NavHostController) {
             LazyVerticalGrid(
                 cells = GridCells.Adaptive(minSize = 120.dp),
             ) {
-                items(imageList) { image ->
-                    ImageItem(image) { navController.navigate(AddDeviceImage.name) }
+                imageList?.let {
+                    items(it) { image ->
+                        ImageItem(image) { navController.navigate(AddDeviceImage.name) }
+                    }
                 }
             }
         }
@@ -114,7 +127,7 @@ private fun Button(iconId: Int, textId: Int, onButtonClick: () -> Unit, modifier
 }
 
 @Composable
-fun ImageItem(image: ImageEntity, onImageClick: () -> Unit) {
+fun ImageItem(image: DeviceImageEntity, onImageClick: () -> Unit) {
     TextButton(onClick = onImageClick ) {
         Image(
             bitmap = image.bitmap!!.asImageBitmap(),

@@ -13,7 +13,7 @@ class DataRepository(private val database: AppDatabase) {
 
     fun getDirById(dirId: Int) = database.dirDao().getDirById(dirId)
 
-    suspend fun insertImage(vararg entity: ImageEntity) = database.imageDao().updateImages(*entity)
+    suspend fun insertImage(vararg entity: ImageEntity) = database.imageDao().insertImages(*entity)
 
     suspend fun updateImage(vararg entity: ImageEntity) = database.imageDao().updateImages(*entity)
 

@@ -1,11 +1,15 @@
 package com.hyosakura.imagehub.util
 
+import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.provider.MediaStore
+import android.provider.MediaStore.MediaColumns
+
 
 object ImageUtil {
     private val options = BitmapFactory.Options()
@@ -30,5 +34,19 @@ object ImageUtil {
         intent.type = "image/*"
         intent.putExtra(Intent.EXTRA_STREAM, url)
         this.startActivity(Intent.createChooser(intent, "来自ImageHub的分享"))
+    }
+
+    fun getFilePathFromContentUri(
+        selectedVideoUri: Uri?,
+        contentResolver: ContentResolver
+    ): String? {
+        val filePath: String
+        val filePathColumn = arrayOf(MediaColumns.DATA)
+        val cursor = contentResolver.query(selectedVideoUri!!, filePathColumn, null, null, null)
+        cursor!!.moveToFirst()
+        val columnIndex = cursor.getColumnIndex(filePathColumn[0])
+        filePath = cursor.getString(columnIndex)
+        cursor.close()
+        return filePath
     }
 }

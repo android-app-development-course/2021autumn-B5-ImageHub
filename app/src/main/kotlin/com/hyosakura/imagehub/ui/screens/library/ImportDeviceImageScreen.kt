@@ -1,28 +1,36 @@
 package com.hyosakura.imagehub.ui.screens.library
 
-import android.media.Image
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.hyosakura.imagehub.R
-import com.hyosakura.imagehub.entity.ImageEntity
+import com.hyosakura.imagehub.repository.DataRepository
 import com.hyosakura.imagehub.ui.screens.Screen
+import com.hyosakura.imagehub.viewmodel.DeviceImageViewModel
+import com.hyosakura.imagehub.viewmodel.DeviceImageViewModelFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+
+private val coroutine = CoroutineScope(Dispatchers.IO)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddDeviceImageScreen(imageId: Int?, navController: NavHostController) {
-
-    // TODO 根据图片 Id 获取图片
-    val image: ImageEntity = ImageEntity()
+fun ImportDeviceImageScreen(
+    repository: DataRepository,
+    imageId: Int?,
+    navController: NavHostController,
+    viewModel: DeviceImageViewModel = viewModel(factory = DeviceImageViewModelFactory(repository))
+) {
+    val image = viewModel.getImageById(imageId!!)!!
 
     Scaffold(modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -48,9 +56,11 @@ fun AddDeviceImageScreen(imageId: Int?, navController: NavHostController) {
             )
             FilledTonalButton(
                 onClick = {
-                    /*TODO 保存图片对象到数据库*/
-                    navController.popBackStack()
-                    navController.navigate("${Screen.Detail.name}/${image.imageId}")
+                    coroutine.launch {
+                        val id = viewModel.importImage(image)
+                        navController.popBackStack()
+                        navController.navigate("${Screen.Detail.name}/$id")
+                    }
                 },
                 elevation = ButtonDefaults.elevatedButtonElevation(hoveredElevation = 6.dp),
                 modifier = Modifier

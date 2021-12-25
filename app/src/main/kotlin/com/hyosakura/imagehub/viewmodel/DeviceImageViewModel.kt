@@ -1,6 +1,7 @@
 package com.hyosakura.imagehub.viewmodel
 
 import android.annotation.SuppressLint
+import android.content.ContentUris
 import android.content.Context
 import android.database.Cursor
 import android.graphics.Bitmap
@@ -12,13 +13,21 @@ import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.repository.DataRepository
 import com.hyosakura.imagehub.util.ImageUtil
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
+import kotlin.collections.set
+
 
 @SuppressLint("Range")
 class DeviceImageViewModel(private val repository: DataRepository) : ViewModel() {
     lateinit var dirList: LiveData<List<DeviceDirEntity>>
-    lateinit var imageList: LiveData<List<DeviceImageEntity>>
+    private val map = mutableMapOf<Int, DeviceImageEntity>()
+    val imageList: LiveData<List<DeviceImageEntity>>
+        get() {
+            return flow<List<DeviceImageEntity>> {
+                map.values
+            }.asLiveData()
+        }
 
     private fun getCursor(context: Context): Cursor {
         val resolver = context.contentResolver
@@ -31,10 +40,38 @@ class DeviceImageViewModel(private val repository: DataRepository) : ViewModel()
         )!!
     }
 
-    fun deviceImageInDeviceDir(deviceDir: DeviceDirEntity): LiveData<List<DeviceImageEntity>> {
-        viewModelScope.launch {
-            val file = File(deviceDir.url!!).listFiles()
-            val imageList = mutableListOf<DeviceImageEntity>()
+    fun getImageById(id: Int) = map[id]
+
+    fun getDeviceImage(context: Context) {
+        val cursor = context.contentResolver
+            .query(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                arrayOf(MediaStore.MediaColumns._ID, MediaStore.MediaColumns.DATE_MODIFIED),
+                null,
+                null,
+                "${MediaStore.MediaColumns.DATE_MODIFIED} desc"
+            )!!
+        val dirUrls = mutableListOf<String>()
+        val folderMap = mutableMapOf<File, Bitmap>()
+        cursor.use {
+            val columnIndexID = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
+            while (cursor.moveToNext()) {
+                val imageId = cursor.getLong(columnIndexID)
+                val uri = ContentUris.withAppendedId(
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                    imageId
+                )
+                val path = ImageUtil.getFilePathFromContentUri(uri, context.contentResolver)!!
+                val folder = File(path).parentFile!!
+                if (folderMap.containsKey(folder)) {
+                    continue
+                }
+                dirUrls.add(folder.path)
+            }
+        }
+        val imageList = mutableListOf<DeviceImageEntity>()
+        dirUrls.forEach { dir ->
+            val file = File(dir).listFiles()
             var id = 1
             file?.forEach {
                 if (it.extension == "jpg" ||
@@ -43,7 +80,7 @@ class DeviceImageViewModel(private val repository: DataRepository) : ViewModel()
                     it.extension == "jpeg" ||
                     it.extension == "bmp"
                 ) {
-                    val bitmap = ImageUtil.decodeFile(it.absolutePath, 100)
+                    val bitmap = ImageUtil.decodeFile(it.absolutePath, 1)
                     val image = object : DeviceImageEntity(
                         imageId = id++,
                         name = it.name,
@@ -51,53 +88,18 @@ class DeviceImageViewModel(private val repository: DataRepository) : ViewModel()
                         ext = it.extension,
                         width = bitmap.width,
                         height = bitmap.height,
-                        size = it.length().toDouble()
+                        size = it.length().toDouble(),
+                        bitmap = bitmap
                     ) {}
+                    map[image.imageId!!] = image
                     imageList.add(image)
                 }
             }
-            flow<List<DeviceImageEntity>> {
-                emit(imageList)
-            }.asLiveData().also {
-                this@DeviceImageViewModel.imageList = it
-            }
-        }
-        return imageList
-    }
-
-    /**
-     * 设备上包含图片的文件夹列表，包含该文件夹的一张图片
-     */
-    fun getDeviceImageFolderList(context: Context): LiveData<List<DeviceDirEntity>> {
-        val cursor = getCursor(context)
-        val folderList = mutableListOf<DeviceDirEntity>()
-        val folderMap = mutableMapOf<File, Bitmap>()
-        var id = 1
-        cursor.use {
-            while (cursor.moveToNext()) {
-                val path = cursor.getString(
-                    cursor.getColumnIndex(MediaStore.Images.Media.DATE_MODIFIED)
-                )
-                val folder = File(path).parentFile!!
-                val folderName = folder.name
-                if (folderMap.containsKey(folder)) {
-                    continue
-                }
-                val bitmap = ImageUtil.decodeFile(path, 100)
-                folderMap[folder] = bitmap
-                val dir = object : DeviceDirEntity(id++, folderName, folder.path, bitmap) {}
-                folderList.add(dir)
-            }
-        }
-        return flow<List<DeviceDirEntity>> {
-            emit(folderList)
-        }.asLiveData().also {
-            dirList = it
         }
     }
 
-    fun importImage(image: DeviceImageEntity) {
-        viewModelScope.launch {
+    suspend fun importImage(image: DeviceImageEntity): Int =
+        withContext(viewModelScope.coroutineContext) {
             val entity = ImageEntity(
                 imageId = null,
                 name = image.name,
@@ -108,9 +110,8 @@ class DeviceImageViewModel(private val repository: DataRepository) : ViewModel()
                 size = image.size,
                 addTime = System.currentTimeMillis()
             )
-            repository.insertImage(entity)
+            repository.insertImage(entity).first().toInt()
         }
-    }
 }
 
 class DeviceImageViewModelFactory(private val repository: DataRepository) :
