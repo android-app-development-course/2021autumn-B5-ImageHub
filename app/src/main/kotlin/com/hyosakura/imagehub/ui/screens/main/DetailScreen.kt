@@ -328,7 +328,7 @@ fun DetailBottomBar(
                 )
             },
             onClick = {
-                context.share(imageEntity.url!!)
+                context.share(imageEntity.bitmap!!)
             }
         )
         NavigationBarItem(

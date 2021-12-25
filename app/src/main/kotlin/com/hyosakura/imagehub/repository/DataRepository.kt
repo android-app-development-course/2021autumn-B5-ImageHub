@@ -40,9 +40,6 @@ class DataRepository(private val database: AppDatabase) {
         }
     }
 
-    suspend fun moveImageToRecycle(vararg images: ImageEntity) =
-        database.imageDao().updateImages(*images)
-
     val starTag = database.tagDao().starTag()
 
     fun recentTag(limit: Int) = database.tagDao().recentTag(limit)
