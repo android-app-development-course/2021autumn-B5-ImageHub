@@ -105,8 +105,10 @@ fun LibraryScreen(
                 cells = GridCells.Adaptive(minSize = 120.dp),
             ) {
                 imageList?.let {
-                    items(it.toList()) { image ->
-                        ImageItem(image) { navController.navigate("${AddDeviceImage.name}/${image.imageId}") }
+                    coroutine.launch {
+                        items(it.toList()) { image ->
+                            ImageItem(image) { navController.navigate("${AddDeviceImage.name}/${image.imageId}") }
+                        }
                     }
                 }
             }
@@ -116,9 +118,11 @@ fun LibraryScreen(
 
 @Composable
 private fun Button(iconId: Int, textId: Int, onButtonClick: () -> Unit, modifier: Modifier) {
-    FilledTonalButton(onClick = onButtonClick, modifier = modifier
-        .height(70.dp)
-        .width(150.dp)) {
+    FilledTonalButton(
+        onClick = onButtonClick, modifier = modifier
+            .height(70.dp)
+            .width(150.dp)
+    ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Start,
@@ -136,7 +140,7 @@ private fun Button(iconId: Int, textId: Int, onButtonClick: () -> Unit, modifier
 
 @Composable
 fun ImageItem(image: DeviceImageEntity, onImageClick: () -> Unit) {
-    TextButton(onClick = onImageClick ) {
+    TextButton(onClick = onImageClick) {
         Image(
             bitmap = image.bitmap!!.asImageBitmap(),
             contentDescription = null,
