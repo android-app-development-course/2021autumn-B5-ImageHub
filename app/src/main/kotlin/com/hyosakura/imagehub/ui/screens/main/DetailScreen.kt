@@ -122,7 +122,7 @@ fun DetailScreen(
                                         image.deleted = 1
                                         imageViewModel.updateImage(image)
                                     },
-                                    onFolderClick = { navController.navigate("Folder/${folder?.dirId}") }
+                                    onFolderClick = { navController.navigate("Folder/${folder.dirId}") }
                                 )
                             }
                             else -> {
@@ -225,6 +225,7 @@ fun DetailScreen(
                                     unfocusedBorderColor = MaterialTheme.colorScheme.onSurface
                                 )
                             )
+                            //TODO BUG：每输入一个词后会导致键盘状态收起，需要调节键盘行为
                             DropdownMenu(
                                 expanded = menuExpanded,
                                 onDismissRequest = {
@@ -296,7 +297,7 @@ fun LabelItem(it: TagEntity, onLabelClick: () -> Unit, onDeleteClick: () -> Unit
             tint = MaterialTheme.colorScheme.error,
             modifier = Modifier
                 .offset(x = (-30).dp)
-                .clickable { println("test") })
+                .clickable { onDeleteClick() })
     }
 }
 
