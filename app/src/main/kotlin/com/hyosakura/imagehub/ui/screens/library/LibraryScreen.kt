@@ -96,7 +96,7 @@ fun LibraryScreen(
             ) {
                 imageList?.let {
                     items(it) { image ->
-                        ImageItem(image) { navController.navigate(AddDeviceImage.name) }
+                        ImageItem(image) { navController.navigate("${AddDeviceImage.name}/${image.imageId}") }
                     }
                 }
             }
