@@ -98,8 +98,8 @@ fun DetailScreen(
                                 .fillMaxWidth()
                                 .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
                                 .alpha(0.8f)
-                                .padding(10.dp)
-                                .clickable { isAnnotationEdit = true }) {
+                                .clickable { isAnnotationEdit = true }
+                                .padding(10.dp)) {
                             if (annotation != "")
                                 Text(
                                     text = image.annotation!!,
