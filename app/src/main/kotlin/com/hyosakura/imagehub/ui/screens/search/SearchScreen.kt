@@ -17,6 +17,9 @@ import com.hyosakura.imagehub.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(onSearchBarClick: () -> Unit) {
+
+    // TODO 获取星标标签（按最近使用排序）和最近使用标签
+
     Scaffold(
         topBar = {
             Row(
