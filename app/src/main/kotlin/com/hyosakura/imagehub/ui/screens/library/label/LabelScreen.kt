@@ -1,6 +1,7 @@
 package com.hyosakura.imagehub.ui.screens.library.label
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,6 +18,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -30,6 +32,7 @@ import com.hyosakura.imagehub.viewmodel.TagManageViewModelFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.stream.Collectors
 
 private val coroutine = CoroutineScope(Dispatchers.IO)
@@ -45,6 +48,8 @@ fun LabelScreen(
 
     var isEditMode by remember { mutableStateOf(false) }
     var isAddMode by remember { mutableStateOf(false) }
+
+    val context =  LocalContext.current
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -109,7 +114,6 @@ fun LabelScreen(
                         AlertDialog(
                             onDismissRequest = { isEditMode = false },
                             title = {
-                                // TODO: 有 Bug，label 对象引用是最新的
                                 Row(
                                     Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween
@@ -192,7 +196,13 @@ fun LabelScreen(
                                         )
                                     )
                                 } else {
-                                    // todo 修改弹窗
+                                    withContext(Dispatchers.Main) {
+                                        Toast.makeText(
+                                            context,
+                                            "标签已存在",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
                                     Log.i("tag", "已经有标签")
                                 }
                             }
