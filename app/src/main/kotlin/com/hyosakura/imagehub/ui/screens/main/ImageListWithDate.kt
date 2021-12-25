@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.TabRowDefaults.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -56,7 +57,7 @@ fun ImageListWithDate(date: String, images: List<ImageEntity>, navController: Na
             Text(
                 text = date,
                 style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(start = 10.dp)
+                modifier = Modifier.padding(16.dp)
             )
         }
 

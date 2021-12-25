@@ -60,6 +60,9 @@ fun DetailScreen(
     }.image.observeAsState().value?.let { image ->
         dirViewModel.visitDir(image.dirId).observeAsState().value?.let { folder ->
             val labelList by imageViewModel.tagList.observeAsState()
+            val annotation = image.annotation!!
+
+            // TODO 获取星标标签（按最近使用排序）和最近使用标签
 
             var isAnnotationEdit by remember { mutableStateOf(false) }
             var isAddLabel by remember { mutableStateOf(false) }
@@ -106,10 +109,17 @@ fun DetailScreen(
                                 .alpha(0.8f)
                                 .padding(10.dp)
                                 .clickable { isAnnotationEdit = true }) {
-                            Text(
-                                text = image.annotation!!,
-                                style = MaterialTheme.typography.bodySmall
-                            )
+                            if (annotation != "")
+                                Text(
+                                    text = image.annotation!!,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            else
+                                Text(
+                                    text = stringResource(id = R.string.addAnnotation),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    modifier = Modifier.alpha(0.5f)
+                                )
                         }
 
                         when (image.deleted) {
@@ -137,6 +147,7 @@ fun DetailScreen(
                                             )
                                         },
                                         selected = false,
+                                        label = { Text(text = stringResource(R.string.restore)) },
                                         onClick = {
                                             navController.popBackStack()
                                             image.deleted = 0
@@ -158,7 +169,7 @@ fun DetailScreen(
                 )
 
                 if (isAnnotationEdit) {
-                    var editText by remember { mutableStateOf("") }
+                    var editText by remember { mutableStateOf(annotation) }
                     AlertDialog(
                         onDismissRequest = { isAnnotationEdit = false },
                         title = { Text(text = "编辑注释") },
