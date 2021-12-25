@@ -47,10 +47,8 @@ class DeviceImageViewModel(private val repository: DataRepository) : ViewModel()
     fun getImageById(id: Int) = map[id]
 
     fun getDeviceImage() {
-        if (map.isNotEmpty()) return
         val root = "/storage/emulated/0/"
         val path = arrayOf("$root/Download", "$root/Pictures")
-        val imageList = mutableListOf<DeviceImageEntity>()
         fun match(file: File): Boolean {
             return (
                     file.extension == "jpg" ||
@@ -65,7 +63,7 @@ class DeviceImageViewModel(private val repository: DataRepository) : ViewModel()
             Files.walkFileTree(Paths.get(it), object : SimpleFileVisitor<Path>() {
                 override fun visitFile(file: Path, attrs: BasicFileAttributes?): FileVisitResult {
                     if (match(file.toFile())) {
-                        val bitmap = ImageUtil.decodeFile(file.pathString, 2)
+                        val bitmap = ImageUtil.decodeFile(file.pathString, 5)
                         val image = object : DeviceImageEntity(
                             imageId = id++,
                             name = file.name,
@@ -77,7 +75,6 @@ class DeviceImageViewModel(private val repository: DataRepository) : ViewModel()
                             bitmap = bitmap
                         ) {}
                         map[image.imageId!!] = image
-                        imageList.add(image)
                     }
                     return super.visitFile(file, attrs)
                 }

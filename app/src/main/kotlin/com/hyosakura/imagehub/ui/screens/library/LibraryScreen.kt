@@ -27,7 +27,11 @@ import com.hyosakura.imagehub.repository.DataRepository
 import com.hyosakura.imagehub.ui.screens.Screen.*
 import com.hyosakura.imagehub.viewmodel.DeviceImageViewModel
 import com.hyosakura.imagehub.viewmodel.DeviceImageViewModelFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+
+private val coroutine = CoroutineScope(Dispatchers.IO)
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -37,7 +41,7 @@ fun LibraryScreen(
     viewModel: DeviceImageViewModel = viewModel(factory = DeviceImageViewModelFactory(repository))
 ) {
     LaunchedEffect(LocalContext.current) {
-        launch {
+        coroutine.launch {
             viewModel.getDeviceImage()
         }
     }
