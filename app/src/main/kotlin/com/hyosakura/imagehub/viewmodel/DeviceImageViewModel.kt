@@ -25,7 +25,7 @@ class DeviceImageViewModel(private val repository: DataRepository) : ViewModel()
     val imageList: LiveData<List<DeviceImageEntity>>
         get() {
             return flow<List<DeviceImageEntity>> {
-                map.values
+                emit(map.values.toList())
             }.asLiveData()
         }
 
