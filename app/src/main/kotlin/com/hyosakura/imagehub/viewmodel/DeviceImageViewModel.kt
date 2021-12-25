@@ -63,7 +63,11 @@ class DeviceImageViewModel(private val repository: DataRepository) : ViewModel()
             Files.walkFileTree(Paths.get(it), object : SimpleFileVisitor<Path>() {
                 override fun visitFile(file: Path, attrs: BasicFileAttributes?): FileVisitResult {
                     if (match(file.toFile())) {
-                        val bitmap = ImageUtil.decodeFile(file.pathString, 5)
+                        val size = file.toFile().length()
+                        val bitmap = ImageUtil.decodeFile(
+                            file.pathString,
+                            if (size > 1024 * 500) 5 else 1
+                        )
                         val image = object : DeviceImageEntity(
                             imageId = id++,
                             name = file.name,
