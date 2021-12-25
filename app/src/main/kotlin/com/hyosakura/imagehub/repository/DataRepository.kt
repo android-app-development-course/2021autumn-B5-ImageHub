@@ -46,6 +46,8 @@ class DataRepository(private val database: AppDatabase) {
 
     val allTags = database.tagDao().getAllTags(20)
 
+    fun getTagById(tagId: Int) = database.tagDao().getTagById(tagId)
+
     fun getTagByName(name: String) = database.tagDao().getTagByName(name)
 
     suspend fun getTagByNameWithOutFlow(name: String) = database.tagDao().getTagByNameWithOutFlow(name)

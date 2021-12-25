@@ -54,7 +54,7 @@ fun BaseScreen(
                     MainScreen(repository, navController)
                 }
                 composable(Search.name) {
-                    SearchScreen(onSearchBarClick = { navController.navigate(SearchResults.name) })
+                    SearchScreen(repository, onSearchBarClick = { navController.navigate(SearchResults.name) })
                 }
                 composable(Library.name) {
                     LibraryScreen(navController)
