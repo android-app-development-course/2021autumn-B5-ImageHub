@@ -7,14 +7,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.TabRowDefaults.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.hyosakura.imagehub.entity.ImageEntity
@@ -65,7 +63,7 @@ fun ImageListWithDate(date: String, images: List<ImageEntity>, navController: Na
             cells = GridCells.Adaptive(minSize = 120.dp),
         ) {
             items(images) { image ->
-                ImageItem(image, toDetailScreens = {
+                ImageItem(image, onImageClick = {
                     navController.navigate("${ Screen.Detail.name }/${ image.imageId }")
                 })
             }
@@ -74,11 +72,13 @@ fun ImageListWithDate(date: String, images: List<ImageEntity>, navController: Na
 }
 
 @Composable
-private fun ImageItem(image: ImageEntity, toDetailScreens: () -> Unit) {
-    Image(
-        image.bitmap!!.asImageBitmap(), null,
-        Modifier
-            .size(120.dp)
-            .clickable(onClick = toDetailScreens)
-    )
+fun ImageItem(image: ImageEntity, onImageClick: () -> Unit) {
+    Box(modifier = Modifier.clickable { onImageClick() }) {
+        Image(
+            bitmap = image.bitmap!!.asImageBitmap(),
+            contentDescription = null,
+            modifier = Modifier
+                .size(120.dp)
+        )
+    }
 }

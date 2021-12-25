@@ -90,23 +90,19 @@ fun TagScreen(
                             TagItem(
                                 tag,
                                 isStarChange,
-                                onEditClick = {
-                                    isEditMode = true
-                                    currentTag = tag
-                                },
-                                onLabelClick = {
-                                    navController.navigate("${Screen.TagImage.name}/${tag.tagId}")
-                                    currentTag = tag
-                                },
                                 onStarClick = {
                                     tag.star = if (tag.star == 0) 1 else 0
                                     viewModel.updateTag(tag)
                                     isStarChange = tag.star
                                 },
-                                onDeleteClick = { labelToDelete ->
-                                    viewModel.deleteTag(labelToDelete)
+                                onEditClick = {
+                                    isEditMode = true
+                                    currentTag = tag
                                 }
-                            )
+                            ) {
+                                navController.navigate("${Screen.TagImage.name}/${tag.tagId}")
+                                currentTag = tag
+                            }
                         }
                     }
 
@@ -117,9 +113,9 @@ fun TagScreen(
                             title = {
                                 Row(
                                     Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    // Row(Modifier.fillMaxWidth()) {
                                     Text(text = "编辑标签")
                                     TextButton(
                                         onClick = {
@@ -129,7 +125,9 @@ fun TagScreen(
                                     ) {
                                         Icon(
                                             imageVector = Icons.Filled.Delete,
-                                            contentDescription = null
+                                            contentDescription = null,
+                                            modifier = Modifier.size(30.dp),
+                                            tint = MaterialTheme.colorScheme.error
                                         )
                                     }
                                 }
@@ -238,8 +236,7 @@ private fun TagItem(
     isStar: Int,
     onStarClick: () -> Unit,
     onEditClick: () -> Unit,
-    onLabelClick: () -> Unit,
-    onDeleteClick: (TagEntity) -> Unit
+    onLabelClick: () -> Unit
 ) {
 
     Row(
@@ -281,22 +278,11 @@ private fun TagItem(
         TextButton(
             onClick = onEditClick, modifier = Modifier
                 .requiredSize(60.dp)
-                .offset((-90).dp, 0.dp)
+                .offset((-30).dp, 0.dp)
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_baseline_edit_24),
                 contentDescription = null
-            )
-        }
-        TextButton(
-            onClick = { onDeleteClick(tagEntity) }, modifier = Modifier
-                .requiredSize(60.dp)
-                .offset((-30).dp, 0.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Delete,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.error
             )
         }
     }

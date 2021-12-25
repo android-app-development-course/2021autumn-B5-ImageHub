@@ -4,9 +4,14 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -15,6 +20,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.hyosakura.imagehub.R
+import com.hyosakura.imagehub.entity.DeviceImageEntity
 import com.hyosakura.imagehub.repository.DataRepository
 import com.hyosakura.imagehub.ui.screens.Screen
 import com.hyosakura.imagehub.ui.screens.Screen.*
@@ -29,6 +35,11 @@ import com.hyosakura.imagehub.ui.screens.main.DetailScreen
 import com.hyosakura.imagehub.ui.screens.main.MainScreen
 import com.hyosakura.imagehub.ui.screens.search.SearchResultsScreen
 import com.hyosakura.imagehub.ui.screens.search.SearchScreen
+import com.hyosakura.imagehub.viewmodel.DeviceImageViewModel
+import com.hyosakura.imagehub.viewmodel.DeviceImageViewModelFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,6 +51,9 @@ fun BaseScreen(
     val navController = rememberNavController()
     val backstackEntry = navController.currentBackStackEntryAsState()
     val currentScreen = Screen.fromRoute(backstackEntry.value?.destination?.route)
+
+    val deviceImageViewModel: DeviceImageViewModel = viewModel(factory = DeviceImageViewModelFactory(repository))
+    val deviceImageList by DeviceImageViewModel.imageList.observeAsState()
 
     Scaffold(
         topBar = {
@@ -58,7 +72,7 @@ fun BaseScreen(
                     SearchScreen(repository, onSearchBarClick = { navController.navigate(SearchResults.name) })
                 }
                 composable(Library.name) {
-                    LibraryScreen(repository, navController)
+                    LibraryScreen(navController, deviceImageList)
                 }
                 composable(SearchResults.name) {
                     SearchResultsScreen(repository, navController)
@@ -102,6 +116,12 @@ fun BaseScreen(
             BottomBar(navController, currentScreen)
         }
     )
+
+    LaunchedEffect(LocalContext.current) {
+        CoroutineScope(Dispatchers.IO).launch {
+            deviceImageViewModel.getDeviceImage()
+        }
+    }
 }
 
 @Composable
@@ -117,7 +137,7 @@ private fun BaseTopBar() {
     CenterAlignedTopAppBar(title = {
         Text(
             stringResource(R.string.imageHub),
-            style = MaterialTheme.typography.headlineLarge
+            style = MaterialTheme.typography.headlineMedium
         )
     })
 }

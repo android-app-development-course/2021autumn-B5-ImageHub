@@ -7,6 +7,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -47,13 +48,15 @@ fun ImportDeviceImageScreen(
             )
         }) {
         Column(Modifier.fillMaxSize()) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_outline_image_black_24),
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(300.dp)
-            )
+            if (image != null) {
+                Image(
+                    bitmap = image.bitmap!!.asImageBitmap(),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(300.dp)
+                )
+            }
             FilledTonalButton(
                 onClick = {
                     coroutine.launch {
