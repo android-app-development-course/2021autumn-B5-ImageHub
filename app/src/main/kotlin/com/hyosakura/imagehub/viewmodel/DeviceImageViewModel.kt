@@ -67,7 +67,7 @@ class DeviceImageViewModel(private val repository: DataRepository) : ViewModel()
                         val size = file.toFile().length()
                         val bitmap = ImageUtil.decodeFile(
                             file.pathString,
-                            if (size > 1024 * 500) 5 else 1
+                            if (size > 1024 * 500) 10 else 1
                         )
                         val image = object : DeviceImageEntity(
                             imageId = id++,
