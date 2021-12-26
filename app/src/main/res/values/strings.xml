@@ -17,4 +17,5 @@
     <string name="trashDeleteRule">\"回收站\"中的内容会在 30 天后删除</string>
     <string name="addAnnotation">在此处添加图片注释</string>
     <string name="picturesInDevice">设备上的图片</string>
+    <string name="clickToAddTag">点击右侧 + 添加标签</string>
 </resources>
