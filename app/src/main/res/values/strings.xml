@@ -18,4 +18,9 @@
     <string name="addAnnotation">在此处添加图片注释</string>
     <string name="picturesInDevice">设备上的图片</string>
     <string name="clickToAddTag">点击右侧 + 添加标签</string>
+    <string name="addOrSearchTags">新增或搜索标签</string>
+    <string name="recentlyUsed">最近使用</string>
+    <string name="starTags">常用标签</string>
+    <string name="addTag">添加标签</string>
+    <string name="editAnnotation">编辑注释</string>
 </resources>

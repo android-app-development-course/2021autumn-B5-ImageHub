@@ -131,7 +131,7 @@ fun DetailScreen(
                     var editText by remember { mutableStateOf(annotation) }
                     AlertDialog(
                         onDismissRequest = { isAnnotationEdit = false },
-                        title = { Text(text = "编辑注释") },
+                        title = { Text(text = stringResource(R.string.editAnnotation)) },
                         text = {
                             OutlinedTextField(
                                 value = editText, onValueChange = { string ->
@@ -176,9 +176,10 @@ fun DetailScreen(
                     var tag by remember { mutableStateOf<TagEntity?>(null) }
                     AlertDialog(
                         onDismissRequest = { isAddTag = false },
-                        title = { Text(text = "添加标签") },
+                        title = { Text(text = stringResource(R.string.addTag)) },
                         text = {
                             Column {
+                                Text(text = stringResource(R.string.starTags))
                                 TagRow(
                                     tagList = starTags,
                                     onSuggestTagClick = { tagEntity ->
@@ -190,6 +191,19 @@ fun DetailScreen(
                                         isAddTag = false
                                     }
                                 )
+                                Text(text = stringResource(R.string.recentlyUsed))
+                                TagRow(
+                                    tagList = recentTags,
+                                    onSuggestTagClick = { tagEntity ->
+                                        onSuggestTagClick(
+                                            image,
+                                            tagEntity,
+                                            imageViewModel
+                                        )
+                                        isAddTag = false
+                                    }
+                                )
+                                Text(text = stringResource(R.string.addOrSearchTags))
                                 Row {
                                     OutlinedTextField(
                                         value = editText,
