@@ -10,7 +10,6 @@ import androidx.compose.material.TabRowDefaults.Divider
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
@@ -20,26 +19,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
 import com.hyosakura.imagehub.R
-import com.hyosakura.imagehub.entity.toDateTime
-import com.hyosakura.imagehub.repository.DataRepository
-import com.hyosakura.imagehub.ui.screens.main.ImageListWithDate
-import com.hyosakura.imagehub.viewmodel.ImageManageViewModel
-import com.hyosakura.imagehub.viewmodel.ImageManageViewModelFactory
-import java.time.format.DateTimeFormatter
-import java.util.stream.Collectors
+import com.hyosakura.imagehub.entity.ImageEntity
+import com.hyosakura.imagehub.ui.screens.main.ImageList
 
 @OptIn(ExperimentalMaterial3Api::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
 fun SearchResultsScreen(
-    repository: DataRepository,
-    navController: NavHostController,
-    viewModel: ImageManageViewModel = viewModel(factory = ImageManageViewModelFactory(repository))
+    initSearch: (String) -> Unit,
+    searchResult: List<ImageEntity>?,
+    onImageClick: ImageEntity.() -> Unit
 ) {
     var searchString by remember { mutableStateOf("") }
-    val format = DateTimeFormatter.ofPattern("yyyy/MM/dd")
 
     Scaffold(
         topBar = {
@@ -82,20 +73,9 @@ fun SearchResultsScreen(
         },
         content = {
             Column {
-                viewModel.searchImage(searchString)
-                viewModel.imageList.observeAsState().value?.let { entityList ->
-                    val map = entityList.stream().collect(Collectors.groupingBy {
-                        it.addTime!!.toDateTime().toLocalDate()
-                    })
-                    val iterator = map.iterator()
-                    while (iterator.hasNext()) {
-                        val entry = iterator.next()
-                        val date = entry.key
-                        val list = entry.value
-                        ImageListWithDate(
-                            date.format(format), list.map { it }, navController
-                        )
-                    }
+                initSearch(searchString)
+                searchResult?.let {
+                    ImageList(it, onImageClick)
                 }
             }
         },

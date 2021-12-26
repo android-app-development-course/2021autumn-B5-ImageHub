@@ -73,7 +73,7 @@ class ReceiveActivity : Activity() {
                 )
                 val imageEntity = ImageEntity(
                     imageId = null,
-                    dirId = -1,
+                    folderId = -1,
                     name = fileName,
                     url = path,
                     ext = fileName.substringAfterLast('.', ""),

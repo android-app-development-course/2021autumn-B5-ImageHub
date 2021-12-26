@@ -6,9 +6,9 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "directory")
-data class DirEntity(
+data class FolderEntity(
     @field:PrimaryKey(autoGenerate = true)
-    override var dirId: Int? = null,
+    override var folderId: Int? = null,
 
     var parentId: Int = -1,
 
@@ -23,14 +23,14 @@ data class DirEntity(
 
     @Ignore
     override var latestPicture: Bitmap? = null
-) : DeviceDirEntity(name = name) {
+) : DeviceFolderEntity(name = name) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as DirEntity
+        other as FolderEntity
 
-        if (dirId != other.dirId) return false
+        if (folderId != other.folderId) return false
         if (parentId != other.parentId) return false
         if (name != other.name) return false
         if (number != other.number) return false
@@ -41,7 +41,7 @@ data class DirEntity(
     }
 
     override fun hashCode(): Int {
-        var result = dirId ?: 0
+        var result = folderId ?: 0
         result = 31 * result + parentId
         result = 31 * result + (name?.hashCode() ?: 0)
         result = 31 * result + (url?.hashCode() ?: 0)
@@ -56,8 +56,8 @@ data class DirEntity(
  * 设备文件夹
  * 其id与子类的id无直接关系
  */
-abstract class DeviceDirEntity(
-    open var dirId: Int? = null,
+abstract class DeviceFolderEntity(
+    open var folderId: Int? = null,
     open var name: String,
     open var url: String? = null,
     open var latestPicture: Bitmap? = null

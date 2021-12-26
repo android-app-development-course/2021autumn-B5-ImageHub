@@ -8,7 +8,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.hyosakura.imagehub.dao.DirDao
 import com.hyosakura.imagehub.dao.ImageDao
 import com.hyosakura.imagehub.dao.TagDao
-import com.hyosakura.imagehub.entity.DirEntity
+import com.hyosakura.imagehub.entity.FolderEntity
 import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.entity.TagEntity
 import com.hyosakura.imagehub.entity.relation.ImageTagCrossRef
@@ -18,7 +18,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
 @Database(
-    entities = [ImageEntity::class, DirEntity::class, TagEntity::class, ImageTagCrossRef::class],
+    entities = [ImageEntity::class, FolderEntity::class, TagEntity::class, ImageTagCrossRef::class],
     version = 1,
     exportSchema = false
 )
@@ -45,7 +45,7 @@ abstract class AppDatabase : RoomDatabase() {
                             scope.launch(Dispatchers.IO) {
                                 INSTANCE
                                     ?.dirDao()
-                                    ?.insertDirs(DirEntity(dirId = -1, parentId = -2, name = "无文件夹"))
+                                    ?.insertDirs(FolderEntity(folderId = -1, parentId = -2, name = "无文件夹"))
                             }
                         }
                     })
@@ -57,6 +57,3 @@ abstract class AppDatabase : RoomDatabase() {
     }
 }
 
-object DataBaseUtil {
-    lateinit var db: AppDatabase
-}

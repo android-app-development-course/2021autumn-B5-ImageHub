@@ -16,7 +16,6 @@ import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -25,15 +24,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
 import com.hyosakura.imagehub.R
+import com.hyosakura.imagehub.entity.FolderEntity
 import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.entity.TagEntity
-import com.hyosakura.imagehub.repository.DataRepository
-import com.hyosakura.imagehub.ui.screens.Screen
 import com.hyosakura.imagehub.util.ImageUtil.share
-import com.hyosakura.imagehub.viewmodel.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -43,28 +38,27 @@ private val coroutine = CoroutineScope(Dispatchers.IO)
 @OptIn(ExperimentalMaterial3Api::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
 fun DetailScreen(
-    imageId: Int?,
-    repository: DataRepository,
-    navController: NavHostController,
-    imageViewModel: ImageManageViewModel = viewModel(
-        factory = ImageManageViewModelFactory(
-            repository
-        )
-    ),
-    dirViewModel: DirManageViewModel = viewModel(factory = DirManageViewModelFactory(repository)),
-    tagViewModel: TagManageViewModel = viewModel(factory = TagManageViewModelFactory(repository))
+    image: ImageEntity?,
+    folder: FolderEntity?,
+    tagList: List<TagEntity>?,
+    starTags: List<TagEntity>?,
+    candidateTags: List<TagEntity>?,
+    recentTags: List<TagEntity>?,
+    onBack: () -> Unit,
+    onTagInsert: suspend TagEntity.() -> Int,
+    onTagClick: TagEntity.() -> Unit,
+    onTagDelete: TagEntity.() -> Unit,
+    onImageDelete: ImageEntity.() -> Unit,
+    onImageRecover: ImageEntity.() -> Unit,
+    onTagAddToImage: (ImageEntity, TagEntity) -> Unit,
+    onFolderClick: FolderEntity.() -> Unit,
+    onAnnotationEdit: ImageEntity.(text: String) -> Unit,
+    candidateAction:  (String) -> Unit,
+    onTagConflict: () -> Unit
 ) {
-    imageViewModel.also {
-        it.visitImage(imageId!!)
-    }.image.observeAsState().value?.let { image ->
-        dirViewModel.visitDir(image.dirId).observeAsState().value?.let { folder ->
-            val tagList by imageViewModel.tagList.observeAsState()
-            val annotation = image.annotation!!
-
-            val starTags by tagViewModel.starTags.observeAsState()
-            val num = 20
-            val recentTags by tagViewModel.getRecentTag(num).observeAsState()
-
+    image?.let { i ->
+        folder?.let { f ->
+            val annotation = i.annotation!!
             var isAnnotationEdit by remember { mutableStateOf(false) }
             var isAddTag by remember { mutableStateOf(false) }
 
@@ -74,13 +68,12 @@ fun DetailScreen(
                         title = {
                             TagRowWithClose(
                                 tagList,
-                                onTagClick = onTagClick(navController),
-                                onDeleteClick = { tagEntity ->
-                                    imageViewModel.removeTag(image, tagEntity)
-                                })
+                                onTagClick,
+                                onTagDelete
+                            )
                         },
                         navigationIcon = {
-                            IconButton(onClick = { navController.popBackStack() }) {
+                            IconButton(onClick = onBack) {
                                 Icon(imageVector = Icons.Filled.ArrowBack, null)
                             }
                         },
@@ -103,7 +96,7 @@ fun DetailScreen(
                                 .padding(10.dp)) {
                             if (annotation != "")
                                 Text(
-                                    text = image.annotation!!,
+                                    text = i.annotation!!,
                                     style = MaterialTheme.typography.bodySmall
                                 )
                             else
@@ -114,17 +107,17 @@ fun DetailScreen(
                                 )
                         }
 
-                        when (image.deleted) {
+                        when (i.deleted) {
                             0 -> {
                                 DetailBottomBar(
-                                    folderName = folder.name,
-                                    imageEntity = image,
+                                    folderName = f.name,
+                                    imageEntity = i,
                                     onDeleteClick = {
-                                        navController.popBackStack()
-                                        image.deleted = 1
-                                        imageViewModel.updateImage(image)
+                                        onImageDelete(i)
                                     },
-                                    onFolderClick = { navController.navigate("Folder/${folder.dirId}") }
+                                    onFolderClick = {
+                                        onFolderClick(f)
+                                    }
                                 )
                             }
                             else -> {
@@ -141,9 +134,7 @@ fun DetailScreen(
                                         selected = false,
                                         label = { Text(text = stringResource(R.string.restore)) },
                                         onClick = {
-                                            navController.popBackStack()
-                                            image.deleted = 0
-                                            imageViewModel.updateImage(image)
+                                            onImageRecover(i)
                                         }
                                     )
                                 }
@@ -153,7 +144,7 @@ fun DetailScreen(
                 }
             ) {
                 Image(
-                    bitmap = image.bitmap!!.asImageBitmap(),
+                    bitmap = i.bitmap!!.asImageBitmap(),
                     contentDescription = null,
                     Modifier
                         .fillMaxHeight(0.9f)
@@ -183,8 +174,7 @@ fun DetailScreen(
                         confirmButton = {
                             TextButton(
                                 onClick = {
-                                    image.annotation = editText
-                                    imageViewModel.updateImage(image)
+                                    onAnnotationEdit(i, editText)
                                     isAnnotationEdit = false
                                 }
                             ) {
@@ -206,19 +196,26 @@ fun DetailScreen(
                 if (isAddTag) {
                     var editText by remember { mutableStateOf("") }
                     var choose by remember { mutableStateOf(false) }
+                    var repeat by remember { mutableStateOf(false) }
                     var tag by remember { mutableStateOf<TagEntity?>(null) }
                     AlertDialog(
                         onDismissRequest = { isAddTag = false },
                         title = { Text(text = "添加标签") },
                         text = {
                             Column {
-                                TagRow(tagList = starTags, onTagClick = onTagClick(navController = navController))
+                                TagRow(
+                                    tagList = starTags,
+                                    onTagClick = {
+                                        onTagClick(it)
+                                    }
+                                )
                                 Row {
                                     OutlinedTextField(
                                         value = editText,
                                         onValueChange = { string ->
                                             editText = string
                                             choose = false
+                                            repeat = false
                                         },
                                         singleLine = true,
                                         textStyle = MaterialTheme.typography.titleMedium,
@@ -231,24 +228,28 @@ fun DetailScreen(
                                     )
                                 }
                                 if (editText.isNotEmpty() && !choose) {
-                                    tagViewModel.getTagByName(editText)
-                                        .observeAsState().value?.let { list ->
-                                            list.forEach {
-                                                Row {
-                                                    // todo 改样式
-                                                    Box(modifier = Modifier.clickable {
+                                    candidateAction(editText)
+                                    candidateTags?.let{ list ->
+                                        list.forEach {
+                                            Row {
+                                                // todo 改样式
+                                                Box(
+                                                    modifier = Modifier.clickable {
+                                                        if (editText == it.name) {
+                                                            repeat = true
+                                                        }
                                                         editText = it.name!!
                                                         choose = true
                                                         tag = it
-                                                    }) {
-                                                        Text(it.name!!)
                                                     }
+                                                ) {
+                                                    Text(it.name!!)
                                                 }
                                             }
                                         }
+                                    }
                                 }
                             }
-
                         },
                         confirmButton = {
                             TextButton(
@@ -256,11 +257,13 @@ fun DetailScreen(
                                     coroutine.launch {
                                         if (!choose) {
                                             tag = TagEntity(name = editText)
-                                            tag!!.tagId =
-                                                tagViewModel.insertTagAndGetId(tag!!).first()
-                                                    .toInt()
+                                            tag!!.tagId = onTagInsert(tag!!)
                                         }
-                                        imageViewModel.addTagToImage(image, tag!!)
+                                        if (!repeat) {
+                                            onTagAddToImage(i, tag!!)
+                                        } else {
+                                           onTagConflict()
+                                        }
                                         isAddTag = false
                                     }
                                 }
@@ -285,15 +288,10 @@ fun DetailScreen(
 }
 
 @Composable
-private fun onTagClick(navController: NavHostController) = { tagEntity:TagEntity ->
-    navController.navigate("${Screen.TagImage.name}/${tagEntity.tagId}")
-}
-
-@Composable
 private fun TagRowWithClose(
     tagList: List<TagEntity>?,
-    onTagClick: (TagEntity) -> Unit,
-    onDeleteClick: (TagEntity) -> Unit
+    onTagClick: TagEntity.() -> Unit,
+    onDeleteClick: TagEntity.() -> Unit
 ) {
     if (tagList != null) {
         LazyRow {
@@ -368,7 +366,7 @@ fun DetailBottomBar(
     folderName: String,
     imageEntity: ImageEntity,
     onDeleteClick: () -> Unit,
-    onFolderClick: () -> Unit,
+    onFolderClick: () -> Unit
 ) {
     val context = LocalContext.current
     NavigationBar {

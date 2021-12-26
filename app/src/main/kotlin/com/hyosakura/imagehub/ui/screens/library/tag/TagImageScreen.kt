@@ -8,7 +8,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.hyosakura.imagehub.repository.DataRepository
-import com.hyosakura.imagehub.ui.screens.main.ImageList
 import com.hyosakura.imagehub.viewmodel.TagManageViewModel
 import com.hyosakura.imagehub.viewmodel.TagManageViewModelFactory
 
@@ -43,7 +42,7 @@ fun TagImageScreen(
         )
     }) {
         tagManageViewModel.getImageInTag(tagId!!).observeAsState().value?.let { entityList ->
-            ImageList(entityList, navController)
+            // ImageList(entityList, navController)
         }
     }
 }

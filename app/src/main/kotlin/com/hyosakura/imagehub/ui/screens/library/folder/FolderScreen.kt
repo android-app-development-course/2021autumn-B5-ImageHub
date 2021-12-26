@@ -1,17 +1,16 @@
 package com.hyosakura.imagehub.ui.screens.library.folder
 
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.hyosakura.imagehub.repository.DataRepository
-import com.hyosakura.imagehub.viewmodel.DirManageViewModel
-import com.hyosakura.imagehub.viewmodel.DirManageViewModelFactory
+import com.hyosakura.imagehub.entity.FolderEntity
+import com.hyosakura.imagehub.entity.ImageEntity
 
 @Composable
 fun FolderScreen(
-    repository: DataRepository,
-    folderId: Int?,
-    viewModel: DirManageViewModel = viewModel(factory = DirManageViewModelFactory(repository))
+    images: List<ImageEntity>?,
+    childFolder: List<FolderEntity>?
 ) {
-    viewModel.visitDir(folderId ?: -1)
-    FolderList(viewModel)
+    FolderList(
+        images,
+        childFolder
+    )
 }

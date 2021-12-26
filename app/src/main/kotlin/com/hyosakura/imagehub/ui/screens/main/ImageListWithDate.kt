@@ -14,17 +14,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.entity.toDateTime
-import com.hyosakura.imagehub.ui.screens.Screen
 import java.time.format.DateTimeFormatter
 import java.util.stream.Collectors
 
 private val format = DateTimeFormatter.ofPattern("yyyy/MM/dd")
 
 @Composable
-fun ImageList(images: List<ImageEntity>, navController: NavHostController) {
+fun ImageList(
+    images: List<ImageEntity>,
+    onImageClick: ImageEntity.() -> Unit
+) {
     val map = images.stream().collect(Collectors.groupingBy {
         it.addTime!!.toDateTime().toLocalDate()
     })
@@ -37,7 +38,7 @@ fun ImageList(images: List<ImageEntity>, navController: NavHostController) {
             ImageListWithDate(
                 date.format(format),
                 list.map { it },
-                navController
+                onImageClick
             )
         }
     }
@@ -45,7 +46,11 @@ fun ImageList(images: List<ImageEntity>, navController: NavHostController) {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ImageListWithDate(date: String, images: List<ImageEntity>, navController: NavHostController) {
+fun ImageListWithDate(
+    date: String,
+    images: List<ImageEntity>,
+    onImageClick: ImageEntity.() -> Unit
+) {
     Column(Modifier.fillMaxWidth()) {
         Row(
             Modifier.fillMaxWidth(),
@@ -63,17 +68,25 @@ fun ImageListWithDate(date: String, images: List<ImageEntity>, navController: Na
             cells = GridCells.Adaptive(minSize = 120.dp),
         ) {
             items(images) { image ->
-                ImageItem(image, onImageClick = {
-                    navController.navigate("${ Screen.Detail.name }/${ image.imageId }")
-                })
+                ImageItem(
+                    image,
+                    onImageClick
+                )
             }
         }
     }
 }
 
 @Composable
-fun ImageItem(image: ImageEntity, onImageClick: () -> Unit) {
-    Box(modifier = Modifier.clickable { onImageClick() }) {
+fun ImageItem(
+    image: ImageEntity,
+    onImageClick: ImageEntity.() -> Unit
+) {
+    Box(
+        modifier = Modifier.clickable {
+            onImageClick(image)
+        }
+    ) {
         Image(
             bitmap = image.bitmap!!.asImageBitmap(),
             contentDescription = null,

@@ -12,7 +12,7 @@ import kotlinx.coroutines.withContext
 class TagManageViewModel(private val repository: DataRepository) : ViewModel() {
     val allTags = repository.allTags.asLiveData()
     val starTags = repository.starTag.asLiveData()
-    lateinit var candidateTagWithName: LiveData<List<TagEntity>>
+    var candidateTagWithName: LiveData<List<TagEntity>> = getTagByName("")
     lateinit var tag: LiveData<TagEntity>
 
     fun updateTag(entity: TagEntity) {
@@ -61,11 +61,6 @@ class TagManageViewModel(private val repository: DataRepository) : ViewModel() {
             candidateTagWithName = it
         }
     }
-
-    suspend fun getTagByNameWithOutFlow(name: String, fuzz: Boolean = true): List<TagEntity> =
-        withContext(viewModelScope.coroutineContext) {
-            repository.getTagByNameWithOutFlow(if (fuzz) "%$name%" else name)
-        }
 
     fun deleteTag(entity: TagEntity) {
         viewModelScope.launch {

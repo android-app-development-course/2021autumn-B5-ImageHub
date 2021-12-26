@@ -8,23 +8,24 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hyosakura.imagehub.R
-import com.hyosakura.imagehub.viewmodel.DirManageViewModel
+import com.hyosakura.imagehub.entity.FolderEntity
+import com.hyosakura.imagehub.entity.ImageEntity
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FolderList(
-    viewModel: DirManageViewModel
+    images: List<ImageEntity>?,
+    childFolder: List<FolderEntity>?
 ) {
     Column {
         Row(modifier = Modifier.weight(0.5F)) {
-            viewModel.currentChildDir.observeAsState().value?.let {
+            childFolder?.let {
                 Log.i("list", it.toString())
                 Log.i("indices", it.indices.toString())
                 for (i in it.indices step 2) {
@@ -73,7 +74,7 @@ fun FolderList(
             }
         }
         Row(Modifier.weight(0.5F)) {
-            viewModel.imagesInCurrentDir.observeAsState().value?.let {
+            images?.let {
                 val images = it.map { entity ->
                     entity.bitmap!!
                 }
