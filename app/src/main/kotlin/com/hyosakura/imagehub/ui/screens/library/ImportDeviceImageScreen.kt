@@ -6,6 +6,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.painterResource
@@ -31,6 +32,7 @@ fun ImportDeviceImageScreen(
     navController: NavHostController,
     viewModel: DeviceImageViewModel = viewModel(factory = DeviceImageViewModelFactory(repository))
 ) {
+    //TODO：分别获取常用标签和星标标签两个列表
     val image = viewModel.getImageById(imageId!!)
 
     Scaffold(modifier = Modifier.fillMaxSize(),
@@ -41,13 +43,13 @@ fun ImportDeviceImageScreen(
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.Filled.ArrowBack,
-                            contentDescription = "导入图片"
+                            contentDescription = "返回"
                         )
                     }
                 }
             )
         }) {
-        Column(Modifier.fillMaxSize()) {
+        Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
             if (image != null) {
                 Image(
                     bitmap = image.bitmap!!.asImageBitmap(),
@@ -57,6 +59,7 @@ fun ImportDeviceImageScreen(
                         .height(300.dp)
                 )
             }
+            Spacer(modifier = Modifier.height(16.dp))
             FilledTonalButton(
                 onClick = {
                     coroutine.launch {
@@ -68,9 +71,16 @@ fun ImportDeviceImageScreen(
                 elevation = ButtonDefaults.elevatedButtonElevation(hoveredElevation = 6.dp),
                 modifier = Modifier
                     .padding(10.dp)
-                    .fillMaxWidth()
+                    .fillMaxWidth(0.9f)
                     .height(80.dp)
             ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_baseline_download_24),
+                    contentDescription = null,
+                    modifier = Modifier.size(30.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.width(16.dp))
                 Text(text = "立刻添加", style = MaterialTheme.typography.titleLarge)
             }
         }

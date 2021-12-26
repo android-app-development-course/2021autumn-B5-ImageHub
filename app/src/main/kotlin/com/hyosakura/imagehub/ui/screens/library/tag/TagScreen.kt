@@ -269,7 +269,11 @@ private fun TagItem(
                 .height(60.dp)
         ) {
             Row {
-                Text(tagEntity.name!!, style = MaterialTheme.typography.titleMedium)
+                Text(
+                    tagEntity.name!!,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
             }
         }
 

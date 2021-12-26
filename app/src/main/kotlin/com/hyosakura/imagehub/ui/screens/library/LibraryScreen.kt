@@ -66,7 +66,7 @@ fun LibraryScreen(
             }
         }
         // 下半部分
-        Column(Modifier.padding(top = 40.dp)) {
+        Column(Modifier.padding(top = 60.dp)) {
             Row(
                 Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -123,7 +123,9 @@ fun ImageItem(image: DeviceImageEntity, onImageClick: () -> Unit) {
         bitmap = image.bitmap!!.asImageBitmap(),
         contentDescription = null,
         modifier = Modifier
-            .size(120.dp)
+            .size(180.dp)
+            .padding(5.dp)
             .clickable { onImageClick() }
+
     )
 }

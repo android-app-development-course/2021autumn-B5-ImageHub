@@ -86,7 +86,11 @@ fun DetailScreen(
                         },
                         actions = {
                             IconButton(onClick = { isAddTag = true }) {
-                                Icon(imageVector = Icons.Filled.Add, contentDescription = null)
+                                Icon(
+                                    imageVector = Icons.Filled.Add,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
                             }
                         }
                     )
@@ -212,7 +216,10 @@ fun DetailScreen(
                         title = { Text(text = "添加标签") },
                         text = {
                             Column {
-                                TagRow(tagList = starTags, onTagClick = onTagClick(navController = navController))
+                                TagRow(
+                                    tagList = starTags,
+                                    onTagClick = onTagClick(navController = navController)
+                                )
                                 Row {
                                     OutlinedTextField(
                                         value = editText,
@@ -285,7 +292,7 @@ fun DetailScreen(
 }
 
 @Composable
-private fun onTagClick(navController: NavHostController) = { tagEntity:TagEntity ->
+private fun onTagClick(navController: NavHostController) = { tagEntity: TagEntity ->
     navController.navigate("${Screen.TagImage.name}/${tagEntity.tagId}")
 }
 
