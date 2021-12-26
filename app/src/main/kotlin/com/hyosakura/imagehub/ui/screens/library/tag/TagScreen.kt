@@ -1,7 +1,5 @@
 package com.hyosakura.imagehub.ui.screens.library.tag
 
-import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,41 +13,32 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
 import com.hyosakura.imagehub.R
 import com.hyosakura.imagehub.entity.TagEntity
 import com.hyosakura.imagehub.entity.toDateTime
-import com.hyosakura.imagehub.repository.DataRepository
-import com.hyosakura.imagehub.ui.screens.Screen
-import com.hyosakura.imagehub.viewmodel.TagManageViewModel
-import com.hyosakura.imagehub.viewmodel.TagManageViewModelFactory
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.stream.Collectors
 
-private val coroutine = CoroutineScope(Dispatchers.IO)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TagScreen(
-    repository: DataRepository,
-    navController: NavHostController,
-    viewModel: TagManageViewModel = viewModel(factory = TagManageViewModelFactory(repository))
+    onBack: () -> Unit,
+    allTags: List<TagEntity>?,
+    candidateTags: List<TagEntity>?,
+    insertAction: (String) -> Unit,
+    updateAction: TagEntity.() -> Unit,
+    deleteAction: TagEntity.() -> Unit,
+    candidateAction: (String) -> Unit,
+    onTagClick: TagEntity.() -> Unit,
+    onTagConflict: () -> Unit
 ) {
     var isEditMode by remember { mutableStateOf(false) }
     var isAddMode by remember { mutableStateOf(false) }
-
-    val context = LocalContext.current
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -57,7 +46,7 @@ fun TagScreen(
             SmallTopAppBar(
                 title = { Text("标签列表") },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.Filled.ArrowBack,
                             contentDescription = "标签列表"
@@ -68,9 +57,8 @@ fun TagScreen(
         }
     ) {
         Column(Modifier.fillMaxSize()) {
-            val entityList by viewModel.allTags.observeAsState()
-            if (entityList != null) {
-                val map = entityList!!.stream().collect(Collectors.groupingBy {
+            if (allTags != null) {
+                val map = allTags.stream().collect(Collectors.groupingBy {
                     it.addTime!!.toDateTime().toLocalDate()
                 })
                 val iterator = map.iterator()
@@ -92,7 +80,7 @@ fun TagScreen(
                                 isStarChange,
                                 onStarClick = {
                                     tag.star = if (tag.star == 0) 1 else 0
-                                    viewModel.updateTag(tag)
+                                    updateAction(tag)
                                     isStarChange = tag.star
                                 },
                                 onEditClick = {
@@ -100,7 +88,7 @@ fun TagScreen(
                                     currentTag = tag
                                 }
                             ) {
-                                navController.navigate("${Screen.TagImage.name}/${tag.tagId}")
+                                onTagClick(tag)
                                 currentTag = tag
                             }
                         }
@@ -119,7 +107,7 @@ fun TagScreen(
                                     Text(text = "编辑标签")
                                     TextButton(
                                         onClick = {
-                                            viewModel.deleteTag(currentTag!!)
+                                            deleteAction(currentTag!!)
                                             isEditMode = false
                                         }
                                     ) {
@@ -150,7 +138,7 @@ fun TagScreen(
                                     onClick = {
                                         isEditMode = false
                                         currentTag!!.name = editText
-                                        viewModel.updateTag(currentTag!!)
+                                        updateAction(currentTag!!)
                                     }
                                 ) { Text("更改标签") }
                             },
@@ -166,12 +154,18 @@ fun TagScreen(
             if (isAddMode) {
                 var editText by remember { mutableStateOf("") }
                 AlertDialog(
-                    onDismissRequest = { isAddMode = false },
-                    title = { Text(text = "添加标签") },
+                    onDismissRequest = {
+                        isAddMode = false
+                    },
+                    title = {
+                        Text(text = "添加标签")
+                    },
                     text = {
                         OutlinedTextField(
                             value = editText,
-                            onValueChange = { editText = it },
+                            onValueChange = {
+                                editText = it
+                            },
                             singleLine = true,
                             textStyle = MaterialTheme.typography.titleMedium,
                             colors = TextFieldDefaults.outlinedTextFieldColors(
@@ -183,33 +177,32 @@ fun TagScreen(
                         )
                     },
                     confirmButton = {
-                        TextButton(onClick = {
-                            isAddMode = false
-                            coroutine.launch {
-                                val list = viewModel.getTagByNameWithOutFlow(editText, false)
-                                if (list.isEmpty()) {
-                                    viewModel.insertTag(
-                                        TagEntity(
-                                            name = editText,
-                                            addTime = System.currentTimeMillis()
-                                        )
-                                    )
-                                } else {
-                                    withContext(Dispatchers.Main) {
-                                        Toast.makeText(
-                                            context,
-                                            "标签已存在",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
+                        TextButton(
+                            onClick = {
+                                isAddMode = false
+                                candidateAction(editText)
+                                candidateTags?.let {
+                                    if (it.isEmpty()) {
+                                        insertAction(editText)
+                                    } else {
+                                        onTagConflict()
                                     }
-                                    Log.i("tag", "已经有标签")
                                 }
                             }
-                        }) { Text("添加标签") }
+                        ) {
+                            Text("添加标签")
+                        }
                     },
                     dismissButton = {
-                        TextButton(onClick = { isAddMode = false }) { Text("取消") }
-                    })
+                        TextButton(
+                            onClick = {
+                                isAddMode = false
+                            }
+                        ) {
+                            Text("取消")
+                        }
+                    }
+                )
             }
         }
         ConstraintLayout(modifier = Modifier.fillMaxSize()) {

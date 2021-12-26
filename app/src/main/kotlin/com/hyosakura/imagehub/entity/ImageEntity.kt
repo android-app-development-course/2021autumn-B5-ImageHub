@@ -14,7 +14,7 @@ data class ImageEntity(
     @field:PrimaryKey(autoGenerate = true)
     override var imageId: Int? = null,
 
-    var dirId: Int = -1,
+    var folderId: Int = -1,
 
     override var name: String? = null,
 

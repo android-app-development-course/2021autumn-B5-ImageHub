@@ -22,14 +22,14 @@ enum class Screen(
         iconId = R.drawable.ic_outline_folder_24,
         spIconID = R.drawable.ic_baseline_folder_24
     ),
-    SearchResults(),
-    Folder(),
-    Tag(),
-    TagImage(),
-    Tip(),
-    Trash(),
-    AddDeviceImage(),
-    Detail();
+    SearchResults,
+    Folder,
+    Tag,
+    TagImage,
+    Tip,
+    RecycleBin,
+    AddDeviceImage,
+    Detail;
 
     companion object {
         fun fromRoute(route: String?): Screen =
@@ -42,7 +42,7 @@ enum class Screen(
                 Tag.name -> Tag
                 TagImage.name -> TagImage
                 Tip.name -> Tip
-                Trash.name -> Trash
+                RecycleBin.name -> RecycleBin
                 Detail.name -> Detail
                 AddDeviceImage.name -> AddDeviceImage
                 else -> Main

@@ -1,6 +1,6 @@
 package com.hyosakura.imagehub.repository
 
-import com.hyosakura.imagehub.entity.DirEntity
+import com.hyosakura.imagehub.entity.FolderEntity
 import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.entity.TagEntity
 import com.hyosakura.imagehub.entity.relation.ImageTagCrossRef
@@ -64,9 +64,9 @@ class DataRepository(private val database: AppDatabase) {
 
     suspend fun deleteTag(vararg tags: TagEntity) = database.tagDao().deleteTags(*tags)
 
-    suspend fun updateDir(vararg dirs: DirEntity) = database.dirDao().updateDirs(*dirs)
+    suspend fun updateDir(vararg dirs: FolderEntity) = database.dirDao().updateDirs(*dirs)
 
-    suspend fun insertDir(vararg dirs: DirEntity) = database.dirDao().insertDirs(*dirs)
+    suspend fun insertDir(vararg dirs: FolderEntity) = database.dirDao().insertDirs(*dirs)
 
     val allImages = database.imageDao().getAllImages(20)
 

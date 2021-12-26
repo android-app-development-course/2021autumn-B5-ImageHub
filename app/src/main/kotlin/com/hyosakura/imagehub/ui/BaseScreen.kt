@@ -1,5 +1,6 @@
 package com.hyosakura.imagehub.ui
 
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
@@ -20,7 +21,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.hyosakura.imagehub.R
-import com.hyosakura.imagehub.entity.DeviceImageEntity
+import com.hyosakura.imagehub.entity.TagEntity
 import com.hyosakura.imagehub.repository.DataRepository
 import com.hyosakura.imagehub.ui.screens.Screen
 import com.hyosakura.imagehub.ui.screens.Screen.*
@@ -30,31 +31,53 @@ import com.hyosakura.imagehub.ui.screens.library.folder.FolderScreen
 import com.hyosakura.imagehub.ui.screens.library.tag.TagImageScreen
 import com.hyosakura.imagehub.ui.screens.library.tag.TagScreen
 import com.hyosakura.imagehub.ui.screens.library.tip.TipScreen
-import com.hyosakura.imagehub.ui.screens.library.trash.TrashScreen
+import com.hyosakura.imagehub.ui.screens.library.trash.RecycleBinScreen
 import com.hyosakura.imagehub.ui.screens.main.DetailScreen
 import com.hyosakura.imagehub.ui.screens.main.MainScreen
 import com.hyosakura.imagehub.ui.screens.search.SearchResultsScreen
 import com.hyosakura.imagehub.ui.screens.search.SearchScreen
-import com.hyosakura.imagehub.viewmodel.DeviceImageViewModel
-import com.hyosakura.imagehub.viewmodel.DeviceImageViewModelFactory
+import com.hyosakura.imagehub.viewmodel.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
+private val coroutine = CoroutineScope(Dispatchers.IO)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BaseScreen(
-    repository: DataRepository
+    repository: DataRepository,
+    imageManageViewModel: ImageManageViewModel = viewModel(
+        factory = ImageManageViewModelFactory(
+            repository
+        )
+    ),
+    folderManageViewModel: FolderManageViewModel = viewModel(
+        factory = FolderManageViewModelFactory(
+            repository
+        )
+    ),
+    tagManageViewModel: TagManageViewModel = viewModel(
+        factory = TagManageViewModelFactory(
+            repository
+        )
+    ),
+    recycleBinViewModel: RecycleBinViewModel = viewModel(
+        factory = RecycleBinViewModelFactory(
+            repository
+        )
+    ),
+    deviceImageManageViewModel: DeviceImageViewModel = viewModel(
+        factory = DeviceImageViewModelFactory(
+            repository
+        )
+    )
 ) {
-    val allScreens = values().toList()
     val navController = rememberNavController()
     val backstackEntry = navController.currentBackStackEntryAsState()
     val currentScreen = Screen.fromRoute(backstackEntry.value?.destination?.route)
-
-    val deviceImageViewModel: DeviceImageViewModel = viewModel(factory = DeviceImageViewModelFactory(repository))
-    val deviceImageList by DeviceImageViewModel.imageList.observeAsState()
-
+    val context = LocalContext.current
     Scaffold(
         topBar = {
             TopBar(currentScreen)
@@ -66,48 +89,212 @@ fun BaseScreen(
                 modifier = Modifier.padding(innerPadding)
             ) {
                 composable(Main.name) {
-                    MainScreen(repository, navController)
+                    imageManageViewModel.imageList.observeAsState().value?.let { list ->
+                        MainScreen(list) {
+                            navController.navigate("${Detail.name}/${imageId}")
+                        }
+                    }
                 }
                 composable(Search.name) {
-                    SearchScreen(repository, onSearchBarClick = { navController.navigate(SearchResults.name) })
+                    val starTags by tagManageViewModel.starTags.observeAsState()
+                    val num = 20
+                    val recentTags by tagManageViewModel.getRecentTag(num).observeAsState()
+                    SearchScreen(
+                        starTags,
+                        recentTags,
+                        onSearchBarClick = {
+                            navController.navigate(SearchResults.name)
+                        }
+                    )
                 }
                 composable(Library.name) {
-                    LibraryScreen(navController, deviceImageList)
+                    val deviceImageList by DeviceImageViewModel.imageList.observeAsState()
+                    LibraryScreen(
+                        onTagButtonClick = {
+                            navController.navigate(Tag.name)
+                        },
+                        onFolderButtonClick = {
+                            navController.navigate(Folder.name)
+                        },
+                        onTipButtonClick = {
+                            navController.navigate(Tip.name)
+                        },
+                        onRecycleBinButtonClick = {
+                            navController.navigate(RecycleBin.name)
+                        },
+                        onDeviceImageClick = {
+                            navController.navigate("${AddDeviceImage.name}/${imageId}")
+                        },
+                        deviceImageList
+                    )
                 }
                 composable(SearchResults.name) {
-                    SearchResultsScreen(repository, navController)
+                    val result by imageManageViewModel.imageList.observeAsState()
+                    SearchResultsScreen(
+                        initSearch = {
+                            imageManageViewModel.searchImage(it)
+                        },
+                        result,
+                        onImageClick = {
+                            navController.navigate("${Detail.name}/${imageId}")
+                        }
+                    )
                 }
                 composable(Tag.name) {
-                    TagScreen(repository, navController)
+                    val allTags by tagManageViewModel.allTags.observeAsState()
+                    val candidateTags by tagManageViewModel.candidateTagWithName.observeAsState()
+                    TagScreen(
+                        onBack = {
+                            navController.popBackStack()
+                        },
+                        allTags,
+                        candidateTags,
+                        insertAction = {
+                            tagManageViewModel.insertTag(
+                                TagEntity(
+                                    name = it,
+                                    addTime = System.currentTimeMillis()
+                                )
+                            )
+                        },
+                        updateAction = {
+                            tagManageViewModel.updateTag(this)
+                        },
+                        deleteAction = {
+                            tagManageViewModel.deleteTag(this)
+                        },
+                        candidateAction = { name ->
+                            tagManageViewModel.getTagByName(name, false)
+                        },
+                        onTagClick = {
+                            navController.navigate("${TagImage.name}/${tagId}")
+                        },
+                        onTagConflict = {
+                            coroutine.launch {
+                                withContext(Dispatchers.Main) {
+                                    Toast.makeText(
+                                        context,
+                                        "标签已存在",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+                        }
+                    )
                 }
                 composable(Folder.name) {
-                    FolderScreen(repository, null)
+                    folderManageViewModel.visitFolder(-1)
+                    val images by folderManageViewModel.imagesInCurrentFolder.observeAsState()
+                    val childFolder by folderManageViewModel.currentChildFolder.observeAsState()
+                    FolderScreen(images, childFolder)
                 }
-                composable("${Folder.name}/{folderId}",
+                composable(
+                    "${Folder.name}/{folderId}",
                     arguments = listOf(navArgument("folderId") { type = NavType.IntType })
                 ) {
-                    FolderScreen(repository, it.arguments?.getInt("folderId"))
+                    folderManageViewModel.visitFolder(it.arguments?.getInt("folderId") ?: -1)
+                    val images by folderManageViewModel.imagesInCurrentFolder.observeAsState()
+                    val childFolder by folderManageViewModel.currentChildFolder.observeAsState()
+                    FolderScreen(images, childFolder)
                 }
                 composable(Tip.name) {
                     TipScreen()
                 }
-                composable(Trash.name) {
-                    TrashScreen(repository, navController)
+                composable(RecycleBin.name) {
+                    val deletedImages by recycleBinViewModel.allDeletedImages.observeAsState()
+                    RecycleBinScreen(
+                        onBack = {
+                            navController.popBackStack()
+                        },
+                        deletedImages,
+                        onImageClick = {
+                            navController.navigate("${Detail.name}/${imageId}")
+                        }
+                    )
                 }
                 composable(
                     "${Detail.name}/{imageId}",
                     arguments = listOf(navArgument("imageId") { type = NavType.IntType })
                 ) {
-                    DetailScreen(it.arguments?.getInt("imageId"), repository, navController)
+                    val imageId = it.arguments?.getInt("imageId")
+                    imageManageViewModel.visitImage(imageId!!)
+                    val image by imageManageViewModel.image.observeAsState()
+                    val folder by folderManageViewModel.currentFolder.observeAsState()
+                    val tagList by imageManageViewModel.tagList.observeAsState()
+                    val starTags by tagManageViewModel.starTags.observeAsState()
+                    val num = 20
+                    val recentTags by tagManageViewModel.getRecentTag(num).observeAsState()
+                    val candidateTags by tagManageViewModel.candidateTagWithName.observeAsState()
+                    DetailScreen(
+                        image,
+                        folder,
+                        tagList,
+                        starTags,
+                        candidateTags,
+                        recentTags,
+                        onBack = {
+                            navController.popBackStack()
+                        },
+                        onTagInsert = {
+                             tagManageViewModel.insertTagAndGetId(this).first().toInt()
+                        },
+                        onTagClick = {
+                            navController.navigate("${TagImage.name}/${tagId}")
+                        },
+                        onTagDelete = {
+
+                        },
+                        onImageDelete = {
+                            navController.popBackStack()
+                            this.deleted = 1
+                            imageManageViewModel.updateImage(this)
+                        },
+                        onImageRecover = {
+                            navController.popBackStack()
+                            this.deleted = 0
+                            imageManageViewModel.updateImage(this)
+                        },
+                        onTagAddToImage = {image,tag->
+                            imageManageViewModel.addTagToImage(image,tag)
+                        },
+                        onFolderClick = {
+                            navController.navigate("Folder/${folderId}")
+                        },
+                        onAnnotationEdit = { editText ->
+                            this.annotation = editText
+                            imageManageViewModel.updateImage(this)
+                        },
+                        candidateAction = { name ->
+                            tagManageViewModel.getTagByName(name, false)
+                        },
+                        onTagConflict = {
+                            coroutine.launch {
+                                withContext(Dispatchers.Main) {
+                                    Toast.makeText(
+                                        context,
+                                        "标签已存在",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+                        }
+                    )
                 }
-                composable("${TagImage.name}/{tagId}",
+                composable(
+                    "${TagImage.name}/{tagId}",
                     arguments = listOf(navArgument("tagId") { type = NavType.IntType })
                 ) {
                     TagImageScreen(repository, it.arguments?.getInt("tagId"), navController)
                 }
-                composable("${AddDeviceImage.name}/{imageId}",
-                    arguments = listOf(navArgument("imageId") { type = NavType.IntType })) {
-                    ImportDeviceImageScreen(repository, it.arguments?.getInt("imageId"), navController)
+                composable(
+                    "${AddDeviceImage.name}/{imageId}",
+                    arguments = listOf(navArgument("imageId") { type = NavType.IntType })
+                ) {
+                    ImportDeviceImageScreen(
+                        repository,
+                        it.arguments?.getInt("imageId"),
+                        navController
+                    )
                 }
 
             }
@@ -119,7 +306,7 @@ fun BaseScreen(
 
     LaunchedEffect(LocalContext.current) {
         CoroutineScope(Dispatchers.IO).launch {
-            deviceImageViewModel.getDeviceImage()
+            deviceImageManageViewModel.getDeviceImage()
         }
     }
 }

@@ -14,15 +14,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.navigation.NavHostController
 import com.hyosakura.imagehub.R
 import com.hyosakura.imagehub.entity.DeviceImageEntity
-import com.hyosakura.imagehub.ui.screens.Screen.*
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LibraryScreen(
-    navController: NavHostController,
+    onTagButtonClick: () -> Unit,
+    onFolderButtonClick: () -> Unit,
+    onTipButtonClick: () -> Unit,
+    onRecycleBinButtonClick: () -> Unit,
+    onDeviceImageClick: DeviceImageEntity.() -> Unit,
     imageList: Collection<DeviceImageEntity>?
 ) {
     Column {
@@ -32,7 +34,7 @@ fun LibraryScreen(
                 val (label, folder, tip, trash) = createRefs()
                 Button(
                     iconId = R.drawable.ic_outline_label_24, textId = R.string.label,
-                    onButtonClick = { navController.navigate(Tag.name) },
+                    onButtonClick = onTagButtonClick,
                     modifier = Modifier.constrainAs(label) {
                         top.linkTo(parent.top, margin = 16.dp)
                         end.linkTo(folder.start, margin = 8.dp)
@@ -40,7 +42,7 @@ fun LibraryScreen(
                     })
                 Button(
                     iconId = R.drawable.ic_outline_folder_24, textId = R.string.folder,
-                    onButtonClick = { navController.navigate(Folder.name) },
+                    onButtonClick = onFolderButtonClick,
                     modifier = Modifier.constrainAs(folder) {
                         top.linkTo(parent.top, margin = 16.dp)
                         start.linkTo(label.end, margin = 8.dp)
@@ -48,7 +50,7 @@ fun LibraryScreen(
                     })
                 Button(
                     iconId = R.drawable.ic_outline_tip_24, textId = R.string.tip,
-                    onButtonClick = { navController.navigate(Tip.name) },
+                    onButtonClick = onTipButtonClick,
                     modifier = Modifier.constrainAs(tip) {
                         top.linkTo(label.bottom, margin = 16.dp)
                         end.linkTo(trash.start, margin = 8.dp)
@@ -56,7 +58,7 @@ fun LibraryScreen(
                     })
                 Button(
                     iconId = R.drawable.ic_baseline_delete_outline_24, textId = R.string.recycleBin,
-                    onButtonClick = { navController.navigate(Trash.name) },
+                    onButtonClick = onRecycleBinButtonClick,
                     modifier = Modifier.constrainAs(trash) {
                         top.linkTo(folder.bottom, margin = 16.dp)
                         start.linkTo(tip.end, margin = 8.dp)
@@ -66,7 +68,7 @@ fun LibraryScreen(
             }
         }
         // 下半部分
-        Column(Modifier.padding(top = 60.dp)) {
+        Column(Modifier.padding(top = 40.dp)) {
             Row(
                 Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -85,7 +87,7 @@ fun LibraryScreen(
                     val count = if (list.size > 10) 10 else list.size
                     items(count) { i ->
                         val image = list[i]
-                        ImageItem(image) { navController.navigate("${AddDeviceImage.name}/${image.imageId}") }
+                        ImageItem(image, onDeviceImageClick)
                     }
                 }
             }
@@ -96,7 +98,8 @@ fun LibraryScreen(
 @Composable
 private fun Button(iconId: Int, textId: Int, onButtonClick: () -> Unit, modifier: Modifier) {
     FilledTonalButton(
-        onClick = onButtonClick, modifier = modifier
+        onClick = onButtonClick,
+        modifier = modifier
             .height(70.dp)
             .fillMaxWidth(0.5f),
         colors = ButtonDefaults.filledTonalButtonColors(),
@@ -118,14 +121,12 @@ private fun Button(iconId: Int, textId: Int, onButtonClick: () -> Unit, modifier
 }
 
 @Composable
-fun ImageItem(image: DeviceImageEntity, onImageClick: () -> Unit) {
+fun ImageItem(image: DeviceImageEntity, onImageClick: DeviceImageEntity.() -> Unit) {
     Image(
         bitmap = image.bitmap!!.asImageBitmap(),
         contentDescription = null,
         modifier = Modifier
-            .size(180.dp)
-            .padding(5.dp)
-            .clickable { onImageClick() }
-
+            .size(120.dp)
+            .clickable { onImageClick(image) }
     )
 }

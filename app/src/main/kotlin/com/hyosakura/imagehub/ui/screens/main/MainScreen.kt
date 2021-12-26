@@ -1,20 +1,14 @@
 package com.hyosakura.imagehub.ui.screens.main
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
-import com.hyosakura.imagehub.repository.DataRepository
-import com.hyosakura.imagehub.viewmodel.ImageManageViewModel
-import com.hyosakura.imagehub.viewmodel.ImageManageViewModelFactory
+import com.hyosakura.imagehub.entity.ImageEntity
 
 @Composable
 fun MainScreen(
-    repository: DataRepository,
-    navController: NavHostController,
-    viewModel: ImageManageViewModel = viewModel(factory = ImageManageViewModelFactory(repository))
+    list: List<ImageEntity>,
+    onImageClick: ImageEntity.() -> Unit,
 ) {
-    viewModel.imageList.observeAsState().value?.let { entityList ->
-        ImageList(entityList, navController)
+    ImageList(list) {
+        onImageClick()
     }
 }

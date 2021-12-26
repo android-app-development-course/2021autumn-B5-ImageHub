@@ -5,7 +5,7 @@ import android.content.Context
 import android.database.Cursor
 import android.provider.MediaStore
 import androidx.lifecycle.*
-import com.hyosakura.imagehub.entity.DeviceDirEntity
+import com.hyosakura.imagehub.entity.DeviceFolderEntity
 import com.hyosakura.imagehub.entity.DeviceImageEntity
 import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.repository.DataRepository
@@ -22,7 +22,7 @@ import kotlin.io.path.pathString
 
 @SuppressLint("Range")
 class DeviceImageViewModel(private val repository: DataRepository) : ViewModel() {
-    lateinit var dirList: LiveData<List<DeviceDirEntity>>
+    lateinit var dirList: LiveData<List<DeviceFolderEntity>>
 
     companion object {
         private val map = mutableMapOf<Int, DeviceImageEntity>()
