@@ -18,9 +18,9 @@ class DataRepository(private val database: AppDatabase) {
     suspend fun updateImage(vararg entity: ImageEntity) = database.imageDao().updateImages(*entity)
 
     fun searchImage(condition: String): Flow<List<ImageEntity>> {
-        val flow1 = database.imageDao().searchImage(condition)
-        val flow2 = database.tagDao().searchImage(condition)
-        val flow3 = database.dirDao().searchImage(condition)
+        val flow1 = database.imageDao().searchImage("%$condition%")
+        val flow2 = database.tagDao().searchImage("%$condition%")
+        val flow3 = database.dirDao().searchImage("%$condition%")
         return flow1.combine(flow2) { a, b ->
             a.apply {
                 addAll(
