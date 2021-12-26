@@ -28,7 +28,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.hyosakura.imagehub.R
-import com.hyosakura.imagehub.entity.DirEntity
 import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.entity.TagEntity
 import com.hyosakura.imagehub.repository.DataRepository
@@ -76,7 +75,7 @@ fun DetailScreen(
                             TopTagRow(
                                 tagList = tagList,
                                 onTagClick = onTagJumpClick(navController),
-                                onDeleteClick = { tagEntity: TagEntity ->
+                                onDeleteTagClick = { tagEntity: TagEntity ->
                                     imageViewModel.removeTag(image, tagEntity)
                                 },
                             )
@@ -100,9 +99,12 @@ fun DetailScreen(
 
                 bottomBar = {
                     Column {
-                        Annotation({ isAnnotationEdit = true }, annotation)
+                        Annotation(
+                            onAnnotationEdit = { isAnnotationEdit = true },
+                            annotation = annotation
+                        )
                         DetailBottomBar(image, folder.name,
-                            onDeleteClick = {
+                            onDeleteImageClick = {
                                 navController.popBackStack()
                                 image.deleted = 1
                                 imageViewModel.updateImage(image)
@@ -179,7 +181,7 @@ fun DetailScreen(
                             Column {
                                 TagRow(
                                     tagList = starTags,
-                                    onTagClick = { tagEntity ->
+                                    onSuggestTagClick = { tagEntity ->
                                         onSuggestTagClick(
                                             image,
                                             tagEntity,
@@ -263,7 +265,7 @@ fun DetailScreen(
 private fun TopTagRow(
     tagList: List<TagEntity>?,
     onTagClick: (TagEntity) -> Unit,
-    onDeleteClick: (TagEntity) -> Unit
+    onDeleteTagClick: (TagEntity) -> Unit
 ) {
     if (tagList?.isEmpty() == true) {
         Text(
@@ -276,7 +278,7 @@ private fun TopTagRow(
         TagRowWithClose(
             tagList,
             onTagClick = onTagClick,
-            onDeleteTagClick = { tag: TagEntity -> onDeleteClick(tag) }
+            onDeleteTagClick = { tag: TagEntity -> onDeleteTagClick(tag) }
         )
 }
 
@@ -326,7 +328,7 @@ fun TagItemWithClose(it: TagEntity, onTagClick: () -> Unit, onDeleteTagClick: ()
 @Composable
 private fun TagRow(
     tagList: List<TagEntity>?,
-    onTagClick: (TagEntity) -> Unit,
+    onSuggestTagClick: (TagEntity) -> Unit,
 ) {
     if (tagList != null) {
         LazyRow {
@@ -334,7 +336,7 @@ private fun TagRow(
                 TagItem(
                     tagEntity = tag,
                     onTagClick = {
-                        onTagClick(tag)
+                        onSuggestTagClick(tag)
                     }
                 )
             }
@@ -387,7 +389,7 @@ private fun Annotation(
 private fun DetailBottomBar(
     image: ImageEntity,
     folderName: String,
-    onDeleteClick: () -> Unit,
+    onDeleteImageClick: () -> Unit,
     onFolderClick: () -> Unit,
     onRestoreClick: () -> Unit,
 ) {
@@ -396,7 +398,7 @@ private fun DetailBottomBar(
             BottomBar(
                 folderName = folderName,
                 imageEntity = image,
-                onDeleteClick = onDeleteClick,
+                onDeleteClick = onDeleteImageClick,
                 onFolderClick = onFolderClick,
             )
         }
