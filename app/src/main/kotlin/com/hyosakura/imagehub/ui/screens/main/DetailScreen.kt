@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.hyosakura.imagehub.R
+import com.hyosakura.imagehub.entity.DirEntity
 import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.entity.TagEntity
 import com.hyosakura.imagehub.repository.DataRepository
@@ -72,12 +73,13 @@ fun DetailScreen(
                 topBar = {
                     SmallTopAppBar(
                         title = {
-                            TagRowWithClose(
-                                tagList,
-                                onTagClick = onTagClick(navController),
-                                onDeleteClick = { tagEntity ->
+                            TopTagRow(
+                                tagList = tagList,
+                                onTagClick = onTagJumpClick(navController),
+                                onDeleteClick = { tagEntity: TagEntity ->
                                     imageViewModel.removeTag(image, tagEntity)
-                                })
+                                },
+                            )
                         },
                         navigationIcon = {
                             IconButton(onClick = { navController.popBackStack() }) {
@@ -98,61 +100,20 @@ fun DetailScreen(
 
                 bottomBar = {
                     Column {
-                        Row(
-                            Modifier
-                                .fillMaxWidth()
-                                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-                                .alpha(0.8f)
-                                .clickable { isAnnotationEdit = true }
-                                .padding(10.dp)) {
-                            if (annotation != "")
-                                Text(
-                                    text = image.annotation!!,
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            else
-                                Text(
-                                    text = stringResource(id = R.string.addAnnotation),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    modifier = Modifier.alpha(0.5f)
-                                )
-                        }
-
-                        when (image.deleted) {
-                            0 -> {
-                                DetailBottomBar(
-                                    folderName = folder.name,
-                                    imageEntity = image,
-                                    onDeleteClick = {
-                                        navController.popBackStack()
-                                        image.deleted = 1
-                                        imageViewModel.updateImage(image)
-                                    },
-                                    onFolderClick = { navController.navigate("Folder/${folder.dirId}") }
-                                )
+                        Annotation({ isAnnotationEdit = true }, annotation)
+                        DetailBottomBar(image, folder.name,
+                            onDeleteClick = {
+                                navController.popBackStack()
+                                image.deleted = 1
+                                imageViewModel.updateImage(image)
+                            },
+                            onFolderClick = { navController.navigate("Folder/${folder.dirId}") },
+                            onRestoreClick = {
+                                navController.popBackStack()
+                                image.deleted = 0
+                                imageViewModel.updateImage(image)
                             }
-                            else -> {
-                                NavigationBar {
-                                    NavigationBarItem(
-                                        icon = {
-                                            Icon(
-                                                painterResource(
-                                                    id = R.drawable.ic_baseline_restore_from_trash_24
-                                                ),
-                                                contentDescription = null
-                                            )
-                                        },
-                                        selected = false,
-                                        label = { Text(text = stringResource(R.string.restore)) },
-                                        onClick = {
-                                            navController.popBackStack()
-                                            image.deleted = 0
-                                            imageViewModel.updateImage(image)
-                                        }
-                                    )
-                                }
-                            }
-                        }
+                        )
                     }
                 }
             ) {
@@ -218,7 +179,14 @@ fun DetailScreen(
                             Column {
                                 TagRow(
                                     tagList = starTags,
-                                    onTagClick = onTagClick(navController = navController)
+                                    onTagClick = { tagEntity ->
+                                        onSuggestTagClick(
+                                            image,
+                                            tagEntity,
+                                            imageViewModel
+                                        )
+                                        isAddTag = false
+                                    }
                                 )
                                 Row {
                                     OutlinedTextField(
@@ -292,15 +260,31 @@ fun DetailScreen(
 }
 
 @Composable
-private fun onTagClick(navController: NavHostController) = { tagEntity: TagEntity ->
-    navController.navigate("${Screen.TagImage.name}/${tagEntity.tagId}")
+private fun TopTagRow(
+    tagList: List<TagEntity>?,
+    onTagClick: (TagEntity) -> Unit,
+    onDeleteClick: (TagEntity) -> Unit
+) {
+    if (tagList?.isEmpty() == true) {
+        Text(
+            text = stringResource(R.string.clickToAddTag),
+            modifier = Modifier.alpha(0.5f),
+            color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.typography.titleMedium
+        )
+    } else
+        TagRowWithClose(
+            tagList,
+            onTagClick = onTagClick,
+            onDeleteTagClick = { tag: TagEntity -> onDeleteClick(tag) }
+        )
 }
 
 @Composable
 private fun TagRowWithClose(
     tagList: List<TagEntity>?,
     onTagClick: (TagEntity) -> Unit,
-    onDeleteClick: (TagEntity) -> Unit
+    onDeleteTagClick: (TagEntity) -> Unit
 ) {
     if (tagList != null) {
         LazyRow {
@@ -310,8 +294,8 @@ private fun TagRowWithClose(
                     onTagClick = {
                         onTagClick(tag)
                     },
-                    onDeleteClick = {
-                        onDeleteClick(tag)
+                    onDeleteTagClick = {
+                        onDeleteTagClick(tag)
                     },
                 )
             }
@@ -320,8 +304,9 @@ private fun TagRowWithClose(
     }
 }
 
+
 @Composable
-fun TagItemWithClose(it: TagEntity, onTagClick: () -> Unit, onDeleteClick: () -> Unit) {
+fun TagItemWithClose(it: TagEntity, onTagClick: () -> Unit, onDeleteTagClick: () -> Unit) {
     Row(Modifier.padding(2.dp), verticalAlignment = Alignment.CenterVertically) {
         OutlinedButton(
             onClick = onTagClick,
@@ -334,7 +319,7 @@ fun TagItemWithClose(it: TagEntity, onTagClick: () -> Unit, onDeleteClick: () ->
             tint = MaterialTheme.colorScheme.error,
             modifier = Modifier
                 .offset(x = (-30).dp)
-                .clickable { onDeleteClick() })
+                .clickable { onDeleteTagClick() })
     }
 }
 
@@ -347,7 +332,7 @@ private fun TagRow(
         LazyRow {
             items(tagList) { tag ->
                 TagItem(
-                    tag,
+                    tagEntity = tag,
                     onTagClick = {
                         onTagClick(tag)
                     }
@@ -359,19 +344,84 @@ private fun TagRow(
 }
 
 @Composable
-fun TagItem(it: TagEntity, onTagClick: () -> Unit) {
+fun TagItem(tagEntity: TagEntity, onTagClick: () -> Unit) {
     Row(Modifier.padding(2.dp), verticalAlignment = Alignment.CenterVertically) {
         OutlinedButton(
             onClick = onTagClick,
-            modifier = Modifier.padding(1.dp)
+            modifier = Modifier.padding(1.dp),
+            colors = ButtonDefaults.outlinedButtonColors()
         ) {
-            Text(it.name!!)
+            Text(tagEntity.name!!)
+        }
+    }
+}
+
+
+@Composable
+private fun Annotation(
+    onAnnotationEdit: () -> Unit,
+    annotation: String
+) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            .alpha(0.8f)
+            .clickable { onAnnotationEdit() }
+            .padding(10.dp)) {
+        if (annotation != "")
+            Text(
+                text = annotation,
+                style = MaterialTheme.typography.bodySmall
+            )
+        else
+            Text(
+                text = stringResource(id = R.string.addAnnotation),
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.alpha(0.5f)
+            )
+    }
+}
+
+@Composable
+private fun DetailBottomBar(
+    image: ImageEntity,
+    folderName: String,
+    onDeleteClick: () -> Unit,
+    onFolderClick: () -> Unit,
+    onRestoreClick: () -> Unit,
+) {
+    when (image.deleted) {
+        0 -> {
+            BottomBar(
+                folderName = folderName,
+                imageEntity = image,
+                onDeleteClick = onDeleteClick,
+                onFolderClick = onFolderClick,
+            )
+        }
+        else -> {
+            NavigationBar {
+                NavigationBarItem(
+                    icon = {
+                        Icon(
+                            painterResource(
+                                id = R.drawable.ic_baseline_restore_from_trash_24
+                            ),
+                            contentDescription = null
+                        )
+                    },
+                    selected = false,
+                    label = { Text(text = stringResource(R.string.restore)) },
+                    onClick = onRestoreClick
+                )
+            }
         }
     }
 }
 
 @Composable
-fun DetailBottomBar(
+fun BottomBar(
     folderName: String,
     imageEntity: ImageEntity,
     onDeleteClick: () -> Unit,
@@ -413,4 +463,18 @@ fun DetailBottomBar(
             onClick = onDeleteClick
         )
     }
+}
+
+private fun onSuggestTagClick(
+    image: ImageEntity,
+    tag: TagEntity,
+    imageViewModel: ImageManageViewModel
+) {
+    coroutine.launch {
+        imageViewModel.addTagToImage(image, tag)
+    }
+}
+
+private fun onTagJumpClick(navController: NavHostController) = { tagEntity: TagEntity ->
+    navController.navigate("${Screen.TagImage.name}/${tagEntity.tagId}")
 }
