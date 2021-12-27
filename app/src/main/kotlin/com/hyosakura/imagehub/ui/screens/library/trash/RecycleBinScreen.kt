@@ -11,7 +11,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.hyosakura.imagehub.R
 import com.hyosakura.imagehub.entity.ImageEntity
-import com.hyosakura.imagehub.ui.screens.main.ImageList
+import com.hyosakura.imagehub.ui.screens.main.ImageListWithDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,7 +40,7 @@ fun RecycleBinScreen(
                 modifier = Modifier.padding(20.dp)
             )
             deletedImages?.let {
-                ImageList(it, onImageClick)
+                ImageListWithDate(it, onImageClick)
             }
         }
     }

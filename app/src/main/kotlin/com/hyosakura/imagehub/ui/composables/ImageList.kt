@@ -22,7 +22,7 @@ import java.util.stream.Collectors
 private val format = DateTimeFormatter.ofPattern("yyyy/MM/dd")
 
 @Composable
-fun ImageList(
+fun ImageListWithDate(
     images: List<ImageEntity>,
     onImageClick: ImageEntity.() -> Unit
 ) {
@@ -35,7 +35,7 @@ fun ImageList(
         val date = entry.key
         val list = entry.value
         Column {
-            ImageListWithDate(
+            ImageRowWithDate(
                 date.format(format),
                 list.map { it },
                 onImageClick
@@ -46,7 +46,7 @@ fun ImageList(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ImageListWithDate(
+fun ImageRowWithDate(
     date: String,
     images: List<ImageEntity>,
     onImageClick: ImageEntity.() -> Unit
@@ -93,5 +93,23 @@ fun ImageItem(
             modifier = Modifier
                 .size(120.dp)
         )
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun ImageList(
+    images: List<ImageEntity>,
+    onImageClick: ImageEntity.() -> Unit
+) {
+    LazyVerticalGrid(
+        cells = GridCells.Adaptive(minSize = 120.dp),
+    ) {
+        items(images) { image ->
+            ImageItem(
+                image,
+                onImageClick
+            )
+        }
     }
 }

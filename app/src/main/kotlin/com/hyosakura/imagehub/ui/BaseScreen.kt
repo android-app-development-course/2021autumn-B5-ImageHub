@@ -192,18 +192,38 @@ fun BaseScreen(
                 }
                 composable(Folder.name) {
                     folderManageViewModel.visitFolder(-1)
+                    val folder: FolderEntity =
+                        folderManageViewModel.currentFolder.observeAsState().value ?: FolderEntity()
                     val images by folderManageViewModel.imagesInCurrentFolder.observeAsState()
                     val childFolder by folderManageViewModel.currentChildFolder.observeAsState()
-                    FolderScreen(images, childFolder)
+                    FolderScreen(
+                        images = images,
+                        childFolder = childFolder,
+                        folder = folder,
+                        onBack = { navController.popBackStack() },
+                        onFolderClick = { folderId -> navController.navigate("${Folder.name}/${folderId}") },
+                        onFolderAdd = { TODO("传入字符串作为文件夹名字给folder添加子文件夹")},
+                        onImageClick = { navController.navigate("${Detail.name}/${imageId}") }
+                    )
                 }
                 composable(
                     "${Folder.name}/{folderId}",
                     arguments = listOf(navArgument("folderId") { type = NavType.IntType })
                 ) {
                     folderManageViewModel.visitFolder(it.arguments?.getInt("folderId") ?: -1)
+                    val folder: FolderEntity =
+                        folderManageViewModel.currentFolder.observeAsState().value ?: FolderEntity()
                     val images by folderManageViewModel.imagesInCurrentFolder.observeAsState()
                     val childFolder by folderManageViewModel.currentChildFolder.observeAsState()
-                    FolderScreen(images, childFolder)
+                    FolderScreen(
+                        images = images,
+                        childFolder = childFolder,
+                        folder = folder,
+                        onBack = { navController.popBackStack() },
+                        onFolderClick = { folderId -> navController.navigate("${Folder.name}/${folderId}") },
+                        onFolderAdd = { TODO("传入字符串作为文件夹名字给folder添加子文件夹")},
+                        onImageClick = { navController.navigate("${Detail.name}/${imageId}") }
+                    )
                 }
                 composable(Tip.name) {
                     TipScreen()

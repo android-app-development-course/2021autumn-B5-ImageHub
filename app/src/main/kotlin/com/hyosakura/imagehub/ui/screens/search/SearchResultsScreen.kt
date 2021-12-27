@@ -21,7 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hyosakura.imagehub.R
 import com.hyosakura.imagehub.entity.ImageEntity
-import com.hyosakura.imagehub.ui.screens.main.ImageList
+import com.hyosakura.imagehub.ui.screens.main.ImageListWithDate
 
 @OptIn(ExperimentalMaterial3Api::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
@@ -75,7 +75,7 @@ fun SearchResultsScreen(
             Column {
                 initSearch(searchString)
                 searchResult?.let {
-                    ImageList(it, onImageClick)
+                    ImageListWithDate(it, onImageClick)
                 }
             }
         },

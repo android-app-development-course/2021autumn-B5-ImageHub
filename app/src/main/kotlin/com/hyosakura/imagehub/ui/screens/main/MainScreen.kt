@@ -8,7 +8,7 @@ fun MainScreen(
     list: List<ImageEntity>,
     onImageClick: ImageEntity.() -> Unit,
 ) {
-    ImageList(list) {
+    ImageListWithDate(list) {
         onImageClick()
     }
 }
