@@ -1,6 +1,7 @@
 package com.hyosakura.imagehub.viewmodel
 
 import androidx.lifecycle.*
+import com.hyosakura.imagehub.entity.FolderEntity
 import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.entity.TagEntity
 import com.hyosakura.imagehub.entity.relation.ImageTagCrossRef
@@ -24,7 +25,8 @@ class ImageManageViewModel(private val repository: DataRepository) : ViewModel()
         viewModelScope.launch {
             imageList = repository.allImages.map { list ->
                 list.map {
-                    it.bitmap = ImageUtil.getThumbnail(it.url!!)
+                    it.thumbnail = ImageUtil.getThumbnail(it.url!!)
+                    it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
                     it
                 }
             }.asLiveData()
@@ -37,6 +39,7 @@ class ImageManageViewModel(private val repository: DataRepository) : ViewModel()
         }
         viewModelScope.launch {
             image = repository.getImageById(imageId).map {
+                it.thumbnail = ImageUtil.getThumbnail(it.url!!)
                 it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
                 it
             }.asLiveData()
@@ -65,6 +68,15 @@ class ImageManageViewModel(private val repository: DataRepository) : ViewModel()
         }
     }
 
+    fun addImageToFolder(images: List<ImageEntity>, folder: FolderEntity) {
+        viewModelScope.launch {
+            images.forEach {
+                it.folderId = folder.folderId!!
+            }
+            repository.updateImage(*images.toTypedArray())
+        }
+    }
+
     fun removeTag(image: ImageEntity, tag: TagEntity) {
         viewModelScope.launch {
             val relation = ImageTagCrossRef(image.imageId!!, tag.tagId!!)
@@ -76,6 +88,7 @@ class ImageManageViewModel(private val repository: DataRepository) : ViewModel()
         viewModelScope.launch {
             imageList = repository.tagWithImages(tagId).map { ref ->
                 ref.images.map {
+                    it.thumbnail = ImageUtil.getThumbnail(it.url!!)
                     it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
                     it
                 }
@@ -87,6 +100,7 @@ class ImageManageViewModel(private val repository: DataRepository) : ViewModel()
         viewModelScope.launch {
             imageList = repository.dirWithImages(dirId).map { ref ->
                 ref.images.map {
+                    it.thumbnail = ImageUtil.getThumbnail(it.url!!)
                     it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
                     it
                 }
@@ -98,6 +112,7 @@ class ImageManageViewModel(private val repository: DataRepository) : ViewModel()
         viewModelScope.launch {
             imageList = repository.searchImage(condition).map { list ->
                 list.map {
+                    it.thumbnail = ImageUtil.getThumbnail(it.url!!)
                     it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
                     it
                 }

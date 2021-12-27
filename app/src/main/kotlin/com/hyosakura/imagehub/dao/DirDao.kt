@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface DirDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertDirs(vararg dirs: FolderEntity)
+    suspend fun insertDirs(vararg dirs: FolderEntity): List<Long>
 
     @Update
     suspend fun updateDirs(vararg dirs: FolderEntity)

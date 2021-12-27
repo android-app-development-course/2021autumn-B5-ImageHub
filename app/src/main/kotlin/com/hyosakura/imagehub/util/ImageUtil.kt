@@ -20,18 +20,18 @@ object ImageUtil {
         return BitmapFactory.decodeFile(url, options)
     }
 
-    fun getThumbnail(url: String) : Bitmap {
+    fun getThumbnail(url: String): Bitmap {
         val size = File(url).length()
         return decodeFile(
-           url,
+            url,
             if (size > 1024 * 500) 25 else 5
         )
     }
 
     fun Context.share(bitmap: Bitmap) {
-        val intent =  Intent()
+        val intent = Intent()
         intent.action = Intent.ACTION_SEND
-        val values =  ContentValues()
+        val values = ContentValues()
         val cr = this.contentResolver
         values.put(MediaStore.Images.Media.TITLE, "IMG:${System.currentTimeMillis()}")
         values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")

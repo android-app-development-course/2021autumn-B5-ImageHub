@@ -256,14 +256,34 @@ fun BaseScreen(
                         folderManageViewModel.currentFolder.observeAsState().value ?: FolderEntity()
                     val images by folderManageViewModel.imagesInCurrentFolder.observeAsState()
                     val childFolder by folderManageViewModel.currentChildFolder.observeAsState()
+                    val imageId = it.arguments?.getInt("imageId")!!
+                    imageManageViewModel.visitImage(imageId)
+                    val image by imageManageViewModel.image.observeAsState()
+                    val folderById by folderManageViewModel.folderById.observeAsState()
                     FolderChooseScreen(
                         images = images,
                         childFolder = childFolder,
                         folder = folder,
-                        onBack = { navController.popBackStack() },
-                        onFolderClick = { folderId -> navController.navigate("${FolderChooseScreen.name}/${folderId}") },
-                        onFolderAdd = { TODO("传入字符串作为文件夹名字给 folder 添加子文件夹") },
-                        onChooseClick = { TODO("给 imgageid 的图片 添加此文件夹") }
+                        onBack = {
+                            navController.popBackStack()
+                        },
+                        onFolderClick = { folderId ->
+                            navController.navigate("${FolderChooseScreen.name}/${folderId}")
+                        },
+                        onFolderAdd = {
+                            coroutine.launch {
+                                val id = folderManageViewModel.newFolderAndGetId(it)
+                                folderManageViewModel.getFolderById(id)
+                                folderById?.let { f ->
+                                    folderManageViewModel.moveFolder(f, folder)
+                                }
+                            }
+                        },
+                        onChooseClick = { f ->
+                            image?.let { i ->
+                                imageManageViewModel.addImageToFolder(listOf(i), f)
+                            }
+                        }
                     )
                 }
                 composable(Tip.name) {

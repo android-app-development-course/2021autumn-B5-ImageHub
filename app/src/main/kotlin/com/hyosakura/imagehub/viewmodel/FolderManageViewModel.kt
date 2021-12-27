@@ -8,21 +8,27 @@ import com.hyosakura.imagehub.util.ImageUtil
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class FolderManageViewModel(private val repository: DataRepository) : ViewModel() {
     var currentFolder: LiveData<FolderEntity> = visitFolder(-1)
     lateinit var currentChildFolder: LiveData<List<FolderEntity>>
     lateinit var imagesInCurrentFolder: LiveData<List<ImageEntity>>
+    lateinit var folderById: LiveData<FolderEntity>
 
     fun visitFolder(dirId: Int): LiveData<FolderEntity> {
-        visitChildFolder(dirId)
-        visitImages(dirId)
+        viewModelScope.launch {
+            visitChildFolder(dirId)
+        }
+        viewModelScope.launch {
+            visitImages(dirId)
+        }
         return repository.getDirById(dirId).asLiveData().also {
             currentFolder = it
         }
     }
 
-    private fun visitChildFolder(dirId : Int) {
+    private fun visitChildFolder(dirId: Int) {
         currentChildFolder = repository.childDir(dirId).map { outerList ->
             outerList.childDirs.onEach {
                 it.latestPicture = repository.dirWithImages(it.folderId!!)
@@ -54,6 +60,23 @@ class FolderManageViewModel(private val repository: DataRepository) : ViewModel(
                 modifyTime = System.currentTimeMillis()
             )
             repository.insertDir(entity)
+        }
+    }
+
+    suspend fun newFolderAndGetId(name: String): Int = withContext(viewModelScope.coroutineContext) {
+        val entity = FolderEntity(
+            folderId = null,
+            parentId = -1,
+            name = name,
+            number = 0,
+            modifyTime = System.currentTimeMillis()
+        )
+        repository.insertDir(entity).first().toInt()
+    }
+
+     fun getFolderById(id: Int): LiveData<FolderEntity> {
+        return repository.getDirById(id).asLiveData().also {
+            folderById = it
         }
     }
 

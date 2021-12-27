@@ -39,7 +39,10 @@ data class ImageEntity(
     var deleted: Int? = 0,
 
     @Ignore
-    override var bitmap: Bitmap? = null
+    override var bitmap: Bitmap? = null,
+
+    @Ignore
+    var thumbnail: Bitmap? = null
 ) : DeviceImageEntity()
 
 fun Long.toDateTime(): LocalDateTime {
