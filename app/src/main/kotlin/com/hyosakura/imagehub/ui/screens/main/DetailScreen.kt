@@ -26,7 +26,6 @@ import com.hyosakura.imagehub.R
 import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.entity.TagEntity
 import com.hyosakura.imagehub.ui.composables.InputOutlinedTextField
-import com.hyosakura.imagehub.ui.composables.TagRow
 import com.hyosakura.imagehub.util.ImageUtil.share
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -161,10 +160,10 @@ fun DetailScreen(
                 title = { Text(text = stringResource(R.string.addTag)) },
                 text = {
                     Column {
-                        // TODO 下面两个列表,图片已有的标签不显示
+                        // TODO 下面两个列表图片已有的标签不显示
                         if (starTagList.isNotEmpty()) {
                             Text(text = stringResource(R.string.starTags))
-                            TagRow(
+                            MiniTagRow(
                                 tagList = starTagList,
                                 onSuggestTagClick = {
                                     isAddTag = false
@@ -174,7 +173,7 @@ fun DetailScreen(
                         }
                         if (candidateTagList.isEmpty() && recentTagList.isNotEmpty()) {
                             Text(text = stringResource(R.string.recentlyUsed))
-                            TagRow(
+                            MiniTagRow(
                                 tagList = recentTagList,
                                 onSuggestTagClick = {
                                     isAddTag = false
@@ -182,8 +181,8 @@ fun DetailScreen(
                                 }
                             )
                         } else {
-                            Text(text = "建议标签")
-                            TagRow(
+                            Text(text = stringResource(R.string.suggestTag))
+                            MiniTagRow(
                                 tagList = candidateTagList,
                                 onSuggestTagClick = {
                                     editText = it.name!!

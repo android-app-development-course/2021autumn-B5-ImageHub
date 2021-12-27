@@ -23,4 +23,6 @@
     <string name="starTags">常用标签</string>
     <string name="addTag">添加标签</string>
     <string name="editAnnotation">编辑注释</string>
+    <string name="suggestTag">建议标签</string>
+    <string name="recentlyUsedTags">最近使用标签</string>
 </resources>
