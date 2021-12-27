@@ -136,7 +136,9 @@ fun BaseScreen(
                     val result by imageManageViewModel.imageList.observeAsState()
                     SearchResultsScreen(
                         initSearch = {
-                            imageManageViewModel.searchImage(it)
+                            if (it.isNotBlank()) {
+                                imageManageViewModel.searchImage(it)
+                            }
                         },
                         result,
                         onImageClick = {
@@ -317,9 +319,9 @@ fun BaseScreen(
                         onImageImport = {
                             coroutine.launch {
                                 val id = deviceImageManageViewModel.importImage(image!!)
-                                navController.popBackStack()
                                 navController.navigate("${Detail.name}/$id")
                             }
+                            navController.popBackStack()
                         }
                     )
                 }
