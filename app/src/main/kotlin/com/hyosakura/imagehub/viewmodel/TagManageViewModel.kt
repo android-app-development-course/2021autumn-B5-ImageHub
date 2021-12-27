@@ -61,6 +61,7 @@ class TagManageViewModel(private val repository: DataRepository) : ViewModel() {
     fun insertTag(tag: TagEntity) {
         viewModelScope.launch {
             tag.addTime = System.currentTimeMillis()
+            tag.modifyTime = System.currentTimeMillis()
             repository.insertTag(tag)
         }
     }

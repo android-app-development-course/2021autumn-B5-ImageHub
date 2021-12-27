@@ -103,6 +103,7 @@ fun BaseScreen(
                     val num = 20
                     val recentTags by tagManageViewModel.getRecentTag(num).observeAsState()
                     SearchScreen(
+                        tagManageViewModel,
                         starTags,
                         recentTags,
                         onSearchBarClick = {
