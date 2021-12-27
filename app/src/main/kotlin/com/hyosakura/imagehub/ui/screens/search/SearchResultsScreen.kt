@@ -21,7 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hyosakura.imagehub.R
 import com.hyosakura.imagehub.entity.ImageEntity
-import com.hyosakura.imagehub.ui.screens.main.ImageListWithDate
+import com.hyosakura.imagehub.ui.composables.ImageListWithDate
 
 @OptIn(ExperimentalMaterial3Api::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable

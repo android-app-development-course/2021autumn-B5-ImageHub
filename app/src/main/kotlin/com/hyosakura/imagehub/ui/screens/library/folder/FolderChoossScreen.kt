@@ -13,7 +13,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.hyosakura.imagehub.entity.FolderEntity
 import com.hyosakura.imagehub.entity.ImageEntity
-import com.hyosakura.imagehub.ui.screens.main.ImageListWithDate
+import com.hyosakura.imagehub.ui.composables.ImageListWithDate
 import com.hyosakura.imagehub.R
 import com.hyosakura.imagehub.ui.composables.InputOutlinedTextField
 

@@ -56,7 +56,8 @@ class DeviceImageViewModel(private val repository: DataRepository) : ViewModel()
                             file.extension == "png" ||
                             file.extension == "gif" ||
                             file.extension == "jpeg" ||
-                            file.extension == "bmp"
+                            file.extension == "bmp" ||
+                            file.extension == "webp"
                     )
         }
         var id = 1

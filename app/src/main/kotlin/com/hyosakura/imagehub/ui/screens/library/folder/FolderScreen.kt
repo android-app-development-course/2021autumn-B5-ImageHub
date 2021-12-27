@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.hyosakura.imagehub.entity.FolderEntity
 import com.hyosakura.imagehub.entity.ImageEntity
-import com.hyosakura.imagehub.ui.screens.main.ImageListWithDate
+import com.hyosakura.imagehub.ui.composables.ImageListWithDate
 import com.hyosakura.imagehub.R
 import com.hyosakura.imagehub.ui.composables.InputOutlinedTextField
 

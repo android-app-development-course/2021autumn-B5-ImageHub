@@ -6,7 +6,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.entity.TagEntity
-import com.hyosakura.imagehub.ui.screens.main.ImageListWithDate
+import com.hyosakura.imagehub.ui.composables.ImageListWithDate
 
 
 @OptIn(ExperimentalMaterial3Api::class)
