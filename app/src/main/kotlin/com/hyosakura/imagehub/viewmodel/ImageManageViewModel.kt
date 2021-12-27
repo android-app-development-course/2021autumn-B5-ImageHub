@@ -13,9 +13,12 @@ import kotlinx.coroutines.launch
 class ImageManageViewModel(private val repository: DataRepository) : ViewModel() {
     init {
         allImages()
+        searchImage("")
     }
 
     lateinit var imageList: LiveData<List<ImageEntity>>
+
+    lateinit var searchResult: LiveData<List<ImageEntity>>
 
     lateinit var image: LiveData<ImageEntity>
 
@@ -40,6 +43,7 @@ class ImageManageViewModel(private val repository: DataRepository) : ViewModel()
         viewModelScope.launch {
             image = repository.getImageById(imageId).map {
                 it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
+                it.thumbnail = ImageUtil.getThumbnail(it.url!!)
                 it
             }.asLiveData()
         }
@@ -88,6 +92,7 @@ class ImageManageViewModel(private val repository: DataRepository) : ViewModel()
             imageList = repository.tagWithImages(tagId).map { ref ->
                 ref.images.map {
                     it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
+                    it.thumbnail = ImageUtil.getThumbnail(it.url!!)
                     it
                 }
             }.asLiveData()
@@ -99,6 +104,7 @@ class ImageManageViewModel(private val repository: DataRepository) : ViewModel()
             imageList = repository.dirWithImages(dirId).map { ref ->
                 ref.images.map {
                     it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
+                    it.thumbnail = ImageUtil.getThumbnail(it.url!!)
                     it
                 }
             }.asLiveData()
@@ -107,9 +113,10 @@ class ImageManageViewModel(private val repository: DataRepository) : ViewModel()
 
     fun searchImage(condition: String) {
         viewModelScope.launch {
-            imageList = repository.searchImage(condition).map { list ->
+            searchResult = repository.searchImage(condition).map { list ->
                 list.map {
                     it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
+                    it.thumbnail = ImageUtil.getThumbnail(it.url!!)
                     it
                 }
             }.asLiveData()

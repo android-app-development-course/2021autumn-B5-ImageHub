@@ -79,7 +79,7 @@ fun SearchResultsScreen(
         content = {
             Column {
                 searchAction(searchString)
-                viewModel.imageList.observeAsState().value?.let {
+                viewModel.searchResult.observeAsState().value?.let {
                     ImageListWithDate(it, onImageClick)
                 }
             }
