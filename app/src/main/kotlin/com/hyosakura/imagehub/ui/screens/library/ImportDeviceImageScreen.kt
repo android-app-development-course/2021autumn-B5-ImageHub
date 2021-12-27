@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import com.hyosakura.imagehub.R
 import com.hyosakura.imagehub.entity.DeviceImageEntity
 import com.hyosakura.imagehub.entity.TagEntity
+import com.hyosakura.imagehub.util.ImageUtil
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,7 +43,7 @@ fun ImportDeviceImageScreen(
         Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
             if (image != null) {
                 Image(
-                    bitmap = image.bitmap!!.asImageBitmap(),
+                    bitmap = ImageUtil.decodeFile(image.url!!, 1).asImageBitmap(),
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxWidth()

@@ -5,13 +5,28 @@ import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.entity.TagEntity
 import com.hyosakura.imagehub.repository.DataRepository
 import com.hyosakura.imagehub.util.ImageUtil
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class TagManageViewModel(private val repository: DataRepository) : ViewModel() {
-    val allTags = repository.allTags.asLiveData()
-    val starTags = repository.starTag.asLiveData()
+    val allTags = repository.allTags.map { list->
+        list.map {
+            it.latestPicture = repository.imageInTag(it.tagId!!).first().images.firstOrNull()?.let {
+                ImageUtil.decodeFile(it.url!!, 1)
+            }
+            it
+        }
+    }.asLiveData()
+    val starTags = repository.starTag.map { list->
+        list.map {
+            it.latestPicture = repository.imageInTag(it.tagId!!).first().images.firstOrNull()?.let {
+                ImageUtil.decodeFile(it.url!!, 1)
+            }
+            it
+        }
+    }.asLiveData()
     var candidateTagWithName: LiveData<List<TagEntity>> = getTagByName("", false)
     lateinit var tag: LiveData<TagEntity>
 

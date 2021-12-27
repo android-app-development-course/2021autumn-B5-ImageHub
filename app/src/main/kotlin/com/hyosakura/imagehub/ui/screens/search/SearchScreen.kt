@@ -14,7 +14,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.hyosakura.imagehub.R
 import com.hyosakura.imagehub.entity.TagEntity
-import com.hyosakura.imagehub.ui.screens.TagRow
+import com.hyosakura.imagehub.ui.composables.TagRow
 
 
 @OptIn(ExperimentalMaterial3Api::class)

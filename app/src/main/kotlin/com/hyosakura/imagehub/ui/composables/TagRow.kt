@@ -1,16 +1,16 @@
-package com.hyosakura.imagehub.ui.screens
+package com.hyosakura.imagehub.ui.composables
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
-import com.hyosakura.imagehub.R
 import com.hyosakura.imagehub.entity.TagEntity
 
 @Composable
@@ -34,13 +34,14 @@ fun TagRow(
 }
 
 @Composable
-fun TagItem(tagEntity: TagEntity, onTagClick: () -> Unit) {
+fun TagItem(
+    tagEntity: TagEntity,
+    onTagClick: () -> Unit
+) {
     Column {
         TextButton(onClick = onTagClick) {
             Image(
-                // TODO: 获取标签最新图片放在下面
-//                bitmap = tagEntity.latestPicture,
-                painter = painterResource(id = R.drawable.ic_outline_image_black_24),
+                bitmap = tagEntity.latestPicture!!.asImageBitmap(),
                 contentDescription = null,
                 modifier = Modifier
                     .size(120.dp)
