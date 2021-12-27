@@ -39,7 +39,6 @@ class ImageManageViewModel(private val repository: DataRepository) : ViewModel()
         }
         viewModelScope.launch {
             image = repository.getImageById(imageId).map {
-                it.thumbnail = ImageUtil.getThumbnail(it.url!!)
                 it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
                 it
             }.asLiveData()
@@ -88,7 +87,6 @@ class ImageManageViewModel(private val repository: DataRepository) : ViewModel()
         viewModelScope.launch {
             imageList = repository.tagWithImages(tagId).map { ref ->
                 ref.images.map {
-                    it.thumbnail = ImageUtil.getThumbnail(it.url!!)
                     it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
                     it
                 }
@@ -100,7 +98,6 @@ class ImageManageViewModel(private val repository: DataRepository) : ViewModel()
         viewModelScope.launch {
             imageList = repository.dirWithImages(dirId).map { ref ->
                 ref.images.map {
-                    it.thumbnail = ImageUtil.getThumbnail(it.url!!)
                     it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
                     it
                 }
@@ -112,7 +109,6 @@ class ImageManageViewModel(private val repository: DataRepository) : ViewModel()
         viewModelScope.launch {
             imageList = repository.searchImage(condition).map { list ->
                 list.map {
-                    it.thumbnail = ImageUtil.getThumbnail(it.url!!)
                     it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
                     it
                 }

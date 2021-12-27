@@ -12,6 +12,7 @@ class RecycleBinViewModel(private val repository: DataRepository) : ViewModel() 
         get() {
             return repository.allDeletedImages.map { list ->
                 list.map {
+                    it.thumbnail = ImageUtil.getThumbnail(it.url!!)
                     it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
                     it
                 }

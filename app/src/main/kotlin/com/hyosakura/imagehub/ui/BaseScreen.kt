@@ -1,7 +1,6 @@
 package com.hyosakura.imagehub.ui
 
 import android.widget.Toast
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -142,6 +141,7 @@ fun BaseScreen(
                             }
                         },
                         result,
+                        imageManageViewModel,
                         onImageClick = {
                             navController.navigate("${Detail.name}/${imageId}")
                         }
