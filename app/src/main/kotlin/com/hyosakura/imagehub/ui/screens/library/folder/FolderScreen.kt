@@ -35,7 +35,7 @@ fun FolderScreen(
     Scaffold(modifier = Modifier.fillMaxSize(),
         topBar = {
             SmallTopAppBar(
-                title = { Text(folder.name) },
+                title = { Text(text = if(folder.name != "无文件夹") folder.name else "\\") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
