@@ -6,6 +6,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
@@ -25,10 +27,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.hyosakura.imagehub.R
-import com.hyosakura.imagehub.entity.FolderEntity
 import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.entity.TagEntity
+import com.hyosakura.imagehub.ui.composables.InputOutlinedTextField
+import com.hyosakura.imagehub.ui.composables.TagRow
 import com.hyosakura.imagehub.util.ImageUtil.share
+import com.hyosakura.imagehub.viewmodel.ImageManageViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -38,274 +42,246 @@ private val coroutine = CoroutineScope(Dispatchers.IO)
 @OptIn(ExperimentalMaterial3Api::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
 fun DetailScreen(
-    image: ImageEntity?,
-    folder: FolderEntity?,
-    tagList: List<TagEntity>?,
-    starTags: List<TagEntity>?,
-    candidateTags: List<TagEntity>?,
-    recentTags: List<TagEntity>?,
+    image: ImageEntity,
+    folderName: String,
+    tagList: List<TagEntity>,
+    starTagList: List<TagEntity>,
+    recentTagList: List<TagEntity>,
+    candidateTagList: List<TagEntity>,
+
     onBack: () -> Unit,
+
     onTagInsert: suspend TagEntity.() -> Int,
     onTagClick: TagEntity.() -> Unit,
     onTagDelete: TagEntity.() -> Unit,
-    onImageDelete: ImageEntity.() -> Unit,
-    onImageRecover: ImageEntity.() -> Unit,
-    onTagAddToImage: (ImageEntity, TagEntity) -> Unit,
-    onFolderClick: FolderEntity.() -> Unit,
-    onAnnotationEdit: ImageEntity.(text: String) -> Unit,
-    candidateAction:  (String) -> Unit,
-    onTagConflict: () -> Unit
-) {
-    image?.let { i ->
-        folder?.let { f ->
-            val annotation = i.annotation!!
-            var isAnnotationEdit by remember { mutableStateOf(false) }
-            var isAddTag by remember { mutableStateOf(false) }
+    onTagAddToImage: (TagEntity) -> Unit,
+    onTagConflict: () -> Unit,
+    candidateAction: (String) -> Unit,
 
-            Scaffold(
-                topBar = {
-                    SmallTopAppBar(
-                        title = {
-                            TagRowWithClose(
-                                tagList,
-                                onTagClick,
-                                onTagDelete
-                            )
-                        },
-                        navigationIcon = {
-                            IconButton(onClick = onBack) {
-                                Icon(imageVector = Icons.Filled.ArrowBack, null)
-                            }
-                        },
-                        actions = {
-                            IconButton(onClick = { isAddTag = true }) {
-                                Icon(imageVector = Icons.Filled.Add, contentDescription = null)
-                            }
+    onImageDelete: () -> Unit,
+    onImageRestore: () -> Unit,
+
+    onFolderClick: () -> Unit,
+
+    onAnnotationEdit: (text: String) -> Unit
+) {
+
+    val annotation = image.annotation!!
+
+    var isAnnotationEdit by remember { mutableStateOf(false) }
+    var isAddTag by remember { mutableStateOf(false) }
+
+    Scaffold(
+        topBar = {
+            SmallTopAppBar(
+                title = {
+                    TopTagRow(
+                        tagList = tagList,
+                        onTagClick = onTagClick,
+                        onDeleteTagClick = onTagDelete,
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(imageVector = Icons.Filled.ArrowBack, null)
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { isAddTag = true }) {
+                        Icon(
+                            imageVector = Icons.Filled.Add,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+            )
+        },
+
+        bottomBar = {
+            Column {
+                Annotation(
+                    onAnnotationEdit = { isAnnotationEdit = true },
+                    annotation = annotation
+                )
+                DetailBottomBar(image, folderName,
+                    onDeleteImageClick = { onImageDelete() },
+                    onFolderClick = { onFolderClick() },
+                    onRestoreClick = { onImageRestore() }
+                )
+            }
+        }
+    ) {
+        image.bitmap?.let { it1 ->
+            Image(
+                bitmap = it1.asImageBitmap(),
+                contentDescription = null,
+                Modifier
+                    .fillMaxHeight(0.9f)
+                    .fillMaxWidth()
+            )
+        }
+
+        if (isAnnotationEdit) {
+            var editText by remember { mutableStateOf(annotation) }
+            AlertDialog(
+                onDismissRequest = { isAnnotationEdit = false },
+                title = { Text(text = "编辑注释") },
+                text = {
+                    InputOutlinedTextField(
+                        value = editText,
+                        onValueChange = { string ->
+                            editText = string
                         }
                     )
                 },
-
-                bottomBar = {
-                    Column {
-                        Row(
-                            Modifier
-                                .fillMaxWidth()
-                                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-                                .alpha(0.8f)
-                                .clickable { isAnnotationEdit = true }
-                                .padding(10.dp)) {
-                            if (annotation != "")
-                                Text(
-                                    text = i.annotation!!,
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            else
-                                Text(
-                                    text = stringResource(id = R.string.addAnnotation),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    modifier = Modifier.alpha(0.5f)
-                                )
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            isAnnotationEdit = false
+                            onAnnotationEdit(editText)
                         }
-
-                        when (i.deleted) {
-                            0 -> {
-                                DetailBottomBar(
-                                    folderName = f.name,
-                                    imageEntity = i,
-                                    onDeleteClick = {
-                                        onImageDelete(i)
-                                    },
-                                    onFolderClick = {
-                                        onFolderClick(f)
-                                    }
-                                )
-                            }
-                            else -> {
-                                NavigationBar {
-                                    NavigationBarItem(
-                                        icon = {
-                                            Icon(
-                                                painterResource(
-                                                    id = R.drawable.ic_baseline_restore_from_trash_24
-                                                ),
-                                                contentDescription = null
-                                            )
-                                        },
-                                        selected = false,
-                                        label = { Text(text = stringResource(R.string.restore)) },
-                                        onClick = {
-                                            onImageRecover(i)
-                                        }
-                                    )
-                                }
-                            }
+                    ) {
+                        Text("确定")
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {
+                            isAnnotationEdit = false
                         }
+                    ) {
+                        Text("取消")
                     }
                 }
-            ) {
-                Image(
-                    bitmap = i.bitmap!!.asImageBitmap(),
-                    contentDescription = null,
-                    Modifier
-                        .fillMaxHeight(0.9f)
-                        .fillMaxWidth()
-                )
+            )
+        }
 
-                if (isAnnotationEdit) {
-                    var editText by remember { mutableStateOf(annotation) }
-                    AlertDialog(
-                        onDismissRequest = { isAnnotationEdit = false },
-                        title = { Text(text = stringResource(R.string.editAnnotation)) },
-                        text = {
-                            OutlinedTextField(
-                                value = editText, onValueChange = { string ->
-                                    editText = string
-                                },
-                                singleLine = true,
-                                textStyle = MaterialTheme.typography.titleMedium,
-                                colors = TextFieldDefaults.outlinedTextFieldColors(
-                                    textColor = MaterialTheme.colorScheme.primary,
-                                    cursorColor = MaterialTheme.colorScheme.inversePrimary,
-                                    focusedBorderColor = MaterialTheme.colorScheme.secondary,
-                                    unfocusedBorderColor = MaterialTheme.colorScheme.onSurface
-                                )
-                            )
-                        },
-                        confirmButton = {
-                            TextButton(
-                                onClick = {
-                                    onAnnotationEdit(i, editText)
-                                    isAnnotationEdit = false
-                                }
-                            ) {
-                                Text("确定")
-                            }
-                        },
-                        dismissButton = {
-                            TextButton(
-                                onClick = {
-                                    isAnnotationEdit = false
-                                }
-                            ) {
-                                Text("取消")
-                            }
-                        }
-                    )
-                }
-
-                if (isAddTag) {
-                    var editText by remember { mutableStateOf("") }
-                    var choose by remember { mutableStateOf(false) }
-                    var repeat by remember { mutableStateOf(false) }
-                    var tag by remember { mutableStateOf<TagEntity?>(null) }
-                    AlertDialog(
-                        onDismissRequest = { isAddTag = false },
-                        title = { Text(text = stringResource(R.string.addTag)) },
-                        text = {
-                            Column {
-                                Text(text = stringResource(R.string.starTags))
-                                TagRow(
-                                    tagList = starTags,
-                                    onTagClick = {
-                                        onTagClick(it)
-                                    }
-                                )
-                                Text(text = stringResource(R.string.recentlyUsed))
-                                TagRow(
-                                    tagList = recentTags,
-                                    onSuggestTagClick = { tagEntity ->
-                                        onSuggestTagClick(
-                                            image,
-                                            tagEntity,
-                                            imageViewModel
-                                        )
-                                        isAddTag = false
-                                    }
-                                )
-                                Text(text = stringResource(R.string.addOrSearchTags))
-                                Row {
-                                    OutlinedTextField(
-                                        value = editText,
-                                        onValueChange = { string ->
-                                            editText = string
-                                            choose = false
-                                            repeat = false
-                                        },
-                                        singleLine = true,
-                                        textStyle = MaterialTheme.typography.titleMedium,
-                                        colors = TextFieldDefaults.outlinedTextFieldColors(
-                                            textColor = MaterialTheme.colorScheme.primary,
-                                            cursorColor = MaterialTheme.colorScheme.inversePrimary,
-                                            focusedBorderColor = MaterialTheme.colorScheme.secondary,
-                                            unfocusedBorderColor = MaterialTheme.colorScheme.onSurface
-                                        ),
-                                    )
-                                }
-                                if (editText.isNotEmpty() && !choose) {
-                                    candidateAction(editText)
-                                    candidateTags?.let{ list ->
-                                        list.forEach {
-                                            Row {
-                                                // todo 改样式
-                                                Box(
-                                                    modifier = Modifier.clickable {
-                                                        if (editText == it.name) {
-                                                            repeat = true
-                                                        }
-                                                        editText = it.name!!
-                                                        choose = true
-                                                        tag = it
-                                                    }
-                                                ) {
-                                                    Text(it.name!!)
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        confirmButton = {
-                            TextButton(
-                                onClick = {
-                                    coroutine.launch {
-                                        if (!choose) {
-                                            tag = TagEntity(name = editText)
-                                            tag!!.tagId = onTagInsert(tag!!)
-                                        }
-                                        if (!repeat) {
-                                            onTagAddToImage(i, tag!!)
-                                        } else {
-                                           onTagConflict()
-                                        }
-                                        isAddTag = false
-                                    }
-                                }
-                            ) {
-                                Text("确定")
-                            }
-                        },
-                        dismissButton = {
-                            TextButton(
-                                onClick = {
+        if (isAddTag) {
+            var editText by remember { mutableStateOf("") }
+            var choose by remember { mutableStateOf(false) }
+            var repeat by remember { mutableStateOf(false) }
+            var tag by remember { mutableStateOf<TagEntity?>(null) }
+            AlertDialog(
+                onDismissRequest = { isAddTag = false },
+                title = { Text(text = stringResource(R.string.addTag)) },
+                text = {
+                    Column {
+                        // TODO 下面两个列表图片已有的标签不显示
+                        if (starTagList.isNotEmpty()) {
+                            Text(text = stringResource(R.string.starTags))
+                            TagRow(
+                                tagList = starTagList,
+                                onSuggestTagClick = {
                                     isAddTag = false
+                                    onTagAddToImage(it)
                                 }
-                            ) {
-                                Text("取消")
+                            )
+                        }
+                        /* TODO
+                            优化逻辑：如果 没有建议标签 且 有最近使用标签 ->显示最近使用标签,
+                            如果有建议标签则优先显示建议标签
+                        */
+                        if (candidateTagList.isEmpty() && recentTagList.isNotEmpty()) {
+                            Text(text = stringResource(R.string.recentlyUsed))
+                            TagRow(
+                                tagList = recentTagList,
+                                onSuggestTagClick = {
+                                    isAddTag = false
+                                    onTagAddToImage(it)
+                                }
+                            )
+                        } else {
+                            Text(text = "建议标签")
+                            TagRow(
+                                tagList = candidateTagList,
+                                onSuggestTagClick = {
+                                    if (editText == it.name) {
+                                        repeat = true
+                                    }
+                                    editText = it.name!!
+                                    choose = true
+                                    tag = it
+                                    isAddTag = false
+                                    onTagAddToImage(it)
+                                }
+                            )
+                        }
+                        Text(text = stringResource(R.string.addOrSearchTags))
+                        Row {
+                            InputOutlinedTextField(
+                                value = editText,
+                                onValueChange = { string ->
+                                    editText = string
+                                    candidateAction(editText)
+                                    choose = false
+                                    repeat = false
+                                }
+                            )
+                        }
+                    }
+
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            coroutine.launch {
+                                if (!choose) {
+                                    tag = TagEntity(name = editText)
+                                    tag!!.tagId = onTagInsert(tag!!)
+                                }
+                                if (!repeat) {
+                                    onTagAddToImage(tag!!)
+                                } else {
+                                    onTagConflict()
+                                }
+                                isAddTag = false
                             }
                         }
-                    )
+                    ) {
+                        Text("确定")
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {
+                            isAddTag = false
+                        }
+                    ) {
+                        Text("取消")
+                    }
                 }
-            }
+            )
         }
     }
+}
+
+@Composable
+private fun TopTagRow(
+    tagList: List<TagEntity>,
+    onTagClick: TagEntity.() -> Unit,
+    onDeleteTagClick: (TagEntity) -> Unit
+) {
+    if (tagList.isEmpty()) {
+        Text(
+            text = stringResource(R.string.clickToAddTag),
+            modifier = Modifier.alpha(0.5f),
+            color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.typography.titleMedium
+        )
+    } else
+        TagRowWithClose(
+            tagList,
+            onTagClick = onTagClick,
+            onDeleteTagClick = { onDeleteTagClick(this) }
+        )
 }
 
 @Composable
 private fun TagRowWithClose(
     tagList: List<TagEntity>?,
     onTagClick: TagEntity.() -> Unit,
-    onDeleteClick: TagEntity.() -> Unit
+    onDeleteTagClick: TagEntity.() -> Unit
 ) {
     if (tagList != null) {
         LazyRow {
@@ -315,8 +291,8 @@ private fun TagRowWithClose(
                     onTagClick = {
                         onTagClick(tag)
                     },
-                    onDeleteClick = {
-                        onDeleteClick(tag)
+                    onDeleteTagClick = {
+                        onDeleteTagClick(tag)
                     },
                 )
             }
@@ -325,8 +301,9 @@ private fun TagRowWithClose(
     }
 }
 
+
 @Composable
-fun TagItemWithClose(it: TagEntity, onTagClick: () -> Unit, onDeleteClick: () -> Unit) {
+fun TagItemWithClose(it: TagEntity, onTagClick: () -> Unit, onDeleteTagClick: () -> Unit) {
     Row(Modifier.padding(2.dp), verticalAlignment = Alignment.CenterVertically) {
         OutlinedButton(
             onClick = onTagClick,
@@ -339,48 +316,79 @@ fun TagItemWithClose(it: TagEntity, onTagClick: () -> Unit, onDeleteClick: () ->
             tint = MaterialTheme.colorScheme.error,
             modifier = Modifier
                 .offset(x = (-30).dp)
-                .clickable { onDeleteClick() })
+                .clickable { onDeleteTagClick() })
     }
 }
 
 @Composable
-private fun TagRow(
-    tagList: List<TagEntity>?,
-    onTagClick: (TagEntity) -> Unit,
+private fun Annotation(
+    onAnnotationEdit: () -> Unit,
+    annotation: String
 ) {
-    if (tagList != null) {
-        LazyRow {
-            items(tagList) { tag ->
-                TagItem(
-                    tag,
-                    onTagClick = {
-                        onTagClick(tag)
-                    }
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            .alpha(0.8f)
+            .clickable { onAnnotationEdit() }
+            .padding(10.dp)) {
+        if (annotation != "")
+            Text(
+                text = annotation,
+                style = MaterialTheme.typography.bodySmall
+            )
+        else
+            Text(
+                text = stringResource(id = R.string.addAnnotation),
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.alpha(0.5f)
+            )
+    }
+}
+
+@Composable
+private fun DetailBottomBar(
+    image: ImageEntity,
+    folderName: String,
+    onDeleteImageClick: () -> Unit,
+    onFolderClick: () -> Unit,
+    onRestoreClick: () -> Unit,
+) {
+    when (image.deleted) {
+        0 -> {
+            BottomBar(
+                folderName = folderName,
+                imageEntity = image,
+                onDeleteClick = onDeleteImageClick,
+                onFolderClick = onFolderClick,
+            )
+        }
+        else -> {
+            NavigationBar {
+                NavigationBarItem(
+                    icon = {
+                        Icon(
+                            painterResource(
+                                id = R.drawable.ic_baseline_restore_from_trash_24
+                            ),
+                            contentDescription = null
+                        )
+                    },
+                    selected = false,
+                    label = { Text(text = stringResource(R.string.restore)) },
+                    onClick = onRestoreClick
                 )
             }
-            item { Spacer(modifier = Modifier.width(10.dp)) }
         }
     }
 }
 
 @Composable
-fun TagItem(it: TagEntity, onTagClick: () -> Unit) {
-    Row(Modifier.padding(2.dp), verticalAlignment = Alignment.CenterVertically) {
-        OutlinedButton(
-            onClick = onTagClick,
-            modifier = Modifier.padding(1.dp)
-        ) {
-            Text(it.name!!)
-        }
-    }
-}
-
-@Composable
-fun DetailBottomBar(
+fun BottomBar(
     folderName: String,
     imageEntity: ImageEntity,
     onDeleteClick: () -> Unit,
-    onFolderClick: () -> Unit
+    onFolderClick: () -> Unit,
 ) {
     val context = LocalContext.current
     NavigationBar {

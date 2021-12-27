@@ -43,6 +43,7 @@ class TagManageViewModel(private val repository: DataRepository) : ViewModel() {
     }
 
     fun insertTag(tag: TagEntity) {
+        // TODO： 不应该能插入纯空格、空字符串标签
         viewModelScope.launch {
             tag.addTime = System.currentTimeMillis()
             repository.insertTag(tag)

@@ -21,6 +21,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.hyosakura.imagehub.R
+import com.hyosakura.imagehub.entity.FolderEntity
+import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.entity.TagEntity
 import com.hyosakura.imagehub.repository.DataRepository
 import com.hyosakura.imagehub.ui.screens.Screen
@@ -78,6 +80,7 @@ fun BaseScreen(
     val backstackEntry = navController.currentBackStackEntryAsState()
     val currentScreen = Screen.fromRoute(backstackEntry.value?.destination?.route)
     val context = LocalContext.current
+
     Scaffold(
         topBar = {
             TopBar(currentScreen)
@@ -144,6 +147,7 @@ fun BaseScreen(
                     val allTags by tagManageViewModel.allTags.observeAsState()
                     val candidateTags by tagManageViewModel.candidateTagWithName.observeAsState()
                     TagScreen(
+                        // TODO Bug 无法添加标签，一直提示已存在
                         onBack = {
                             navController.popBackStack()
                         },
@@ -218,55 +222,61 @@ fun BaseScreen(
                 ) {
                     val imageId = it.arguments?.getInt("imageId")
                     imageManageViewModel.visitImage(imageId!!)
-                    val image by imageManageViewModel.image.observeAsState()
-                    val folder by folderManageViewModel.currentFolder.observeAsState()
-                    val tagList by imageManageViewModel.tagList.observeAsState()
-                    val starTags by tagManageViewModel.starTags.observeAsState()
+                    val image = imageManageViewModel.image.observeAsState().value ?: ImageEntity()
+                    val folder =
+                        folderManageViewModel.currentFolder.observeAsState().value ?: FolderEntity()
+                    val tagList = imageManageViewModel.tagList.observeAsState().value ?: listOf()
+                    val starTags = tagManageViewModel.starTags.observeAsState().value ?: listOf()
                     val num = 20
-                    val recentTags by tagManageViewModel.getRecentTag(num).observeAsState()
-                    val candidateTags by tagManageViewModel.candidateTagWithName.observeAsState()
+                    val recentTags =
+                        tagManageViewModel.getRecentTag(num).observeAsState().value ?: listOf()
+                    val candidateTags =
+                        tagManageViewModel.candidateTagWithName.observeAsState().value ?: listOf()
                     DetailScreen(
                         image,
-                        folder,
+                        folder.name,
                         tagList,
                         starTags,
-                        candidateTags,
                         recentTags,
+                        // TODO Bug： 建议标签只能显示字符串完全匹配的结果
+                        candidateTags,
                         onBack = {
                             navController.popBackStack()
-                        },
-                        onTagInsert = {
-                             tagManageViewModel.insertTagAndGetId(this).first().toInt()
                         },
                         onTagClick = {
                             navController.navigate("${TagImage.name}/${tagId}")
                         },
+                        onTagInsert = {
+                            tagManageViewModel.insertTagAndGetId(this).first().toInt()
+                        },
                         onTagDelete = {
-
+                            imageManageViewModel.removeTag(image, this)
                         },
                         onImageDelete = {
                             navController.popBackStack()
-                            this.deleted = 1
-                            imageManageViewModel.updateImage(this)
+                            image.deleted = 1
+                            imageManageViewModel.updateImage(image)
                         },
-                        onImageRecover = {
+                        onImageRestore = {
                             navController.popBackStack()
-                            this.deleted = 0
-                            imageManageViewModel.updateImage(this)
+                            image.deleted = 0
+                            imageManageViewModel.updateImage(image)
                         },
-                        onTagAddToImage = {image,tag->
-                            imageManageViewModel.addTagToImage(image,tag)
+                        onTagAddToImage = { tag ->
+                            imageManageViewModel.addTagToImage(image, tag)
                         },
                         onFolderClick = {
-                            navController.navigate("Folder/${folderId}")
+                            navController.navigate("Folder/${folder.folderId}")
                         },
+                        // TODO 太卡了，要 5 秒才能添加注释
                         onAnnotationEdit = { editText ->
-                            this.annotation = editText
-                            imageManageViewModel.updateImage(this)
+                            image.annotation = editText
+                            imageManageViewModel.updateImage(image)
                         },
                         candidateAction = { name ->
                             tagManageViewModel.getTagByName(name, false)
                         },
+                        // TODO Bug 在弹窗点击确定按钮，数据库已有但图片没有的标签对象不能添加到图片
                         onTagConflict = {
                             coroutine.launch {
                                 withContext(Dispatchers.Main) {
