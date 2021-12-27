@@ -8,7 +8,6 @@ import com.hyosakura.imagehub.util.ImageUtil
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import java.io.File
 
 class FolderManageViewModel(private val repository: DataRepository) : ViewModel() {
     var currentFolder: LiveData<FolderEntity> = visitFolder(-1)

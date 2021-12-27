@@ -26,7 +26,7 @@ import com.hyosakura.imagehub.ui.screens.main.ImageListWithDate
 @OptIn(ExperimentalMaterial3Api::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
 fun SearchResultsScreen(
-    initSearch: (String) -> Unit,
+    searchAction: (String) -> Unit,
     searchResult: List<ImageEntity>?,
     onImageClick: ImageEntity.() -> Unit
 ) {
@@ -38,7 +38,9 @@ fun SearchResultsScreen(
                 val keyboardController = LocalSoftwareKeyboardController.current
                 OutlinedTextField(
                     value = searchString,
-                    onValueChange = { searchString = it },
+                    onValueChange = {
+                        searchString = it
+                    },
                     placeholder = {
                         Text(
                             stringResource(R.string.searchSuggestions),
@@ -73,7 +75,7 @@ fun SearchResultsScreen(
         },
         content = {
             Column {
-                initSearch(searchString)
+                searchAction(searchString)
                 searchResult?.let {
                     ImageListWithDate(it, onImageClick)
                 }

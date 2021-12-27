@@ -135,7 +135,7 @@ fun BaseScreen(
                 composable(SearchResults.name) {
                     val result by imageManageViewModel.imageList.observeAsState()
                     SearchResultsScreen(
-                        initSearch = {
+                        searchAction = {
                             if (it.isNotBlank()) {
                                 imageManageViewModel.searchImage(it)
                             }

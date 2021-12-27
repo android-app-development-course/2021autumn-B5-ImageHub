@@ -8,7 +8,6 @@ import com.hyosakura.imagehub.repository.DataRepository
 import com.hyosakura.imagehub.util.ImageUtil
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import java.io.File
 
 class ImageManageViewModel(private val repository: DataRepository) : ViewModel() {
     init {
@@ -21,7 +20,7 @@ class ImageManageViewModel(private val repository: DataRepository) : ViewModel()
 
     lateinit var tagList: LiveData<List<TagEntity>>
 
-    fun allImages() {
+    private fun allImages() {
         viewModelScope.launch {
             imageList = repository.allImages.map { list ->
                 list.map {
