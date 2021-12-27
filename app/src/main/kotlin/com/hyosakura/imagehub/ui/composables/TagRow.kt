@@ -21,12 +21,14 @@ fun TagRow(
     if (tagList != null) {
         LazyRow(modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)) {
             items(tagList) { tag ->
-                TagItem(
-                    tagEntity = tag,
-                    onTagClick = {
-                        onSuggestTagClick(tag)
-                    }
-                )
+                if (tag.latestPicture != null) {
+                    TagItem(
+                        tagEntity = tag,
+                        onTagClick = {
+                            onSuggestTagClick(tag)
+                        }
+                    )
+                }
             }
             item { Spacer(modifier = Modifier.width(10.dp)) }
         }

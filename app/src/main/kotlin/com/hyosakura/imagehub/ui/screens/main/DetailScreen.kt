@@ -181,19 +181,21 @@ fun DetailScreen(
                                 }
                             )
                         } else {
-                            Text(text = stringResource(R.string.suggestTag))
-                            MiniTagRow(
-                                tagList = candidateTagList - tagList,
-                                onSuggestTagClick = {
-                                    editText = it.name!!
-                                    // 选择了建议标签
-                                    candidateChoosed = true
-                                    // 将建议标签给结果
-                                    tag = it
-                                    isAddTag = false
-                                    onTagAddToImage(it)
-                                }
-                            )
+                            if ((candidateTagList - tagList).isNotEmpty()) {
+                                Text(text = stringResource(R.string.suggestTag))
+                                MiniTagRow(
+                                    tagList = candidateTagList - tagList,
+                                    onSuggestTagClick = {
+                                        editText = it.name!!
+                                        // 选择了建议标签
+                                        candidateChoosed = true
+                                        // 将建议标签给结果
+                                        tag = it
+                                        isAddTag = false
+                                        onTagAddToImage(it)
+                                    }
+                                )
+                            }
                         }
                         Text(text = stringResource(R.string.addOrSearchTags))
                         Row {

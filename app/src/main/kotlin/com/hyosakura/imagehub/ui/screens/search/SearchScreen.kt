@@ -59,13 +59,17 @@ fun SearchScreen(
         },
         content = {
             LazyColumn(modifier = Modifier.padding(16.dp, 16.dp, 0.dp,0.dp)) {
-                item {
-                    Text(text = stringResource(R.string.recentlyUsedTags))
-                    TagRow(tagList = recentTags, onSuggestTagClick =  onSuggestTagClick )
+                if (!recentTags.isNullOrEmpty()){
+                    item {
+                        Text(text = stringResource(R.string.recentlyUsedTags))
+                        TagRow(tagList = recentTags, onSuggestTagClick =  onSuggestTagClick )
+                    }
                 }
-                item {
-                    Text(text = stringResource(id = R.string.starTags))
-                    TagRow(tagList = starTags, onSuggestTagClick = onSuggestTagClick)
+                if (!starTags.isNullOrEmpty()){
+                    item {
+                        Text(text = stringResource(id = R.string.starTags))
+                        TagRow(tagList = starTags, onSuggestTagClick = onSuggestTagClick)
+                    }
                 }
             }
         }
