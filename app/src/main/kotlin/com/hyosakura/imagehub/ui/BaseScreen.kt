@@ -297,7 +297,19 @@ fun BaseScreen(
                     "${TagImage.name}/{tagId}",
                     arguments = listOf(navArgument("tagId") { type = NavType.IntType })
                 ) {
-                    TagImageScreen(repository, it.arguments?.getInt("tagId"), navController)
+                    val id = it.arguments?.getInt("tagId")!!
+                    val tag by tagManageViewModel.visitTag(id).observeAsState()
+                    val imageInTag by tagManageViewModel.getImageInTag(id).observeAsState()
+                    TagImageScreen(
+                        tag,
+                        imageInTag,
+                        onBack = {
+                            navController.popBackStack()
+                        },
+                        onImageClick = {
+                            navController.navigate("${Detail.name}/${imageId}")
+                        }
+                    )
                 }
                 composable(
                     "${AddDeviceImage.name}/{imageId}",
