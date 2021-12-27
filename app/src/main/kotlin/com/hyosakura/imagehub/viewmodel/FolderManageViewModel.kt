@@ -44,7 +44,8 @@ class FolderManageViewModel(private val repository: DataRepository) : ViewModel(
             relation.images.filter {
                 it.deleted == 0
             }.map {
-                it.bitmap = ImageUtil.getThumbnail(it.url!!)
+                it.thumbnail = ImageUtil.getThumbnail(it.url!!)
+                it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
                 it
             }
         }.asLiveData()
