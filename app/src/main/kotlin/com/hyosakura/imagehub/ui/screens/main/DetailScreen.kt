@@ -247,7 +247,7 @@ fun DetailScreen(
                             }
                         }
                     ) {
-                        Text("确定")
+                        Text(stringResource(R.string.ok))
                     }
                 },
                 dismissButton = {
@@ -256,7 +256,7 @@ fun DetailScreen(
                             isAddTag = false
                         }
                     ) {
-                        Text("取消")
+                        Text(stringResource(R.string.cancel))
                     }
                 }
             )

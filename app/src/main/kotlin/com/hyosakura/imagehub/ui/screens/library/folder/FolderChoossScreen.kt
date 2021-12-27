@@ -1,18 +1,16 @@
 package com.hyosakura.imagehub.ui.screens.library.folder
 
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
-import androidx.constraintlayout.compose.ConstraintLayout
 import com.hyosakura.imagehub.entity.FolderEntity
 import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.ui.screens.main.ImageListWithDate
@@ -21,14 +19,14 @@ import com.hyosakura.imagehub.ui.composables.InputOutlinedTextField
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FolderScreen(
+fun FolderChooseScreen(
     images: List<ImageEntity>?,
     childFolder: List<FolderEntity>?,
     folder: FolderEntity,
     onBack: () -> Unit,
     onFolderClick: (Int) -> Unit,
     onFolderAdd: (String) -> Unit,
-    onImageClick: ImageEntity.() -> Unit
+    onChooseClick: (FolderEntity) -> Unit
 ) {
     var isFolderAdd by remember { mutableStateOf(false) }
 
@@ -55,7 +53,25 @@ fun FolderScreen(
                     }
                 }
             )
-        }) {
+        },
+        bottomBar = {
+            NavigationBar {
+                NavigationBarItem(
+                    icon = {
+                        Icon(
+                            painterResource(
+                                id = R.drawable.ic_baseline_restore_from_trash_24
+                            ),
+                            contentDescription = null
+                        )
+                    },
+                    selected = false,
+                    label = { Text(text = stringResource(R.string.moveToThisFolder)) },
+                    onClick = { onChooseClick(folder) }
+                )
+            }
+        }
+    ) {
         Column(Modifier.fillMaxSize()) {
             FolderList(
                 childFolder,
@@ -64,25 +80,9 @@ fun FolderScreen(
             if (!images.isNullOrEmpty()) {
                 ImageListWithDate(
                     images = images,
-                    onImageClick = onImageClick
+                    onImageClick = { }
                 )
             }
-        }
-
-        ConstraintLayout(modifier = Modifier.fillMaxSize()) {
-            val fab = createRef()
-            ExtendedFloatingActionButton(
-                onClick = {
-                    isFolderAdd = true
-                },
-                icon = { Icon(Icons.Filled.Add, "添加文件夹") },
-                text = { Text(text = stringResource(id = R.string.addFolder)) },
-                modifier = Modifier.constrainAs(fab) {
-                    bottom.linkTo(parent.bottom, 16.dp)
-                    end.linkTo(parent.end, 16.dp)
-                    start.linkTo(parent.start, 16.dp)
-                }
-            )
         }
 
         if (isFolderAdd) {
@@ -105,7 +105,7 @@ fun FolderScreen(
                         onClick = {
                             isFolderAdd = false
                             onFolderAdd(editText)
-                        },
+                                  },
                     ) {
                         Text(stringResource(R.string.ok))
                     }

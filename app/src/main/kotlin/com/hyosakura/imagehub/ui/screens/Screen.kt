@@ -24,12 +24,14 @@ enum class Screen(
     ),
     SearchResults,
     Folder,
+    FolderChooseScreen,
     Tag,
     TagImage,
     Tip,
     RecycleBin,
     AddDeviceImage,
-    Detail;
+    Detail,
+    ;
 
     companion object {
         fun fromRoute(route: String?): Screen =
@@ -39,6 +41,7 @@ enum class Screen(
                 Search.name -> Search
                 SearchResults.name -> SearchResults
                 Folder.name -> Folder
+                FolderChooseScreen.name -> FolderChooseScreen
                 Tag.name -> Tag
                 TagImage.name -> TagImage
                 Tip.name -> Tip
