@@ -319,8 +319,8 @@ fun BaseScreen(
                         onImageImport = {
                             coroutine.launch {
                                 val id = deviceImageManageViewModel.importImage(image!!)
-                                navController.navigate("${Detail.name}/$id")
                             }
+                            navController.navigate("${Detail.name}/$id")
                             navController.popBackStack()
                         }
                     )
