@@ -26,6 +26,7 @@ import com.hyosakura.imagehub.R
 import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.entity.TagEntity
 import com.hyosakura.imagehub.ui.composables.InputOutlinedTextField
+import com.hyosakura.imagehub.ui.composables.MiniTagRow
 import com.hyosakura.imagehub.util.ImageUtil.share
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -160,11 +161,10 @@ fun DetailScreen(
                 title = { Text(text = stringResource(R.string.addTag)) },
                 text = {
                     Column {
-                        // TODO 下面两个列表图片已有的标签不显示
                         if (starTagList.isNotEmpty()) {
                             Text(text = stringResource(R.string.starTags))
                             MiniTagRow(
-                                tagList = starTagList,
+                                tagList = starTagList - tagList,
                                 onSuggestTagClick = {
                                     isAddTag = false
                                     onTagAddToImage(it)
@@ -174,7 +174,7 @@ fun DetailScreen(
                         if (candidateTagList.isEmpty() && recentTagList.isNotEmpty()) {
                             Text(text = stringResource(R.string.recentlyUsed))
                             MiniTagRow(
-                                tagList = recentTagList,
+                                tagList = recentTagList - tagList,
                                 onSuggestTagClick = {
                                     isAddTag = false
                                     onTagAddToImage(it)
@@ -183,7 +183,7 @@ fun DetailScreen(
                         } else {
                             Text(text = stringResource(R.string.suggestTag))
                             MiniTagRow(
-                                tagList = candidateTagList,
+                                tagList = candidateTagList - tagList,
                                 onSuggestTagClick = {
                                     editText = it.name!!
                                     // 选择了建议标签
@@ -231,7 +231,7 @@ fun DetailScreen(
                                         tag!!.tagId = onTagInsert(tag!!)
                                     }
                                 }
-                                // 查看不是否重复添加标签
+                                // 查看是否重复添加标签
                                 if (
                                     tagList.any {
                                         it.name == editText
