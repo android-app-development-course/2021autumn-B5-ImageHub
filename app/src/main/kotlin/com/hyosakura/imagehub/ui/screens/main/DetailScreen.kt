@@ -6,10 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
@@ -30,9 +26,8 @@ import com.hyosakura.imagehub.R
 import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.entity.TagEntity
 import com.hyosakura.imagehub.ui.composables.InputOutlinedTextField
-import com.hyosakura.imagehub.ui.composables.TagRow
+import com.hyosakura.imagehub.ui.composables.MiniTagRow
 import com.hyosakura.imagehub.util.ImageUtil.share
-import com.hyosakura.imagehub.viewmodel.ImageManageViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -170,7 +165,7 @@ fun DetailScreen(
                         // TODO 下面两个列表图片已有的标签不显示
                         if (starTagList.isNotEmpty()) {
                             Text(text = stringResource(R.string.starTags))
-                            TagRow(
+                            MiniTagRow(
                                 tagList = starTagList,
                                 onSuggestTagClick = {
                                     isAddTag = false
@@ -184,7 +179,7 @@ fun DetailScreen(
                         */
                         if (candidateTagList.isEmpty() && recentTagList.isNotEmpty()) {
                             Text(text = stringResource(R.string.recentlyUsed))
-                            TagRow(
+                            MiniTagRow(
                                 tagList = recentTagList,
                                 onSuggestTagClick = {
                                     isAddTag = false
@@ -193,8 +188,8 @@ fun DetailScreen(
                             )
                         } else {
                             if (candidateTagList.isNotEmpty()) {
-                                Text(text = "建议标签")
-                                TagRow(
+                                Text(text = stringResource(R.string.suggestTag))
+                                MiniTagRow(
                                     tagList = candidateTagList,
                                     onSuggestTagClick = {
                                         if (editText == it.name) {

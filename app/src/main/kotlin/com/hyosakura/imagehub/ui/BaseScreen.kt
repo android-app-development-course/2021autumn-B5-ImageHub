@@ -107,7 +107,8 @@ fun BaseScreen(
                         recentTags,
                         onSearchBarClick = {
                             navController.navigate(SearchResults.name)
-                        }
+                        },
+                        onSuggestTagClick = { tag -> navController.navigate("${TagImage.name}/${tag.tagId}") }
                     )
                 }
                 composable(Library.name) {
