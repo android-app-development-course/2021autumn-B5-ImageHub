@@ -192,20 +192,22 @@ fun DetailScreen(
                                 }
                             )
                         } else {
-                            Text(text = "建议标签")
-                            TagRow(
-                                tagList = candidateTagList,
-                                onSuggestTagClick = {
-                                    if (editText == it.name) {
-                                        repeat = true
+                            if (candidateTagList.isNotEmpty()) {
+                                Text(text = "建议标签")
+                                TagRow(
+                                    tagList = candidateTagList,
+                                    onSuggestTagClick = {
+                                        if (editText == it.name) {
+                                            repeat = true
+                                        }
+                                        editText = it.name!!
+                                        choose = true
+                                        tag = it
+                                        isAddTag = false
+                                        onTagAddToImage(it)
                                     }
-                                    editText = it.name!!
-                                    choose = true
-                                    tag = it
-                                    isAddTag = false
-                                    onTagAddToImage(it)
-                                }
-                            )
+                                )
+                            }
                         }
                         Text(text = stringResource(R.string.addOrSearchTags))
                         Row {
