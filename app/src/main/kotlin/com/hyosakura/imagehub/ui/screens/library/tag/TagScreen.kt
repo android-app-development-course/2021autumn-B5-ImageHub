@@ -16,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.hyosakura.imagehub.R
@@ -217,7 +218,7 @@ fun TagScreen(
                     isAddMode = !isAddMode
                 },
                 icon = { Icon(Icons.Filled.Add, "添加标签") },
-                text = { Text(text = "添加标签") },
+                text = { Text(text = stringResource(id = R.string.addTag)) },
                 modifier = Modifier.constrainAs(fab) {
                     bottom.linkTo(parent.bottom, 16.dp)
                     end.linkTo(parent.end, 16.dp)

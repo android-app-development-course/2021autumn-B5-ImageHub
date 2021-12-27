@@ -29,6 +29,7 @@ import com.hyosakura.imagehub.ui.screens.Screen
 import com.hyosakura.imagehub.ui.screens.Screen.*
 import com.hyosakura.imagehub.ui.screens.library.ImportDeviceImageScreen
 import com.hyosakura.imagehub.ui.screens.library.LibraryScreen
+import com.hyosakura.imagehub.ui.screens.library.folder.FolderChooseScreen
 import com.hyosakura.imagehub.ui.screens.library.folder.FolderScreen
 import com.hyosakura.imagehub.ui.screens.library.tag.TagImageScreen
 import com.hyosakura.imagehub.ui.screens.library.tag.TagScreen
@@ -241,6 +242,28 @@ fun BaseScreen(
                             }
                         },
                         onImageClick = { navController.navigate("${Detail.name}/${imageId}") }
+                    )
+                }
+                composable(
+                    "${FolderChooseScreen.name}/{imageId}/{folderId}",
+                    arguments = listOf(
+                        navArgument("imageId") { type = NavType.IntType },
+                        navArgument("folderId") { type = NavType.IntType }
+                    )
+                ) {
+                    folderManageViewModel.visitFolder(it.arguments?.getInt("folderId") ?: -1)
+                    val folder: FolderEntity =
+                        folderManageViewModel.currentFolder.observeAsState().value ?: FolderEntity()
+                    val images by folderManageViewModel.imagesInCurrentFolder.observeAsState()
+                    val childFolder by folderManageViewModel.currentChildFolder.observeAsState()
+                    FolderChooseScreen(
+                        images = images,
+                        childFolder = childFolder,
+                        folder = folder,
+                        onBack = { navController.popBackStack() },
+                        onFolderClick = { folderId -> navController.navigate("${FolderChooseScreen.name}/${folderId}") },
+                        onFolderAdd = { TODO("传入字符串作为文件夹名字给 folder 添加子文件夹") },
+                        onChooseClick = { TODO("给 imgageid 的图片 添加此文件夹") }
                     )
                 }
                 composable(Tip.name) {
