@@ -350,7 +350,7 @@ fun BaseScreen(
                             imageManageViewModel.addTagToImage(image, tag)
                         },
                         onFolderClick = {
-                            navController.navigate("Folder/${folder.folderId}")
+                            navController.navigate("${FolderChooseScreen.name}/${image.imageId}/${folder.folderId}")
                         },
                         onAnnotationEdit = { editText ->
                             image.annotation = editText
@@ -437,7 +437,7 @@ fun BaseScreen(
 
 @Composable
 private fun TopBar(currentScreen: Screen) {
-    AnimatedVisibility(currentScreen == Main || currentScreen == Search || currentScreen == Library) {
+    if(currentScreen == Main || currentScreen == Search || currentScreen == Library) {
         BaseTopBar()
     }
 }
@@ -458,8 +458,8 @@ private fun BottomBar(
     navController: NavHostController,
     currentScreen: Screen
 ) {
-    AnimatedVisibility(
-        currentScreen == Main || currentScreen == Search || currentScreen == Library,
+    if (
+        currentScreen == Main || currentScreen == Search || currentScreen == Library
     ) {
         BaseBottomBar(
             allScreens = listOf(Main, Search, Library),
@@ -469,6 +469,7 @@ private fun BottomBar(
             currentScreen = currentScreen,
         )
     }
+
 }
 
 @Preview
