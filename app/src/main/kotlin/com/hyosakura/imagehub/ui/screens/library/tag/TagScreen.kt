@@ -182,10 +182,15 @@ fun TagScreen(
                                 isAddMode = false
                                 candidateAction(editText)
                                 candidateTags?.let {
-                                    if (it.isEmpty()) {
-                                        insertAction(editText)
-                                    } else {
+                                    if (
+                                        it.any {
+                                            it.name == editText
+                                        }
+                                    ) {
                                         onTagConflict()
+                                    } else {
+                                        insertAction(editText)
+
                                     }
                                 }
                             }

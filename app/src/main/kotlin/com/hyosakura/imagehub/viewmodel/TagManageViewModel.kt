@@ -12,7 +12,7 @@ import kotlinx.coroutines.withContext
 class TagManageViewModel(private val repository: DataRepository) : ViewModel() {
     val allTags = repository.allTags.asLiveData()
     val starTags = repository.starTag.asLiveData()
-    var candidateTagWithName: LiveData<List<TagEntity>> = getTagByName("")
+    var candidateTagWithName: LiveData<List<TagEntity>> = getTagByName("", false)
     lateinit var tag: LiveData<TagEntity>
 
     fun updateTag(entity: TagEntity) {
@@ -43,7 +43,6 @@ class TagManageViewModel(private val repository: DataRepository) : ViewModel() {
     }
 
     fun insertTag(tag: TagEntity) {
-        // TODO： 不应该能插入纯空格、空字符串标签
         viewModelScope.launch {
             tag.addTime = System.currentTimeMillis()
             repository.insertTag(tag)

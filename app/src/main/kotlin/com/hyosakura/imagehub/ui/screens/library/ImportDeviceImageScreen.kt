@@ -11,36 +11,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
 import com.hyosakura.imagehub.R
-import com.hyosakura.imagehub.repository.DataRepository
-import com.hyosakura.imagehub.ui.screens.Screen
-import com.hyosakura.imagehub.viewmodel.DeviceImageViewModel
-import com.hyosakura.imagehub.viewmodel.DeviceImageViewModelFactory
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-
-private val coroutine = CoroutineScope(Dispatchers.Main)
+import com.hyosakura.imagehub.entity.DeviceImageEntity
+import com.hyosakura.imagehub.entity.TagEntity
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ImportDeviceImageScreen(
-    repository: DataRepository,
-    imageId: Int?,
-    navController: NavHostController,
-    viewModel: DeviceImageViewModel = viewModel(factory = DeviceImageViewModelFactory(repository))
+    image: DeviceImageEntity?,
+    starTags: List<TagEntity>?,
+    recentTags: List<TagEntity>?,
+    onBack: () -> Unit,
+    onImageImport: DeviceImageEntity.() -> Unit
 ) {
-    //TODO：分别获取常用标签和星标标签两个列表
-    val image = viewModel.getImageById(imageId!!)
 
     Scaffold(modifier = Modifier.fillMaxSize(),
         topBar = {
             SmallTopAppBar(
                 title = { Text("添加图片") },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.Filled.ArrowBack,
                             contentDescription = "返回"
@@ -62,11 +52,7 @@ fun ImportDeviceImageScreen(
             Spacer(modifier = Modifier.height(16.dp))
             FilledTonalButton(
                 onClick = {
-                    coroutine.launch {
-                        val id = viewModel.importImage(image!!)
-                        navController.popBackStack()
-                        navController.navigate("${Screen.Detail.name}/$id")
-                    }
+                    onImageImport(image!!)
                 },
                 elevation = ButtonDefaults.elevatedButtonElevation(hoveredElevation = 6.dp),
                 modifier = Modifier

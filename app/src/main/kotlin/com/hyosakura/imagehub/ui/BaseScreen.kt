@@ -147,19 +147,20 @@ fun BaseScreen(
                     val allTags by tagManageViewModel.allTags.observeAsState()
                     val candidateTags by tagManageViewModel.candidateTagWithName.observeAsState()
                     TagScreen(
-                        // TODO Bug 无法添加标签，一直提示已存在
                         onBack = {
                             navController.popBackStack()
                         },
                         allTags,
                         candidateTags,
                         insertAction = {
-                            tagManageViewModel.insertTag(
-                                TagEntity(
-                                    name = it,
-                                    addTime = System.currentTimeMillis()
+                            if (it.isNotBlank()) {
+                                tagManageViewModel.insertTag(
+                                    TagEntity(
+                                        name = it,
+                                        addTime = System.currentTimeMillis()
+                                    )
                                 )
-                            )
+                            }
                         },
                         updateAction = {
                             tagManageViewModel.updateTag(this)
@@ -238,7 +239,6 @@ fun BaseScreen(
                         tagList,
                         starTags,
                         recentTags,
-                        // TODO Bug： 建议标签只能显示字符串完全匹配的结果
                         candidateTags,
                         onBack = {
                             navController.popBackStack()
@@ -268,15 +268,15 @@ fun BaseScreen(
                         onFolderClick = {
                             navController.navigate("Folder/${folder.folderId}")
                         },
-                        // TODO 太卡了，要 5 秒才能添加注释
                         onAnnotationEdit = { editText ->
                             image.annotation = editText
                             imageManageViewModel.updateImage(image)
                         },
                         candidateAction = { name ->
-                            tagManageViewModel.getTagByName(name, false)
+                            if (name.isNotBlank()) {
+                                tagManageViewModel.getTagByName(name, false)
+                            }
                         },
-                        // TODO Bug 在弹窗点击确定按钮，数据库已有但图片没有的标签对象不能添加到图片
                         onTagConflict = {
                             coroutine.launch {
                                 withContext(Dispatchers.Main) {
@@ -300,10 +300,26 @@ fun BaseScreen(
                     "${AddDeviceImage.name}/{imageId}",
                     arguments = listOf(navArgument("imageId") { type = NavType.IntType })
                 ) {
+                    val image =
+                        deviceImageManageViewModel.getImageById(it.arguments?.getInt("imageId")!!)
+                    val starTags = tagManageViewModel.starTags.observeAsState().value ?: listOf()
+                    val num = 20
+                    val recentTags =
+                        tagManageViewModel.getRecentTag(num).observeAsState().value ?: listOf()
                     ImportDeviceImageScreen(
-                        repository,
-                        it.arguments?.getInt("imageId"),
-                        navController
+                        image,
+                        starTags,
+                        recentTags,
+                        onBack = {
+                            navController.popBackStack()
+                        },
+                        onImageImport = {
+                            coroutine.launch {
+                                val id = deviceImageManageViewModel.importImage(image!!)
+                                navController.popBackStack()
+                                navController.navigate("${Detail.name}/$id")
+                            }
+                        }
                     )
                 }
 

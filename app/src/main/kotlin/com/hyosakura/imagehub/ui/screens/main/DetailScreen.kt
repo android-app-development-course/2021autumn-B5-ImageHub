@@ -6,10 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
@@ -32,7 +28,6 @@ import com.hyosakura.imagehub.entity.TagEntity
 import com.hyosakura.imagehub.ui.composables.InputOutlinedTextField
 import com.hyosakura.imagehub.ui.composables.TagRow
 import com.hyosakura.imagehub.util.ImageUtil.share
-import com.hyosakura.imagehub.viewmodel.ImageManageViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -159,15 +154,14 @@ fun DetailScreen(
 
         if (isAddTag) {
             var editText by remember { mutableStateOf("") }
-            var choose by remember { mutableStateOf(false) }
-            var repeat by remember { mutableStateOf(false) }
+            var candidateChoosed by remember { mutableStateOf(false) }
             var tag by remember { mutableStateOf<TagEntity?>(null) }
             AlertDialog(
                 onDismissRequest = { isAddTag = false },
                 title = { Text(text = stringResource(R.string.addTag)) },
                 text = {
                     Column {
-                        // TODO 下面两个列表图片已有的标签不显示
+                        // TODO 下面两个列表,图片已有的标签不显示
                         if (starTagList.isNotEmpty()) {
                             Text(text = stringResource(R.string.starTags))
                             TagRow(
@@ -178,10 +172,6 @@ fun DetailScreen(
                                 }
                             )
                         }
-                        /* TODO
-                            优化逻辑：如果 没有建议标签 且 有最近使用标签 ->显示最近使用标签,
-                            如果有建议标签则优先显示建议标签
-                        */
                         if (candidateTagList.isEmpty() && recentTagList.isNotEmpty()) {
                             Text(text = stringResource(R.string.recentlyUsed))
                             TagRow(
@@ -196,11 +186,10 @@ fun DetailScreen(
                             TagRow(
                                 tagList = candidateTagList,
                                 onSuggestTagClick = {
-                                    if (editText == it.name) {
-                                        repeat = true
-                                    }
                                     editText = it.name!!
-                                    choose = true
+                                    // 选择了建议标签
+                                    candidateChoosed = true
+                                    // 将建议标签给结果
                                     tag = it
                                     isAddTag = false
                                     onTagAddToImage(it)
@@ -214,8 +203,8 @@ fun DetailScreen(
                                 onValueChange = { string ->
                                     editText = string
                                     candidateAction(editText)
-                                    choose = false
-                                    repeat = false
+                                    // 重置状态
+                                    candidateChoosed = false
                                 }
                             )
                         }
@@ -226,14 +215,32 @@ fun DetailScreen(
                     TextButton(
                         onClick = {
                             coroutine.launch {
-                                if (!choose) {
-                                    tag = TagEntity(name = editText)
-                                    tag!!.tagId = onTagInsert(tag!!)
+                                // 没选择建议标签
+                                if (!candidateChoosed) {
+                                    // 没选择但数据库中有
+                                    val filterList = candidateTagList.filter {
+                                        it.name == editText
+                                    }
+                                    if (filterList.isNotEmpty()) {
+                                        tag = filterList[0]
+                                    } else {
+                                        // 没有选择,数据库中也没有，则新建
+                                        tag = TagEntity(
+                                            name = editText,
+                                            addTime = System.currentTimeMillis()
+                                        )
+                                        tag!!.tagId = onTagInsert(tag!!)
+                                    }
                                 }
-                                if (!repeat) {
-                                    onTagAddToImage(tag!!)
-                                } else {
+                                // 查看不是否重复添加标签
+                                if (
+                                    tagList.any {
+                                        it.name == editText
+                                    }
+                                ) {
                                     onTagConflict()
+                                } else {
+                                    onTagAddToImage(tag!!)
                                 }
                                 isAddTag = false
                             }
