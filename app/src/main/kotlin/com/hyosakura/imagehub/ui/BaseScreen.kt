@@ -200,10 +200,20 @@ fun BaseScreen(
                         images = images,
                         childFolder = childFolder,
                         folder = folder,
-                        onBack = { navController.popBackStack() },
-                        onFolderClick = { folderId -> navController.navigate("${Folder.name}/${folderId}") },
-                        onFolderAdd = { TODO("传入字符串作为文件夹名字给folder添加子文件夹")},
-                        onImageClick = { navController.navigate("${Detail.name}/${imageId}") }
+                        onBack = {
+                            navController.popBackStack()
+                        },
+                        onFolderClick = { folderId ->
+                            navController.navigate("${Folder.name}/${folderId}")
+                        },
+                        onFolderAdd = {
+                            coroutine.launch {
+                                folderManageViewModel.newFolder(it)
+                            }
+                        },
+                        onImageClick = {
+                            navController.navigate("${Detail.name}/${imageId}")
+                        }
                     )
                 }
                 composable(
@@ -219,9 +229,17 @@ fun BaseScreen(
                         images = images,
                         childFolder = childFolder,
                         folder = folder,
-                        onBack = { navController.popBackStack() },
-                        onFolderClick = { folderId -> navController.navigate("${Folder.name}/${folderId}") },
-                        onFolderAdd = { TODO("传入字符串作为文件夹名字给folder添加子文件夹")},
+                        onBack = {
+                            navController.popBackStack()
+                        },
+                        onFolderClick = { folderId ->
+                            navController.navigate("${Folder.name}/${folderId}")
+                        },
+                        onFolderAdd = {
+                            coroutine.launch {
+                                folderManageViewModel.newFolder(it)
+                            }
+                        },
                         onImageClick = { navController.navigate("${Detail.name}/${imageId}") }
                     )
                 }

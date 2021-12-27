@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.provider.MediaStore
 import android.provider.MediaStore.MediaColumns
+import java.io.File
 
 
 object ImageUtil {
@@ -17,6 +18,14 @@ object ImageUtil {
     fun decodeFile(url: String, size: Int): Bitmap {
         options.inSampleSize = size
         return BitmapFactory.decodeFile(url, options)
+    }
+
+    fun getThumbnail(url: String) : Bitmap {
+        val size = File(url).length()
+        return decodeFile(
+           url,
+            if (size > 1024 * 500) 25 else 5
+        )
     }
 
     fun Context.share(bitmap: Bitmap) {

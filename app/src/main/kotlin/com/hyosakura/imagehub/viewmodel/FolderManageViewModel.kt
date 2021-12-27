@@ -8,6 +8,7 @@ import com.hyosakura.imagehub.util.ImageUtil
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import java.io.File
 
 class FolderManageViewModel(private val repository: DataRepository) : ViewModel() {
     var currentFolder: LiveData<FolderEntity> = visitFolder(-1)
@@ -27,7 +28,7 @@ class FolderManageViewModel(private val repository: DataRepository) : ViewModel(
             outerList.childDirs.onEach {
                 it.latestPicture = repository.dirWithImages(it.folderId!!)
                     .firstOrNull()?.images?.firstOrNull()?.url?.let { s ->
-                        ImageUtil.decodeFile(s, 2)
+                        ImageUtil.getThumbnail(s)
                     }
             }
         }.asLiveData()
@@ -38,7 +39,7 @@ class FolderManageViewModel(private val repository: DataRepository) : ViewModel(
             relation.images.filter {
                 it.deleted == 0
             }.map {
-                it.bitmap = ImageUtil.decodeFile(it.url!!, 2)
+                it.bitmap = ImageUtil.getThumbnail(it.url!!)
                 it
             }
         }.asLiveData()

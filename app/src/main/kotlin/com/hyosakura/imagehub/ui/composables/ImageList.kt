@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
 import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.entity.toDateTime
+import com.hyosakura.imagehub.util.ImageUtil
 import java.time.format.DateTimeFormatter
 import java.util.stream.Collectors
 
@@ -88,7 +89,7 @@ fun ImageItem(
         }
     ) {
         Image(
-            bitmap = image.bitmap!!.asImageBitmap(),
+            bitmap = ImageUtil.decodeFile(image.url!!, 1).asImageBitmap(),
             contentDescription = null,
             modifier = Modifier
                 .size(120.dp)
