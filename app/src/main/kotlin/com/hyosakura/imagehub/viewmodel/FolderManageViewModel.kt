@@ -14,7 +14,7 @@ class FolderManageViewModel(private val repository: DataRepository) : ViewModel(
     var currentFolder: LiveData<FolderEntity> = visitFolder(-1)
     lateinit var currentChildFolder: LiveData<List<FolderEntity>>
     lateinit var imagesInCurrentFolder: LiveData<List<ImageEntity>>
-    lateinit var folderById: LiveData<FolderEntity>
+    var folderById: LiveData<FolderEntity> = getFolderById(-1)
 
     fun visitFolder(dirId: Int): LiveData<FolderEntity> {
         viewModelScope.launch {
