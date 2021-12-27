@@ -48,6 +48,7 @@ class TagManageViewModel(private val repository: DataRepository) : ViewModel() {
                 it.deleted == 0
             }.map {
                 it.bitmap = ImageUtil.decodeFile(it.url!!, 2)
+                it.thumbnail = ImageUtil.getThumbnail(it.url!!)
                 it
             }
         }.asLiveData()
