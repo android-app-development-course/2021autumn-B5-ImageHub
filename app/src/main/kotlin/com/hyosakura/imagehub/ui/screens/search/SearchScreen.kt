@@ -1,7 +1,6 @@
 package com.hyosakura.imagehub.ui.screens.search
 
 
-import android.service.autofill.FillEventHistory
 import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,6 +14,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.hyosakura.imagehub.R
+import com.hyosakura.imagehub.entity.HistoryEntity
 import com.hyosakura.imagehub.entity.TagEntity
 import com.hyosakura.imagehub.ui.composables.TagRow
 
@@ -24,7 +24,7 @@ import com.hyosakura.imagehub.ui.composables.TagRow
 fun SearchScreen(
     starTags: List<TagEntity>?,
     recentTags: List<TagEntity>?,
-    searchHistory: List<String>,
+    searchHistory: List<HistoryEntity>?,
     onSearchBarClick: () -> Unit,
     onSuggestTagClick: (TagEntity) -> Unit,
 ) {

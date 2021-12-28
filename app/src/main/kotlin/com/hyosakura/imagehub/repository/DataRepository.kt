@@ -1,6 +1,7 @@
 package com.hyosakura.imagehub.repository
 
 import com.hyosakura.imagehub.entity.FolderEntity
+import com.hyosakura.imagehub.entity.HistoryEntity
 import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.entity.TagEntity
 import com.hyosakura.imagehub.entity.relation.ImageTagCrossRef
@@ -50,11 +51,11 @@ class DataRepository(private val database: AppDatabase) {
 
     fun getTagByName(name: String) = database.tagDao().getTagByName(name)
 
-    suspend fun getTagByNameWithOutFlow(name: String) = database.tagDao().getTagByNameWithOutFlow(name)
+    suspend fun insertTagToImage(vararg relation: ImageTagCrossRef) =
+        database.imageDao().insertTags(*relation)
 
-    suspend fun insertTagToImage(vararg relation: ImageTagCrossRef) = database.imageDao().insertTags(*relation)
-
-    suspend fun removeTagFromImage(vararg relation: ImageTagCrossRef) = database.imageDao().removeTags(*relation)
+    suspend fun removeTagFromImage(vararg relation: ImageTagCrossRef) =
+        database.imageDao().removeTags(*relation)
 
     fun tagWithImages(tagId: Int) = database.tagDao().getTagWithImagesById(tagId)
 
@@ -84,4 +85,10 @@ class DataRepository(private val database: AppDatabase) {
 
     suspend fun removeImagesInRecycleBin(vararg images: ImageEntity) =
         database.imageDao().removeDeletedImages(*images)
+
+    val searchHistories = database.historyDao().getAllHistories()
+
+    suspend fun insertHistories(vararg histories: HistoryEntity) = database.historyDao().insertHistory(*histories)
+
+    suspend fun deleteHistories(vararg histories: HistoryEntity) = database.historyDao().deleteHistory(*histories)
 }

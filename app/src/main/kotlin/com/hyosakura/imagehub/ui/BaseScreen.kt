@@ -4,7 +4,9 @@ import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -26,6 +28,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.hyosakura.imagehub.R
 import com.hyosakura.imagehub.entity.FolderEntity
+import com.hyosakura.imagehub.entity.HistoryEntity
 import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.entity.TagEntity
 import com.hyosakura.imagehub.repository.DataRepository
@@ -79,7 +82,12 @@ fun BaseScreen(
         factory = DeviceImageViewModelFactory(
             repository
         )
-    )
+    ),
+    searchHistoryManageViewModel: HistoryManageViewModel = viewModel(
+        factory = HistoryManageViewModelFactory(
+            repository
+        )
+    ),
 ) {
     val navController = rememberNavController()
     val backstackEntry = navController.currentBackStackEntryAsState()
@@ -105,11 +113,13 @@ fun BaseScreen(
                 composable(Search.name) {
                     val starTags by tagManageViewModel.starTags.collectAsState(listOf())
                     val recentTags by tagManageViewModel.recentTags.collectAsState(listOf())
+                    val searchHistories by searchHistoryManageViewModel.searchHistories.collectAsState(
+                        listOf()
+                    )
                     SearchScreen(
                         starTags,
                         recentTags,
-                        // TODO 获取搜索历史列表
-                        mutableListOf(""),
+                        searchHistories,
                         onSearchBarClick = {
                             navController.navigate(SearchResults.name)
                         },
@@ -143,6 +153,7 @@ fun BaseScreen(
                         searchAction = {
                             if (it.isNotBlank()) {
                                 imageManageViewModel.searchImage(it)
+                                searchHistoryManageViewModel.addHistory(HistoryEntity(keyword = it, addTime = System.currentTimeMillis()))
                             }
                         },
                         result,
@@ -153,12 +164,13 @@ fun BaseScreen(
                 }
                 composable(Tag.name) {
                     val allTags by tagManageViewModel.allTags.collectAsState(listOf())
+                    val searchResult by tagManageViewModel.candidateTagWithName.collectAsState(listOf())
                     TagScreen(
                         onBack = {
                             navController.popBackStack()
                         },
                         allTags,
-                        searchResult = mutableListOf(),
+                        searchResult,
                         insertAction = {
                             if (it.isNotBlank()) {
                                 tagManageViewModel.insertTag(
@@ -189,7 +201,9 @@ fun BaseScreen(
                                 }
                             }
                         },
-                        searchAction = {TODO("输入字符串更新searchResult列表")}
+                        searchAction = {
+                            tagManageViewModel.getTagByName(it, true)
+                        }
                     )
                 }
                 composable(Folder.name) {
@@ -451,7 +465,10 @@ private fun TopBar(currentScreen: Screen) {
 private fun BaseTopBar() {
     CenterAlignedTopAppBar(title = {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-            Image(painterResource(id = R.drawable.ic_icon), contentDescription = null, Modifier.size(55.dp).padding(end = 10.dp))
+            Image(painterResource(id = R.drawable.ic_icon), contentDescription = null,
+                Modifier
+                    .size(55.dp)
+                    .padding(end = 10.dp))
             Image(painterResource(id = R.drawable.logo_imagehub), contentDescription =null, Modifier.size(150.dp) )
         }
     })

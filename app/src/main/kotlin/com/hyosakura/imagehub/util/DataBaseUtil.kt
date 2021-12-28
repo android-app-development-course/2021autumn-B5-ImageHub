@@ -6,10 +6,12 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.hyosakura.imagehub.dao.DirDao
+import com.hyosakura.imagehub.dao.HistoryDao
 import com.hyosakura.imagehub.dao.ImageDao
 import com.hyosakura.imagehub.dao.TagDao
 import com.hyosakura.imagehub.entity.FolderEntity
 import com.hyosakura.imagehub.entity.ImageEntity
+import com.hyosakura.imagehub.entity.HistoryEntity
 import com.hyosakura.imagehub.entity.TagEntity
 import com.hyosakura.imagehub.entity.relation.ImageTagCrossRef
 import kotlinx.coroutines.CoroutineScope
@@ -18,7 +20,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
 @Database(
-    entities = [ImageEntity::class, FolderEntity::class, TagEntity::class, ImageTagCrossRef::class],
+    entities = [ImageEntity::class, FolderEntity::class, TagEntity::class, ImageTagCrossRef::class, HistoryEntity::class],
     version = 1,
     exportSchema = false
 )
@@ -26,6 +28,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun imageDao(): ImageDao
     abstract fun dirDao(): DirDao
     abstract fun tagDao(): TagDao
+    abstract fun historyDao(): HistoryDao
 
     companion object {
         @Volatile
