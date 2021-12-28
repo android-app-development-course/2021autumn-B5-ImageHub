@@ -1,14 +1,13 @@
 package com.hyosakura.imagehub.util
 
-import android.content.ContentResolver
-import android.content.ContentValues
-import android.content.Context
-import android.content.Intent
+import android.content.*
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.provider.MediaStore
 import android.provider.MediaStore.MediaColumns
+import android.widget.Toast
+import com.hyosakura.imagehub.entity.ImageEntity
 import java.io.File
 
 
@@ -59,5 +58,17 @@ object ImageUtil {
         filePath = cursor.getString(columnIndex)
         cursor.close()
         return filePath
+    }
+
+    fun copyImage(image: ImageEntity, context: Context) {
+        val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
+        val copyUri = Uri.parse(image.url)
+        val clip = ClipData.newUri(context.contentResolver, "URI", copyUri)
+        clipboardManager?.setPrimaryClip(clip)
+        Toast.makeText(
+            context,
+            "图片已复制到剪贴板",
+            Toast.LENGTH_SHORT
+        ).show()
     }
 }

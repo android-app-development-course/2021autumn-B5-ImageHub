@@ -46,6 +46,7 @@ import com.hyosakura.imagehub.ui.screens.main.DetailScreen
 import com.hyosakura.imagehub.ui.screens.main.MainScreen
 import com.hyosakura.imagehub.ui.screens.search.SearchResultsScreen
 import com.hyosakura.imagehub.ui.screens.search.SearchScreen
+import com.hyosakura.imagehub.util.ImageUtil
 import com.hyosakura.imagehub.viewmodel.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -370,7 +371,7 @@ fun BaseScreen(
                             imageManageViewModel.addTagToImage(image, tag)
                         },
                         onCopyClick = {
-                            TODO("复制图片到剪切板")
+                            ImageUtil.copyImage(image, context)
                         },
                         onAnnotationEdit = { editText ->
                             image.annotation = editText
