@@ -40,10 +40,12 @@ class FolderManageViewModel(private val repository: DataRepository) : ViewModel(
     private fun visitChildFolder(FolderId: Int) {
         currentChildFolder = repository.childFolder(FolderId).map { outerList ->
             outerList.childDirs.onEach {
-                it.latestPicture = repository.folderWithImages(it.folderId!!)
-                    .firstOrNull()?.images?.firstOrNull()?.url?.let { s ->
-                        ImageUtil.getThumbnail(s)
-                    }
+                viewModelScope.launch {
+                    it.latestPicture = repository.folderWithImages(it.folderId!!)
+                        .firstOrNull()?.images?.firstOrNull()?.url?.let { s ->
+                            ImageUtil.getThumbnail(s)
+                        }
+                }
             }
         }
     }
