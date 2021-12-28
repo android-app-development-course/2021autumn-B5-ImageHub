@@ -165,6 +165,7 @@ fun BaseScreen(
                         },
                         updateAction = {
                             tagManageViewModel.updateTag(this)
+                            navController.navigate(Tag.name)
                         },
                         deleteAction = {
                             tagManageViewModel.deleteTag(this)

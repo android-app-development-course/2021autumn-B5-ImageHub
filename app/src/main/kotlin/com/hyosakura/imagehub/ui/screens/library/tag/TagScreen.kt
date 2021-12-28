@@ -72,13 +72,11 @@ fun TagScreen(
                     var currentTag by remember { mutableStateOf<TagEntity?>(null) }
                     LazyColumn(state = lazyListState, modifier = Modifier) {
                         items(list) { tag ->
-                            var star by remember { mutableStateOf(tag.star) }
                             TagItem(
                                 tag,
-                                star,
+                                tag.tagId!!,
                                 onStarClick = {
                                     tag.star = if (tag.star == 0) 1 else 0
-                                    star = tag.star
                                     updateAction(tag)
                                 },
                                 onEditClick = {
