@@ -155,11 +155,20 @@ fun BaseScreen(
                 }
                 composable(SearchResults.name) {
                     val result by imageManageViewModel.searchResult.collectAsState(listOf())
+                    val searchHistories by searchHistoryManageViewModel.searchHistories.collectAsState(
+                        listOf()
+                    )
                     SearchResultsScreen(
                         searchAction = {
                             if (it.isNotBlank()) {
                                 imageManageViewModel.searchImage(it)
-                                searchHistoryManageViewModel.addHistory(HistoryEntity(keyword = it, addTime = System.currentTimeMillis()))
+                                if (
+                                    searchHistories.none {e->
+                                        e.keyword!! == it
+                                    }
+                                ) {
+                                    searchHistoryManageViewModel.addHistory(HistoryEntity(keyword = it, addTime = System.currentTimeMillis()))
+                                }
                             }
                         },
                         result,

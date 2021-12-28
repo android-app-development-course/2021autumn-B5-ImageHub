@@ -1,7 +1,6 @@
 package com.hyosakura.imagehub.ui.screens.search
 
 
-import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -30,8 +29,6 @@ fun SearchScreen(
     onSuggestTagClick: (TagEntity) -> Unit,
     onSearchHistoryClick: (String) -> Unit
 ) {
-    Log.i("recent", recentTags.toString())
-    Log.i("star", starTags.toString())
     Scaffold(
         topBar = {
             Row(
