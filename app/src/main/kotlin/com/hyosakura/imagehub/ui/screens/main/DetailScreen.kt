@@ -28,6 +28,7 @@ import com.hyosakura.imagehub.entity.TagEntity
 import com.hyosakura.imagehub.ui.composables.InputOutlinedTextField
 import com.hyosakura.imagehub.ui.composables.MiniTagRow
 import com.hyosakura.imagehub.util.ImageUtil.share
+import com.hyosakura.imagehub.viewmodel.ImageManageViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -109,7 +110,7 @@ fun DetailScreen(
     ) {
         image.bitmap?.let { it1 ->
             Image(
-                bitmap = it1.asImageBitmap(),
+                bitmap = ImageManageViewModel.idToBitMap[image.imageId]!!.asImageBitmap(),
                 contentDescription = null,
                 Modifier
                     .fillMaxHeight(0.9f)

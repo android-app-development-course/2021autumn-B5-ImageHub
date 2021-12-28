@@ -44,7 +44,7 @@ class DataRepository(private val database: AppDatabase) {
 
     fun recentTag(limit: Int) = database.tagDao().recentTag(limit)
 
-    val allTags = database.tagDao().getAllTags(20)
+    val allTags = database.tagDao().getAllTags()
 
     fun getTagById(tagId: Int) = database.tagDao().getTagById(tagId)
 

@@ -102,7 +102,6 @@ fun BaseScreen(
                 composable(Search.name) {
                     val starTags by tagManageViewModel.starTags.collectAsState(listOf())
                     val recentTags by tagManageViewModel.recentTags.collectAsState(listOf())
-                    // TODO: 最近使用标签列表的最近图片疑似为空，因为有标签对象但是没有图片
                     SearchScreen(
                         starTags,
                         recentTags,
@@ -148,11 +147,7 @@ fun BaseScreen(
                     )
                 }
                 composable(Tag.name) {
-                    // TODO：标签的星标状态改变后标签列表疑似没有更新，导致 UI 星标图标没有更新
-                    val allTags by tagManageViewModel.allTags.observeAsState()
-                    val candidateTags by tagManageViewModel.candidateTagWithName.collectAsState(
-                        listOf()
-                    )
+                    val allTags by tagManageViewModel.allTags.collectAsState(listOf())
                     TagScreen(
                         onBack = {
                             navController.popBackStack()

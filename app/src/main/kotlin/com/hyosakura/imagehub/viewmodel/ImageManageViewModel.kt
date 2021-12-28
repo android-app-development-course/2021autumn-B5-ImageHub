@@ -1,5 +1,6 @@
 package com.hyosakura.imagehub.viewmodel
 
+import android.graphics.Bitmap
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -18,6 +19,10 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class ImageManageViewModel(private val repository: DataRepository) : ViewModel() {
+    companion object {
+        val idToBitMap = mutableMapOf<Int, Bitmap>()
+    }
+
     val allImages: Flow<List<ImageEntity>> = repository.allImages.map { list ->
         list.map {
             it.thumbnail = ImageUtil.getThumbnail(it.url!!)
@@ -34,6 +39,7 @@ class ImageManageViewModel(private val repository: DataRepository) : ViewModel()
         viewModelScope.launch {
             image = repository.getImageById(imageId).map {
                 it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
+                idToBitMap.putIfAbsent(imageId, it.bitmap!!)
                 it.thumbnail = ImageUtil.getThumbnail(it.url!!)
                 it
             }

@@ -23,7 +23,7 @@ class TagManageViewModel(private val repository: DataRepository) : ViewModel() {
             }
             it
         }
-    }.asLiveData()
+    }
     val starTags: Flow<List<TagEntity>> = repository.starTag.map { list ->
         list.map {
             it.latestPicture = repository.imageInTag(it.tagId!!).first().images.firstOrNull()?.let {
@@ -58,7 +58,15 @@ class TagManageViewModel(private val repository: DataRepository) : ViewModel() {
         }.asLiveData()
     }
 
-    val recentTags = repository.recentTag(20)
+    val recentTags = repository.recentTag(20).map { list ->
+        list.map { t ->
+            t.latestPicture =
+                repository.imageInTag(t.tagId!!).first().images.firstOrNull()?.let { i ->
+                    ImageUtil.decodeFile(i.url!!, 1)
+                }
+            t
+        }
+    }
 
     fun insertTag(tag: TagEntity) {
         viewModelScope.launch {
