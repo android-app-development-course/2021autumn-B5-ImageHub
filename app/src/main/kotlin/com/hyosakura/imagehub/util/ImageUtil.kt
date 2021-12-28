@@ -16,6 +16,8 @@ object ImageUtil {
     private val options = BitmapFactory.Options()
 
     fun decodeFile(url: String, size: Int): Bitmap {
+        // 输出参数
+        println("decodeFile: $url, $size")
         options.inSampleSize = size
         return BitmapFactory.decodeFile(url, options)
     }

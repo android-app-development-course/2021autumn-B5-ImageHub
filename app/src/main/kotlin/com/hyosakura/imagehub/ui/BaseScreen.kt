@@ -2,17 +2,21 @@ package com.hyosakura.imagehub.ui
 
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -444,10 +448,10 @@ private fun TopBar(currentScreen: Screen) {
 @Composable
 private fun BaseTopBar() {
     CenterAlignedTopAppBar(title = {
-        Text(
-            stringResource(R.string.imageHub),
-            style = MaterialTheme.typography.headlineMedium
-        )
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+            Image(painterResource(id = R.drawable.ic_icon), contentDescription = null, Modifier.size(55.dp).padding(end = 10.dp))
+            Image(painterResource(id = R.drawable.logo_imagehub), contentDescription =null, Modifier.size(150.dp) )
+        }
     })
 }
 
