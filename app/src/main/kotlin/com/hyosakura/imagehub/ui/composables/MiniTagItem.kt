@@ -12,14 +12,14 @@ import androidx.compose.ui.unit.dp
 import com.hyosakura.imagehub.entity.TagEntity
 
 @Composable
-fun MiniTagItem(tagEntity: TagEntity, onTagClick: () -> Unit) {
+fun MiniTagItem(name: String?, onTagClick: () -> Unit) {
     Row(Modifier.padding(2.dp), verticalAlignment = Alignment.CenterVertically) {
         OutlinedButton(
             onClick = onTagClick,
             modifier = Modifier.padding(1.dp),
             colors = ButtonDefaults.outlinedButtonColors()
         ) {
-            Text(tagEntity.name!!)
+            name?.let { Text(it) }
         }
     }
 }

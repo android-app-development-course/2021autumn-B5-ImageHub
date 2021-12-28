@@ -124,7 +124,12 @@ fun BaseScreen(
                         onSearchBarClick = {
                             navController.navigate(SearchResults.name)
                         },
-                        onSuggestTagClick = { tag -> navController.navigate("${TagImage.name}/${tag.tagId}") }
+                        onSuggestTagClick = { tag -> navController.navigate("${TagImage.name}/${tag.tagId}") },
+                        // TODO: 搜索历史字符串不能重复； 跳转到搜索结果页无结果；
+                        onSearchHistoryClick = {
+                                keyword -> imageManageViewModel.searchImage(keyword)
+                                navController.navigate(SearchResults.name)
+                        }
                     )
                 }
                 composable(Library.name) {
@@ -372,6 +377,15 @@ fun BaseScreen(
                         },
                         onCopyClick = {
                             ImageUtil.copyImage(image, context)
+                            coroutine.launch {
+                                withContext(Dispatchers.Main) {
+                                    Toast.makeText(
+                                        context,
+                                        "图片已复制到剪切板",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
                         },
                         onAnnotationEdit = { editText ->
                             image.annotation = editText

@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import com.hyosakura.imagehub.R
 import com.hyosakura.imagehub.entity.HistoryEntity
 import com.hyosakura.imagehub.entity.TagEntity
+import com.hyosakura.imagehub.ui.composables.MiniTagRowHistory
 import com.hyosakura.imagehub.ui.composables.TagRow
 
 
@@ -27,6 +28,7 @@ fun SearchScreen(
     searchHistory: List<HistoryEntity>?,
     onSearchBarClick: () -> Unit,
     onSuggestTagClick: (TagEntity) -> Unit,
+    onSearchHistoryClick: (String) -> Unit
 ) {
     Log.i("recent", recentTags.toString())
     Log.i("star", starTags.toString())
@@ -63,10 +65,17 @@ fun SearchScreen(
         },
         content = {
             LazyColumn(modifier = Modifier.padding(16.dp, 16.dp, 0.dp,0.dp)) {
+                if (!searchHistory.isNullOrEmpty()) {
+                    item {
+                        Text(
+                            stringResource(R.string.searchHistory)
+                        )
+                        MiniTagRowHistory(tagList = searchHistory, onSuggestTagClick = onSearchHistoryClick)
+                    }
+                }
                 if (!recentTags.isNullOrEmpty()){
                     item {
                         Text(text = stringResource(R.string.recentlyUsedTags))
-                        println(recentTags)
                         TagRow(tagList = recentTags, onSuggestTagClick =  onSuggestTagClick )
                     }
                 }
