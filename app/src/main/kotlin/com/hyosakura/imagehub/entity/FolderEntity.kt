@@ -12,7 +12,7 @@ data class FolderEntity(
 
     var parentId: Int = -1,
 
-    override var name: String = "未命名",
+    override var name: String = "",
 
     @Ignore
     override var url: String? = null,
@@ -33,6 +33,7 @@ data class FolderEntity(
         if (folderId != other.folderId) return false
         if (parentId != other.parentId) return false
         if (name != other.name) return false
+        if (url != other.url) return false
         if (number != other.number) return false
         if (modifyTime != other.modifyTime) return false
         if (latestPicture != other.latestPicture) return false
@@ -43,7 +44,7 @@ data class FolderEntity(
     override fun hashCode(): Int {
         var result = folderId ?: 0
         result = 31 * result + parentId
-        result = 31 * result + (name?.hashCode() ?: 0)
+        result = 31 * result + name.hashCode()
         result = 31 * result + (url?.hashCode() ?: 0)
         result = 31 * result + (number ?: 0)
         result = 31 * result + (modifyTime?.hashCode() ?: 0)

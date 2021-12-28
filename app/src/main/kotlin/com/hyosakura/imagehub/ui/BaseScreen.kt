@@ -126,9 +126,9 @@ fun BaseScreen(
                         },
                         onSuggestTagClick = { tag -> navController.navigate("${TagImage.name}/${tag.tagId}") },
                         // TODO: 搜索历史字符串不能重复； 跳转到搜索结果页无结果；
-                        onSearchHistoryClick = {
-                                keyword -> imageManageViewModel.searchImage(keyword)
-                                navController.navigate(SearchResults.name)
+                        onSearchHistoryClick = { keyword ->
+                            imageManageViewModel.searchImage(keyword)
+                            navController.navigate(SearchResults.name)
                         }
                     )
                 }
@@ -163,11 +163,16 @@ fun BaseScreen(
                             if (it.isNotBlank()) {
                                 imageManageViewModel.searchImage(it)
                                 if (
-                                    searchHistories.none {e->
+                                    searchHistories.none { e ->
                                         e.keyword!! == it
                                     }
                                 ) {
-                                    searchHistoryManageViewModel.addHistory(HistoryEntity(keyword = it, addTime = System.currentTimeMillis()))
+                                    searchHistoryManageViewModel.addHistory(
+                                        HistoryEntity(
+                                            keyword = it,
+                                            addTime = System.currentTimeMillis()
+                                        )
+                                    )
                                 }
                             }
                         },
@@ -179,7 +184,9 @@ fun BaseScreen(
                 }
                 composable(Tag.name) {
                     val allTags by tagManageViewModel.allTags.collectAsState(listOf())
-                    val searchResult by tagManageViewModel.candidateTagWithName.collectAsState(listOf())
+                    val searchResult by tagManageViewModel.candidateTagWithName.collectAsState(
+                        listOf()
+                    )
                     TagScreen(
                         onBack = {
                             navController.popBackStack()
@@ -224,7 +231,7 @@ fun BaseScreen(
                 composable(Folder.name) {
                     folderManageViewModel.visitFolder(-1)
                     val folder: FolderEntity by
-                    folderManageViewModel.currentFolder.collectAsState(FolderEntity())
+                    folderManageViewModel.currentFolder.collectAsState(FolderEntity(name = ""))
                     val images by folderManageViewModel.imagesInCurrentFolder.collectAsState(listOf())
                     val childFolder by folderManageViewModel.currentChildFolder.collectAsState(
                         listOf()
@@ -255,7 +262,7 @@ fun BaseScreen(
                 ) {
                     folderManageViewModel.visitFolder(it.arguments?.getInt("folderId") ?: -1)
                     val folder: FolderEntity by
-                    folderManageViewModel.currentFolder.collectAsState(FolderEntity())
+                    folderManageViewModel.currentFolder.collectAsState(FolderEntity(name = ""))
                     val images by folderManageViewModel.imagesInCurrentFolder.collectAsState(listOf())
                     val childFolder by folderManageViewModel.currentChildFolder.collectAsState(
                         listOf()
@@ -310,9 +317,7 @@ fun BaseScreen(
                             coroutine.launch {
                                 val id = folderManageViewModel.newFolderAndGetId(it)
                                 folderManageViewModel.getFolderById(id)
-                                folderById?.let { f ->
-                                    folderManageViewModel.moveFolder(f, folder)
-                                }
+                                folderManageViewModel.moveFolder(folderById, folder)
                             }
                         },
                         onChooseClick = { f ->
@@ -441,7 +446,8 @@ fun BaseScreen(
                     "${AddDeviceImage.name}/{imageId}",
                     arguments = listOf(navArgument("imageId") { type = NavType.IntType })
                 ) {
-                    val image = deviceImageManageViewModel.getImageById(it.arguments?.getInt("imageId")!!)
+                    val image =
+                        deviceImageManageViewModel.getImageById(it.arguments?.getInt("imageId")!!)
                     val starTags by tagManageViewModel.starTags.collectAsState(listOf())
                     val recentTags by tagManageViewModel.recentTags.collectAsState(listOf())
                     ImportDeviceImageScreen(
@@ -479,7 +485,7 @@ fun BaseScreen(
 
 @Composable
 private fun TopBar(currentScreen: Screen) {
-    AnimatedVisibility (currentScreen == Main || currentScreen == Search || currentScreen == Library) {
+    AnimatedVisibility(currentScreen == Main || currentScreen == Search || currentScreen == Library) {
         BaseTopBar()
     }
 }
@@ -488,12 +494,22 @@ private fun TopBar(currentScreen: Screen) {
 @Composable
 private fun BaseTopBar() {
     CenterAlignedTopAppBar(title = {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-            Image(painterResource(id = R.drawable.ic_icon), contentDescription = null,
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                painterResource(id = R.drawable.ic_icon), contentDescription = null,
                 Modifier
                     .size(55.dp)
-                    .padding(end = 10.dp))
-            Image(painterResource(id = R.drawable.logo_imagehub), contentDescription =null, Modifier.size(150.dp) )
+                    .padding(end = 10.dp)
+            )
+            Image(
+                painterResource(id = R.drawable.logo_imagehub),
+                contentDescription = null,
+                Modifier.size(150.dp)
+            )
         }
     })
 }
