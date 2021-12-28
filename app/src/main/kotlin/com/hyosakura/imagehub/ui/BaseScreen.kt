@@ -307,7 +307,6 @@ fun BaseScreen(
                     arguments = listOf(navArgument("imageId") { type = NavType.IntType })
                 ) {
                     val imageId = it.arguments?.getInt("imageId")
-                    // TODO: 图片分辨率抖动
                     imageManageViewModel.visitImage(imageId!!)
                     val image by imageManageViewModel.image.collectAsState(ImageEntity())
                     val folder by folderManageViewModel.currentFolder.collectAsState(FolderEntity())

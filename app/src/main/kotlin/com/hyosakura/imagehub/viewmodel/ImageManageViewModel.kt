@@ -39,6 +39,12 @@ class ImageManageViewModel(private val repository: DataRepository) : ViewModel()
         viewModelScope.launch {
             image = repository.getImageById(imageId).map {
                 it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
+                if (idToBitMap.containsKey(imageId)) {
+                    val bitmap = idToBitMap[imageId]
+                    if (bitmap!!.height * bitmap.height < it.bitmap!!.height * it.bitmap!!.width) {
+                        idToBitMap[imageId] = it.bitmap!!
+                    }
+                }
                 idToBitMap.putIfAbsent(imageId, it.bitmap!!)
                 it.thumbnail = ImageUtil.getThumbnail(it.url!!)
                 it
