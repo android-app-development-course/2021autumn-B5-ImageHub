@@ -36,7 +36,7 @@ interface TagDao {
     @Query("SELECT * FROM tag where star = 1")
     fun starTag(): Flow<List<TagEntity>>
 
-    @Query("SELECT * FROM tag order by modifyTime desc limit :limit")
+    @Query("SELECT * FROM tag where modifyTime not null order by modifyTime desc limit :limit")
     fun recentTag(limit: Int): Flow<List<TagEntity>>
 
     @Transaction

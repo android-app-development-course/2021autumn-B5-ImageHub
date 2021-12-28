@@ -173,10 +173,11 @@ fun DetailScreen(
                                 }
                             )
                         }
-                        if (editText.isBlank() || (candidateTagList - tagList).isEmpty()) {
+                        val recent = recentTagList - tagList
+                        if (recent.isNotEmpty() && (editText.isBlank() || (candidateTagList - tagList).isEmpty())) {
                             Text(text = stringResource(R.string.recentlyUsed))
                             MiniTagRow(
-                                tagList = recentTagList - tagList,
+                                tagList = recent,
                                 onSuggestTagClick = {
                                     isAddTag = false
                                     onTagAddToImage(it)

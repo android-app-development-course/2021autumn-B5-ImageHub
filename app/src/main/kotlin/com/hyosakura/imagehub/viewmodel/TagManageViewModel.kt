@@ -22,6 +22,26 @@ class TagManageViewModel(private val repository: DataRepository) : ViewModel() {
                 ImageUtil.decodeFile(it.url!!, 1)
             }
             it
+        }.sortedWith { o1, o2 ->
+            if (o1.star == o2.star) {
+                if (o1.modifyTime != null) {
+                    if (o2.modifyTime != null) {
+                        (o2.modifyTime!! - o1.modifyTime!!).toInt()
+                    } else {
+                        o1.modifyTime!!.toInt()
+                    }
+                } else if (o2.modifyTime != null) {
+                    if (o1.modifyTime != null) {
+                        (o2.modifyTime!! - o1.modifyTime!!).toInt()
+                    } else {
+                        o2.modifyTime!!.toInt()
+                    }
+                } else {
+                    0
+                }
+            } else {
+                o2.star - o1.star
+            }
         }
     }
     val starTags: Flow<List<TagEntity>> = repository.starTag.map { list ->
@@ -71,7 +91,6 @@ class TagManageViewModel(private val repository: DataRepository) : ViewModel() {
     fun insertTag(tag: TagEntity) {
         viewModelScope.launch {
             tag.addTime = System.currentTimeMillis()
-            tag.modifyTime = System.currentTimeMillis()
             repository.insertTag(tag)
         }
     }

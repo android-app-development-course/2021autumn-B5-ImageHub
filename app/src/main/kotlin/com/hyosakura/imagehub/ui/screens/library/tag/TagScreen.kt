@@ -75,6 +75,7 @@ fun TagScreen(
                     var currentTag by remember { mutableStateOf<TagEntity?>(null) }
                     LazyColumn(state = lazyListState, modifier = Modifier) {
                         items(list) { tag ->
+                            println(tag)
                             TagItem(
                                 tag,
                                 tag.star,
