@@ -114,7 +114,9 @@ class ImageManageViewModel(private val repository: DataRepository) : ViewModel()
     fun searchImage(condition: String) {
         viewModelScope.launch {
             searchResult = repository.searchImage(condition).map { list ->
-                list.map {
+                list.filter {
+                  it.deleted == 0
+                }.map {
                     it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
                     it.thumbnail = ImageUtil.getThumbnail(it.url!!)
                     it
