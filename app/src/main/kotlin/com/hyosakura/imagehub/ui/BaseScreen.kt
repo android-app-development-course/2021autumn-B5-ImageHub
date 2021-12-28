@@ -291,11 +291,12 @@ fun BaseScreen(
                     TipScreen()
                 }
                 composable(RecycleBin.name) {
-                    val deletedImages by recycleBinViewModel.allDeletedImages.observeAsState()
+                    val deletedImages = recycleBinViewModel.allDeletedImages.observeAsState().value
                     RecycleBinScreen(
                         onBack = {
                             navController.popBackStack()
                         },
+                        recycleBinViewModel,
                         deletedImages,
                         onImageClick = {
                             navController.navigate("${Detail.name}/${imageId}")
