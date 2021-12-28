@@ -30,11 +30,9 @@ import java.util.stream.Collectors
 fun TagScreen(
     onBack: () -> Unit,
     allTags: List<TagEntity>?,
-    candidateTags: List<TagEntity>?,
     insertAction: (String) -> Unit,
     updateAction: TagEntity.() -> Unit,
     deleteAction: TagEntity.() -> Unit,
-    candidateAction: (String) -> Unit,
     onTagClick: TagEntity.() -> Unit,
     onTagConflict: () -> Unit
 ) {
@@ -181,11 +179,10 @@ fun TagScreen(
                         TextButton(
                             onClick = {
                                 isAddMode = false
-                                candidateAction(editText)
-                                candidateTags?.let {
+                                allTags?.let {
                                     if (
-                                        it.any {
-                                            it.name == editText
+                                        it.any {t->
+                                            t.name == editText
                                         }
                                     ) {
                                         onTagConflict()

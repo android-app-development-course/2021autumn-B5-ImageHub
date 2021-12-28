@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
@@ -92,18 +93,15 @@ fun BaseScreen(
                 modifier = Modifier.padding(innerPadding)
             ) {
                 composable(Main.name) {
-                    imageManageViewModel.imageList.observeAsState().value?.let { list ->
-                        MainScreen(list) {
-                            navController.navigate("${Detail.name}/${imageId}")
-                        }
+                    val images by imageManageViewModel.allImages.collectAsState(listOf())
+                    MainScreen(images) {
+                        navController.navigate("${Detail.name}/${imageId}")
                     }
                 }
                 composable(Search.name) {
-                    val starTags by tagManageViewModel.starTags.observeAsState()
-                    val num = 20
-                    val recentTags by tagManageViewModel.getRecentTag(num).observeAsState()
+                    val starTags by tagManageViewModel.starTags.collectAsState(listOf())
+                    val recentTags by tagManageViewModel.recentTags.collectAsState(listOf())
                     SearchScreen(
-                        tagManageViewModel,
                         starTags,
                         recentTags,
                         onSearchBarClick = {
@@ -134,7 +132,7 @@ fun BaseScreen(
                     )
                 }
                 composable(SearchResults.name) {
-                    val result by imageManageViewModel.imageList.observeAsState()
+                    val result by imageManageViewModel.searchResult.collectAsState(listOf())
                     SearchResultsScreen(
                         searchAction = {
                             if (it.isNotBlank()) {
@@ -142,7 +140,6 @@ fun BaseScreen(
                             }
                         },
                         result,
-                        imageManageViewModel,
                         onImageClick = {
                             navController.navigate("${Detail.name}/${imageId}")
                         }
@@ -150,13 +147,14 @@ fun BaseScreen(
                 }
                 composable(Tag.name) {
                     val allTags by tagManageViewModel.allTags.observeAsState()
-                    val candidateTags by tagManageViewModel.candidateTagWithName.observeAsState()
+                    val candidateTags by tagManageViewModel.candidateTagWithName.collectAsState(
+                        listOf()
+                    )
                     TagScreen(
                         onBack = {
                             navController.popBackStack()
                         },
                         allTags,
-                        candidateTags,
                         insertAction = {
                             if (it.isNotBlank()) {
                                 tagManageViewModel.insertTag(
@@ -172,9 +170,6 @@ fun BaseScreen(
                         },
                         deleteAction = {
                             tagManageViewModel.deleteTag(this)
-                        },
-                        candidateAction = { name ->
-                            tagManageViewModel.getTagByName(name, false)
                         },
                         onTagClick = {
                             navController.navigate("${TagImage.name}/${tagId}")
@@ -194,10 +189,12 @@ fun BaseScreen(
                 }
                 composable(Folder.name) {
                     folderManageViewModel.visitFolder(-1)
-                    val folder: FolderEntity =
-                        folderManageViewModel.currentFolder.observeAsState().value ?: FolderEntity()
-                    val images by folderManageViewModel.imagesInCurrentFolder.observeAsState()
-                    val childFolder by folderManageViewModel.currentChildFolder.observeAsState()
+                    val folder: FolderEntity by
+                    folderManageViewModel.currentFolder.collectAsState(FolderEntity())
+                    val images by folderManageViewModel.imagesInCurrentFolder.collectAsState(listOf())
+                    val childFolder by folderManageViewModel.currentChildFolder.collectAsState(
+                        listOf()
+                    )
                     FolderScreen(
                         images = images,
                         childFolder = childFolder,
@@ -223,10 +220,12 @@ fun BaseScreen(
                     arguments = listOf(navArgument("folderId") { type = NavType.IntType })
                 ) {
                     folderManageViewModel.visitFolder(it.arguments?.getInt("folderId") ?: -1)
-                    val folder: FolderEntity =
-                        folderManageViewModel.currentFolder.observeAsState().value ?: FolderEntity()
-                    val images by folderManageViewModel.imagesInCurrentFolder.observeAsState()
-                    val childFolder by folderManageViewModel.currentChildFolder.observeAsState()
+                    val folder: FolderEntity by
+                    folderManageViewModel.currentFolder.collectAsState(FolderEntity())
+                    val images by folderManageViewModel.imagesInCurrentFolder.collectAsState(listOf())
+                    val childFolder by folderManageViewModel.currentChildFolder.collectAsState(
+                        listOf()
+                    )
                     FolderScreen(
                         images = images,
                         childFolder = childFolder,
@@ -253,13 +252,15 @@ fun BaseScreen(
                     )
                 ) {
                     folderManageViewModel.visitFolder(it.arguments?.getInt("folderId") ?: -1)
-                    val folder: FolderEntity =
-                        folderManageViewModel.currentFolder.observeAsState().value ?: FolderEntity()
-                    val images by folderManageViewModel.imagesInCurrentFolder.observeAsState()
-                    val childFolder by folderManageViewModel.currentChildFolder.observeAsState()
+                    val folder: FolderEntity by
+                    folderManageViewModel.currentFolder.collectAsState(FolderEntity())
+                    val images by folderManageViewModel.imagesInCurrentFolder.collectAsState(listOf())
+                    val childFolder by folderManageViewModel.currentChildFolder.collectAsState(
+                        listOf()
+                    )
                     val imageId = it.arguments?.getInt("imageId")!!
                     imageManageViewModel.visitImage(imageId)
-                    val image by imageManageViewModel.image.observeAsState()
+                    val image by imageManageViewModel.image.collectAsState(ImageEntity())
                     val folderById by folderManageViewModel.folderById.observeAsState()
                     FolderChooseScreen(
                         images = images,
@@ -309,16 +310,14 @@ fun BaseScreen(
                 ) {
                     val imageId = it.arguments?.getInt("imageId")
                     imageManageViewModel.visitImage(imageId!!)
-                    val image = imageManageViewModel.image.observeAsState().value ?: ImageEntity()
-                    val folder =
-                        folderManageViewModel.currentFolder.observeAsState().value ?: FolderEntity()
-                    val tagList = imageManageViewModel.tagList.observeAsState().value ?: listOf()
-                    val starTags = tagManageViewModel.starTags.observeAsState().value ?: listOf()
-                    val num = 20
-                    val recentTags =
-                        tagManageViewModel.getRecentTag(num).observeAsState().value ?: listOf()
-                    val candidateTags =
-                        tagManageViewModel.candidateTagWithName.observeAsState().value ?: listOf()
+                    val image by imageManageViewModel.image.collectAsState(ImageEntity())
+                    val folder by folderManageViewModel.currentFolder.collectAsState(FolderEntity())
+                    val tagList by imageManageViewModel.tagList.collectAsState(listOf())
+                    val starTags by tagManageViewModel.starTags.collectAsState(listOf())
+                    val recentTags by tagManageViewModel.recentTags.collectAsState(listOf())
+                    val candidateTags by tagManageViewModel.candidateTagWithName.collectAsState(
+                        listOf()
+                    )
                     DetailScreen(
                         image,
                         folder.name,
@@ -360,7 +359,7 @@ fun BaseScreen(
                         },
                         candidateAction = { name ->
                             if (name.isNotBlank()) {
-                                tagManageViewModel.getTagByName(name, false)
+                                tagManageViewModel.getTagByName(name, true)
                             }
                         },
                         onTagConflict = {
@@ -381,7 +380,8 @@ fun BaseScreen(
                     arguments = listOf(navArgument("tagId") { type = NavType.IntType })
                 ) {
                     val id = it.arguments?.getInt("tagId")!!
-                    val tag by tagManageViewModel.visitTag(id).observeAsState()
+                    tagManageViewModel.visitTag(id)
+                    val tag by tagManageViewModel.tag.collectAsState(TagEntity(id, ""))
                     val imageInTag by tagManageViewModel.getImageInTag(id).observeAsState()
                     TagImageScreen(
                         tag,
@@ -398,12 +398,9 @@ fun BaseScreen(
                     "${AddDeviceImage.name}/{imageId}",
                     arguments = listOf(navArgument("imageId") { type = NavType.IntType })
                 ) {
-                    val image =
-                        deviceImageManageViewModel.getImageById(it.arguments?.getInt("imageId")!!)
-                    val starTags = tagManageViewModel.starTags.observeAsState().value ?: listOf()
-                    val num = 20
-                    val recentTags =
-                        tagManageViewModel.getRecentTag(num).observeAsState().value ?: listOf()
+                    val image = deviceImageManageViewModel.getImageById(it.arguments?.getInt("imageId")!!)
+                    val starTags by tagManageViewModel.starTags.collectAsState(listOf())
+                    val recentTags by tagManageViewModel.recentTags.collectAsState(listOf())
                     ImportDeviceImageScreen(
                         image,
                         starTags,
@@ -439,7 +436,7 @@ fun BaseScreen(
 
 @Composable
 private fun TopBar(currentScreen: Screen) {
-    if(currentScreen == Main || currentScreen == Search || currentScreen == Library) {
+    if (currentScreen == Main || currentScreen == Search || currentScreen == Library) {
         BaseTopBar()
     }
 }

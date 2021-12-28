@@ -1,6 +1,7 @@
 package com.hyosakura.imagehub.ui.screens.search
 
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -14,19 +15,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.hyosakura.imagehub.R
 import com.hyosakura.imagehub.entity.TagEntity
-import com.hyosakura.imagehub.viewmodel.TagManageViewModel
+import com.hyosakura.imagehub.ui.composables.TagRow
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
-    viewModel: TagManageViewModel,
     starTags: List<TagEntity>?,
     recentTags: List<TagEntity>?,
     onSearchBarClick: () -> Unit,
     onSuggestTagClick: (TagEntity) -> Unit,
 ) {
-
+    Log.i("recent", recentTags.toString())
+    Log.i("star", starTags.toString())
     Scaffold(
         topBar = {
             Row(
@@ -60,19 +61,19 @@ fun SearchScreen(
         },
         content = {
             LazyColumn(modifier = Modifier.padding(16.dp, 16.dp, 0.dp,0.dp)) {
-                // if (!recentTags.isNullOrEmpty()){
-                //     item {
-                //         Text(text = stringResource(R.string.recentlyUsedTags))
-                //         println(recentTags)
-                //         TagRow(tagList = recentTags, onSuggestTagClick =  onSuggestTagClick )
-                //     }
-                // }
-                // if (!starTags.isNullOrEmpty()){
-                //     item {
-                //         Text(text = stringResource(id = R.string.starTags))
-                //         TagRow(tagList = starTags, onSuggestTagClick = onSuggestTagClick)
-                //     }
-                // }
+                if (!recentTags.isNullOrEmpty()){
+                    item {
+                        Text(text = stringResource(R.string.recentlyUsedTags))
+                        println(recentTags)
+                        TagRow(tagList = recentTags, onSuggestTagClick =  onSuggestTagClick )
+                    }
+                }
+                if (!starTags.isNullOrEmpty()){
+                    item {
+                        Text(text = stringResource(id = R.string.starTags))
+                        TagRow(tagList = starTags, onSuggestTagClick = onSuggestTagClick)
+                    }
+                }
             }
         }
     )

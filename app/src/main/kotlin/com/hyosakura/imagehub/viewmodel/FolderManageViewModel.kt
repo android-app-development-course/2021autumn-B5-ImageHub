@@ -1,29 +1,34 @@
 package com.hyosakura.imagehub.viewmodel
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.*
 import com.hyosakura.imagehub.entity.FolderEntity
 import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.repository.DataRepository
 import com.hyosakura.imagehub.util.ImageUtil
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class FolderManageViewModel(private val repository: DataRepository) : ViewModel() {
-    var currentFolder: LiveData<FolderEntity> = visitFolder(-1)
-    lateinit var currentChildFolder: LiveData<List<FolderEntity>>
-    lateinit var imagesInCurrentFolder: LiveData<List<ImageEntity>>
+    var currentFolder by mutableStateOf<Flow<FolderEntity>>(emptyFlow())
+    var currentChildFolder by mutableStateOf<Flow<List<FolderEntity>>>(emptyFlow())
+    var imagesInCurrentFolder by mutableStateOf<Flow<List<ImageEntity>>>(emptyFlow())
     var folderById: LiveData<FolderEntity> = getFolderById(-1)
 
-    fun visitFolder(dirId: Int): LiveData<FolderEntity> {
+    fun visitFolder(dirId: Int): Flow<FolderEntity> {
         viewModelScope.launch {
             visitChildFolder(dirId)
         }
         viewModelScope.launch {
             visitImages(dirId)
         }
-        return repository.getDirById(dirId).asLiveData().also {
+        return repository.getDirById(dirId).also {
             currentFolder = it
         }
     }
@@ -36,7 +41,7 @@ class FolderManageViewModel(private val repository: DataRepository) : ViewModel(
                         ImageUtil.getThumbnail(s)
                     }
             }
-        }.asLiveData()
+        }
     }
 
     private fun visitImages(folderId: Int) {
@@ -48,7 +53,7 @@ class FolderManageViewModel(private val repository: DataRepository) : ViewModel(
                 it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
                 it
             }
-        }.asLiveData()
+        }
     }
 
     fun newFolder(name: String) {

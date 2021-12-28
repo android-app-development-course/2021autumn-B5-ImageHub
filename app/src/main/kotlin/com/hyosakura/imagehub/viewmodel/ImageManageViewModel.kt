@@ -1,41 +1,32 @@
 package com.hyosakura.imagehub.viewmodel
 
-import androidx.lifecycle.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import com.hyosakura.imagehub.entity.FolderEntity
 import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.entity.TagEntity
 import com.hyosakura.imagehub.entity.relation.ImageTagCrossRef
 import com.hyosakura.imagehub.repository.DataRepository
 import com.hyosakura.imagehub.util.ImageUtil
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class ImageManageViewModel(private val repository: DataRepository) : ViewModel() {
-    init {
-        allImages()
-        searchImage("")
-    }
-
-    lateinit var imageList: LiveData<List<ImageEntity>>
-
-    lateinit var searchResult: LiveData<List<ImageEntity>>
-
-    lateinit var image: LiveData<ImageEntity>
-
-    lateinit var tagList: LiveData<List<TagEntity>>
-
-    private fun allImages() {
-        viewModelScope.launch {
-            imageList = repository.allImages.map { list ->
-                list.map {
-                    it.thumbnail = ImageUtil.getThumbnail(it.url!!)
-                    it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
-                    it
-                }
-            }.asLiveData()
+    val allImages: Flow<List<ImageEntity>> = repository.allImages.map { list ->
+        list.map {
+            it.thumbnail = ImageUtil.getThumbnail(it.url!!)
+            it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
+            it
         }
     }
 
+    var image by mutableStateOf<Flow<ImageEntity>>(emptyFlow())
     fun visitImage(imageId: Int) {
         viewModelScope.launch {
             getTagList(imageId)
@@ -45,14 +36,15 @@ class ImageManageViewModel(private val repository: DataRepository) : ViewModel()
                 it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
                 it.thumbnail = ImageUtil.getThumbnail(it.url!!)
                 it
-            }.asLiveData()
+            }
         }
     }
 
+    var tagList by mutableStateOf<Flow<List<TagEntity>>>(emptyFlow())
     private fun getTagList(imageId: Int) {
         repository.imageWithTag(imageId).map { list ->
             list.tags
-        }.asLiveData().also {
+        }.also {
             tagList = it
         }
     }
@@ -87,30 +79,33 @@ class ImageManageViewModel(private val repository: DataRepository) : ViewModel()
         }
     }
 
-    fun imagesInTag(tagId: Int) {
+    var imagesInTag by mutableStateOf<Flow<List<ImageEntity>>>(emptyFlow())
+    fun getImagesInTag(tagId: Int) {
         viewModelScope.launch {
-            imageList = repository.tagWithImages(tagId).map { ref ->
+            imagesInTag = repository.tagWithImages(tagId).map { ref ->
                 ref.images.map {
                     it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
                     it.thumbnail = ImageUtil.getThumbnail(it.url!!)
                     it
                 }
-            }.asLiveData()
+            }
         }
     }
 
-    fun imagesInDir(dirId: Int) {
+    var imagesInDir by mutableStateOf<Flow<List<ImageEntity>>>(emptyFlow())
+    fun getImagesInDir(dirId: Int) {
         viewModelScope.launch {
-            imageList = repository.dirWithImages(dirId).map { ref ->
+            imagesInDir = repository.dirWithImages(dirId).map { ref ->
                 ref.images.map {
                     it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
                     it.thumbnail = ImageUtil.getThumbnail(it.url!!)
                     it
                 }
-            }.asLiveData()
+            }
         }
     }
 
+    var searchResult by mutableStateOf<Flow<List<ImageEntity>>>(emptyFlow())
     fun searchImage(condition: String) {
         viewModelScope.launch {
             searchResult = repository.searchImage(condition).map { list ->
@@ -121,7 +116,7 @@ class ImageManageViewModel(private val repository: DataRepository) : ViewModel()
                     it.thumbnail = ImageUtil.getThumbnail(it.url!!)
                     it
                 }
-            }.asLiveData()
+            }
         }
     }
 }

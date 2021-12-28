@@ -32,7 +32,6 @@ data class TagEntity(
         if (star != other.star) return false
         if (addTime != other.addTime) return false
         if (modifyTime != other.modifyTime) return false
-        if (latestPicture != other.latestPicture) return false
 
         return true
     }
@@ -43,7 +42,6 @@ data class TagEntity(
         result = 31 * result + star
         result = 31 * result + (addTime?.hashCode() ?: 0)
         result = 31 * result + (modifyTime?.hashCode() ?: 0)
-        result = 31 * result + (latestPicture?.hashCode() ?: 0)
         return result
     }
 }

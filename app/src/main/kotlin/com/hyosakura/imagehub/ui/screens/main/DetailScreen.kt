@@ -161,17 +161,18 @@ fun DetailScreen(
                 title = { Text(text = stringResource(R.string.addTag)) },
                 text = {
                     Column {
-                        if (starTagList.isNotEmpty()) {
+                        val mostUse = starTagList - tagList
+                        if (mostUse.isNotEmpty()) {
                             Text(text = stringResource(R.string.starTags))
                             MiniTagRow(
-                                tagList = starTagList - tagList,
+                                tagList = mostUse,
                                 onSuggestTagClick = {
                                     isAddTag = false
                                     onTagAddToImage(it)
                                 }
                             )
                         }
-                        if (candidateTagList.isEmpty() && recentTagList.isNotEmpty()) {
+                        if (editText.isBlank() || (candidateTagList - tagList).isEmpty()) {
                             Text(text = stringResource(R.string.recentlyUsed))
                             MiniTagRow(
                                 tagList = recentTagList - tagList,

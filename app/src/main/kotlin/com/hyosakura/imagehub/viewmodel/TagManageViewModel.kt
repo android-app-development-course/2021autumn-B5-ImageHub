@@ -1,17 +1,22 @@
 package com.hyosakura.imagehub.viewmodel
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.*
 import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.entity.TagEntity
 import com.hyosakura.imagehub.repository.DataRepository
 import com.hyosakura.imagehub.util.ImageUtil
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class TagManageViewModel(private val repository: DataRepository) : ViewModel() {
-    val allTags = repository.allTags.map { list->
+    val allTags = repository.allTags.map { list ->
         list.map {
             it.latestPicture = repository.imageInTag(it.tagId!!).first().images.firstOrNull()?.let {
                 ImageUtil.decodeFile(it.url!!, 1)
@@ -19,16 +24,14 @@ class TagManageViewModel(private val repository: DataRepository) : ViewModel() {
             it
         }
     }.asLiveData()
-    val starTags = repository.starTag.map { list->
+    val starTags: Flow<List<TagEntity>> = repository.starTag.map { list ->
         list.map {
             it.latestPicture = repository.imageInTag(it.tagId!!).first().images.firstOrNull()?.let {
                 ImageUtil.decodeFile(it.url!!, 1)
             }
             it
         }
-    }.asLiveData()
-    var candidateTagWithName: LiveData<List<TagEntity>> = getTagByName("", false)
-    lateinit var tag: LiveData<TagEntity>
+    }
 
     fun updateTag(entity: TagEntity) {
         viewModelScope.launch {
@@ -36,8 +39,9 @@ class TagManageViewModel(private val repository: DataRepository) : ViewModel() {
         }
     }
 
-    fun visitTag(tagId: Int): LiveData<TagEntity> {
-        return repository.getTagById(tagId).asLiveData().also {
+    var tag by mutableStateOf<Flow<TagEntity>>(emptyFlow())
+    fun visitTag(tagId: Int): Flow<TagEntity> {
+        return repository.getTagById(tagId).also {
             tag = it
         }
     }
@@ -54,9 +58,7 @@ class TagManageViewModel(private val repository: DataRepository) : ViewModel() {
         }.asLiveData()
     }
 
-    fun getRecentTag(num: Int): LiveData<List<TagEntity>> {
-        return repository.recentTag(num).asLiveData()
-    }
+    val recentTags = repository.recentTag(20)
 
     fun insertTag(tag: TagEntity) {
         viewModelScope.launch {
@@ -73,8 +75,9 @@ class TagManageViewModel(private val repository: DataRepository) : ViewModel() {
         }
     }
 
-    fun getTagByName(name: String, fuzz: Boolean = true): LiveData<List<TagEntity>> {
-        return repository.getTagByName(if (fuzz) "%$name%" else name).asLiveData().also {
+    var candidateTagWithName by mutableStateOf<Flow<List<TagEntity>>>(emptyFlow())
+    fun getTagByName(name: String, fuzz: Boolean = true): Flow<List<TagEntity>> {
+        return repository.getTagByName(if (fuzz) "%$name%" else name).also {
             candidateTagWithName = it
         }
     }

@@ -10,7 +10,6 @@ import androidx.compose.material.TabRowDefaults.Divider
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
@@ -23,14 +22,12 @@ import androidx.compose.ui.unit.dp
 import com.hyosakura.imagehub.R
 import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.ui.composables.ImageListWithDate
-import com.hyosakura.imagehub.viewmodel.ImageManageViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
 fun SearchResultsScreen(
     searchAction: (String) -> Unit,
     searchResult: List<ImageEntity>?,
-    viewModel: ImageManageViewModel,
     onImageClick: ImageEntity.() -> Unit
 ) {
     var searchString by remember { mutableStateOf("") }
@@ -79,8 +76,10 @@ fun SearchResultsScreen(
         content = {
             Column {
                 searchAction(searchString)
-                viewModel.searchResult.observeAsState().value?.let {
-                    ImageListWithDate(it, onImageClick)
+                if (searchString.isNotBlank()) {
+                    searchResult?.let {
+                        ImageListWithDate(it, onImageClick)
+                    }
                 }
             }
         },

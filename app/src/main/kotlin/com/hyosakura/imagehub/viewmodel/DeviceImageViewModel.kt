@@ -22,8 +22,6 @@ import kotlin.io.path.pathString
 
 @SuppressLint("Range")
 class DeviceImageViewModel(private val repository: DataRepository) : ViewModel() {
-    lateinit var dirList: LiveData<List<DeviceFolderEntity>>
-
     companion object {
         private val map = mutableMapOf<Int, DeviceImageEntity>()
         val imageList: LiveData<Collection<DeviceImageEntity>>
