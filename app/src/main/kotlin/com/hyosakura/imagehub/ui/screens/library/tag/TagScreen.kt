@@ -1,5 +1,6 @@
 package com.hyosakura.imagehub.ui.screens.library.tag
 
+import android.app.appsearch.SearchResult
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,11 +31,13 @@ import java.util.stream.Collectors
 fun TagScreen(
     onBack: () -> Unit,
     allTags: List<TagEntity>?,
+    searchResult: List<TagEntity>,
     insertAction: (String) -> Unit,
     updateAction: TagEntity.() -> Unit,
     deleteAction: TagEntity.() -> Unit,
+    searchAction: (String) -> Unit,
     onTagClick: TagEntity.() -> Unit,
-    onTagConflict: () -> Unit
+    onTagConflict: () -> Unit,
 ) {
     var isEditMode by remember { mutableStateOf(false) }
     var isAddMode by remember { mutableStateOf(false) }

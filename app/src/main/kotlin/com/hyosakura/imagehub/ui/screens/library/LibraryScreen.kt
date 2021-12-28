@@ -84,7 +84,7 @@ fun LibraryScreen(
             LazyRow() {
                 imageList?.let {
                     val list = it.toList()
-                    val count = if (list.size > 10) 10 else list.size
+                    val count = if (list.size > 30) 30 else list.size
                     items(count) { i ->
                         val image = list[i]
                         ImageItem(image, onDeviceImageClick)

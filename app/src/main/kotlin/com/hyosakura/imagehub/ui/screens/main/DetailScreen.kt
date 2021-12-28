@@ -57,7 +57,7 @@ fun DetailScreen(
     onImageDelete: () -> Unit,
     onImageRestore: () -> Unit,
 
-    onFolderClick: () -> Unit,
+    onCopyClick: () -> Unit,
 
     onAnnotationEdit: (text: String) -> Unit
 ) {
@@ -102,7 +102,7 @@ fun DetailScreen(
                 )
                 DetailBottomBar(image, folderName,
                     onDeleteImageClick = { onImageDelete() },
-                    onFolderClick = { onFolderClick() },
+                    onFolderClick = { onCopyClick() },
                     onRestoreClick = { onImageRestore() }
                 )
             }
@@ -371,7 +371,7 @@ private fun DetailBottomBar(
                 folderName = folderName,
                 imageEntity = image,
                 onDeleteClick = onDeleteImageClick,
-                onFolderClick = onFolderClick,
+                onCopyClick = onFolderClick,
             )
         }
         else -> {
@@ -399,7 +399,7 @@ fun BottomBar(
     folderName: String,
     imageEntity: ImageEntity,
     onDeleteClick: () -> Unit,
-    onFolderClick: () -> Unit,
+    onCopyClick: () -> Unit,
 ) {
     val context = LocalContext.current
     NavigationBar {
@@ -417,12 +417,12 @@ fun BottomBar(
             }
         )
         NavigationBarItem(
-            icon = { Icon(painterResource(id = R.drawable.ic_outline_folder_24), null) },
+            icon = { Icon(painterResource(id = R.drawable.ic_baseline_content_copy_24), null) },
             selected = false,
             label = {
-                Text(text = folderName, style = MaterialTheme.typography.labelLarge)
+                Text(text = stringResource(R.string.copyImage), style = MaterialTheme.typography.labelLarge)
             },
-            onClick = onFolderClick
+            onClick = onCopyClick
         )
 
         NavigationBarItem(
