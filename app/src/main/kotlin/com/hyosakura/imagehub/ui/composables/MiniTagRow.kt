@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.hyosakura.imagehub.entity.HistoryEntity
 import com.hyosakura.imagehub.entity.TagEntity
 
 @Composable
@@ -18,11 +19,29 @@ fun MiniTagRow(
         LazyRow {
             items(tagList) { tag ->
                 MiniTagItem(
-                    tagEntity = tag,
-                    onTagClick = {
-                        onSuggestTagClick(tag)
-                    }
-                )
+                    name = tag.name
+                ) {
+                    onSuggestTagClick(tag)
+                }
+            }
+            item { Spacer(modifier = Modifier.width(10.dp)) }
+        }
+    }
+}
+
+@Composable
+fun MiniTagRowHistory(
+    tagList: List<HistoryEntity>?,
+    onSuggestTagClick: (String) -> Unit,
+) {
+    if (tagList != null) {
+        LazyRow {
+            items(tagList) { tag ->
+                MiniTagItem(
+                    name = tag.keyword
+                ) {
+                    onSuggestTagClick(tag.keyword!!)
+                }
             }
             item { Spacer(modifier = Modifier.width(10.dp)) }
         }
