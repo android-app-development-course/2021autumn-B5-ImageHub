@@ -15,23 +15,21 @@ import com.hyosakura.imagehub.entity.TagEntity
 
 @Composable
 fun TagRow(
-    tagList: List<TagEntity>?,
+    tagList: List<TagEntity>,
     onSuggestTagClick: (TagEntity) -> Unit,
 ) {
-    if (tagList != null) {
-        LazyRow(modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)) {
-            items(tagList) { tag ->
-                if (tag.latestPicture != null) {
-                    TagItem(
-                        tagEntity = tag,
-                        onTagClick = {
-                            onSuggestTagClick(tag)
-                        }
-                    )
-                }
+    LazyRow(modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)) {
+        items(tagList) { tag ->
+            if (tag.latestPicture != null) {
+                TagItem(
+                    tagEntity = tag,
+                    onTagClick = {
+                        onSuggestTagClick(tag)
+                    }
+                )
             }
-            item { Spacer(modifier = Modifier.width(10.dp)) }
         }
+        item { Spacer(modifier = Modifier.width(10.dp)) }
     }
 }
 

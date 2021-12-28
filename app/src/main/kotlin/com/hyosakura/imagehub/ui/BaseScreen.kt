@@ -1,6 +1,7 @@
 package com.hyosakura.imagehub.ui
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -101,6 +102,7 @@ fun BaseScreen(
                 composable(Search.name) {
                     val starTags by tagManageViewModel.starTags.collectAsState(listOf())
                     val recentTags by tagManageViewModel.recentTags.collectAsState(listOf())
+                    // TODO: 最近使用标签列表的最近图片疑似为空，因为有标签对象但是没有图片
                     SearchScreen(
                         starTags,
                         recentTags,
@@ -146,6 +148,7 @@ fun BaseScreen(
                     )
                 }
                 composable(Tag.name) {
+                    // TODO：标签的星标状态改变后标签列表疑似没有更新，导致 UI 星标图标没有更新
                     val allTags by tagManageViewModel.allTags.observeAsState()
                     val candidateTags by tagManageViewModel.candidateTagWithName.collectAsState(
                         listOf()
@@ -282,7 +285,7 @@ fun BaseScreen(
                             }
                         },
                         onChooseClick = { f ->
-                            image?.let { i ->
+                            image.let { i ->
                                 imageManageViewModel.addImageToFolder(listOf(i), f)
                             }
                         }
@@ -309,6 +312,7 @@ fun BaseScreen(
                     arguments = listOf(navArgument("imageId") { type = NavType.IntType })
                 ) {
                     val imageId = it.arguments?.getInt("imageId")
+                    // TODO: 图片分辨率抖动
                     imageManageViewModel.visitImage(imageId!!)
                     val image by imageManageViewModel.image.collectAsState(ImageEntity())
                     val folder by folderManageViewModel.currentFolder.collectAsState(FolderEntity())
@@ -436,7 +440,7 @@ fun BaseScreen(
 
 @Composable
 private fun TopBar(currentScreen: Screen) {
-    if (currentScreen == Main || currentScreen == Search || currentScreen == Library) {
+    AnimatedVisibility (currentScreen == Main || currentScreen == Search || currentScreen == Library) {
         BaseTopBar()
     }
 }
