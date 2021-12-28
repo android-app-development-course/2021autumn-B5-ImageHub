@@ -38,7 +38,7 @@ fun TagScreen(
 ) {
     var isEditMode by remember { mutableStateOf(false) }
     var isAddMode by remember { mutableStateOf(false) }
-
+    var flush by remember { mutableStateOf(true) }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -55,6 +55,9 @@ fun TagScreen(
             )
         }
     ) {
+        if (flush) {
+            Text(text = "compose's bug?", modifier = Modifier.width(0.dp).height(0.dp))
+        }
         Column(Modifier.fillMaxSize()) {
             if (allTags != null) {
                 val map = allTags.stream().collect(Collectors.groupingBy {
@@ -74,10 +77,11 @@ fun TagScreen(
                         items(list) { tag ->
                             TagItem(
                                 tag,
-                                tag.tagId!!,
+                                tag.star,
                                 onStarClick = {
                                     tag.star = if (tag.star == 0) 1 else 0
                                     updateAction(tag)
+                                    flush = !flush
                                 },
                                 onEditClick = {
                                     isEditMode = true
@@ -178,7 +182,7 @@ fun TagScreen(
                                 isAddMode = false
                                 allTags?.let {
                                     if (
-                                        it.any {t->
+                                        it.any { t ->
                                             t.name == editText
                                         }
                                     ) {
