@@ -107,7 +107,7 @@ class ImageManageViewModel(private val repository: DataRepository) : ViewModel()
     var imagesInDir by mutableStateOf<Flow<List<ImageEntity>>>(emptyFlow())
     fun getImagesInDir(dirId: Int) {
         viewModelScope.launch {
-            imagesInDir = repository.dirWithImages(dirId).map { ref ->
+            imagesInDir = repository.folderWithImages(dirId).map { ref ->
                 ref.images.map {
                     it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
                     it.thumbnail = ImageUtil.getThumbnail(it.url!!)

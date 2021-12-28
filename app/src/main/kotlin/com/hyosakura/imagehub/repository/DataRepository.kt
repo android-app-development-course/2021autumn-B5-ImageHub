@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.combine
 class DataRepository(private val database: AppDatabase) {
     fun getImageById(id: Int) = database.imageDao().getImageById(id)
 
-    fun getDirById(dirId: Int) = database.dirDao().getDirById(dirId)
+    fun getFolderById(dirId: Int) = database.folderDao().getFolderById(dirId)
 
     suspend fun insertImage(vararg entity: ImageEntity) = database.imageDao().insertImages(*entity)
 
@@ -21,7 +21,7 @@ class DataRepository(private val database: AppDatabase) {
     fun searchImage(condition: String): Flow<List<ImageEntity>> {
         val flow1 = database.imageDao().searchImage("%$condition%")
         val flow2 = database.tagDao().searchImage("%$condition%")
-        val flow3 = database.dirDao().searchImage("%$condition%")
+        val flow3 = database.folderDao().searchImage("%$condition%")
         return flow1.combine(flow2) { a, b ->
             a.apply {
                 addAll(
@@ -65,9 +65,9 @@ class DataRepository(private val database: AppDatabase) {
 
     suspend fun deleteTag(vararg tags: TagEntity) = database.tagDao().deleteTags(*tags)
 
-    suspend fun updateDir(vararg dirs: FolderEntity) = database.dirDao().updateDirs(*dirs)
+    suspend fun updateDir(vararg dirs: FolderEntity) = database.folderDao().updateFolders(*dirs)
 
-    suspend fun insertDir(vararg dirs: FolderEntity) = database.dirDao().insertDirs(*dirs)
+    suspend fun insertDir(vararg dirs: FolderEntity) = database.folderDao().insertFolders(*dirs)
 
     val allImages = database.imageDao().getAllImages(20)
 
@@ -75,9 +75,9 @@ class DataRepository(private val database: AppDatabase) {
 
     fun getAllDeletedImagesWithoutFlow() = database.imageDao().getAllDeletedImagesWithoutFlow()
 
-    fun dirWithImages(dirId: Int) = database.dirDao().getDirWithImagesById(dirId)
+    fun folderWithImages(dirId: Int) = database.folderDao().getFolderWithImagesById(dirId)
 
-    fun childDir(dirId: Int) = database.dirDao().getChildDirs(dirId)
+    fun childFolder(dirId: Int) = database.folderDao().getChildFolders(dirId)
 
     fun imageInTag(tagId: Int) = database.tagDao().getTagWithImagesById(tagId)
 

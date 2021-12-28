@@ -273,7 +273,7 @@ fun BaseScreen(
                 ) {
                     folderManageViewModel.visitFolder(it.arguments?.getInt("folderId") ?: -1)
                     val folder: FolderEntity by
-                    folderManageViewModel.currentFolder.collectAsState(FolderEntity())
+                    folderManageViewModel.currentFolder.collectAsState(FolderEntity(-1))
                     val images by folderManageViewModel.imagesInCurrentFolder.collectAsState(listOf())
                     val childFolder by folderManageViewModel.currentChildFolder.collectAsState(
                         listOf()
@@ -281,7 +281,7 @@ fun BaseScreen(
                     val imageId = it.arguments?.getInt("imageId")!!
                     imageManageViewModel.visitImage(imageId)
                     val image by imageManageViewModel.image.collectAsState(ImageEntity())
-                    val folderById by folderManageViewModel.folderById.observeAsState()
+                    val folderById by folderManageViewModel.folderById.collectAsState(FolderEntity(-1))
                     FolderChooseScreen(
                         images = images,
                         childFolder = childFolder,

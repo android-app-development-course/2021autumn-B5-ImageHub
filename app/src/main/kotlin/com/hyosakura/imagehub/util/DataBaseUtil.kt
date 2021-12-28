@@ -5,13 +5,13 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.hyosakura.imagehub.dao.DirDao
+import com.hyosakura.imagehub.dao.FolderDao
 import com.hyosakura.imagehub.dao.HistoryDao
 import com.hyosakura.imagehub.dao.ImageDao
 import com.hyosakura.imagehub.dao.TagDao
 import com.hyosakura.imagehub.entity.FolderEntity
-import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.entity.HistoryEntity
+import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.entity.TagEntity
 import com.hyosakura.imagehub.entity.relation.ImageTagCrossRef
 import kotlinx.coroutines.CoroutineScope
@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun imageDao(): ImageDao
-    abstract fun dirDao(): DirDao
+    abstract fun folderDao(): FolderDao
     abstract fun tagDao(): TagDao
     abstract fun historyDao(): HistoryDao
 
@@ -47,8 +47,8 @@ abstract class AppDatabase : RoomDatabase() {
                             super.onOpen(db)
                             scope.launch(Dispatchers.IO) {
                                 INSTANCE
-                                    ?.dirDao()
-                                    ?.insertDirs(FolderEntity(folderId = -1, parentId = -2, name = "无文件夹"))
+                                    ?.folderDao()
+                                    ?.insertFolders(FolderEntity(folderId = -1, parentId = -2, name = "无文件夹"))
                             }
                         }
                     })

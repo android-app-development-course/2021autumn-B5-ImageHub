@@ -7,18 +7,15 @@ import com.hyosakura.imagehub.entity.relation.FolderWithImage
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface DirDao {
+interface FolderDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertDirs(vararg dirs: FolderEntity): List<Long>
+    suspend fun insertFolders(vararg dirs: FolderEntity): List<Long>
 
     @Update
-    suspend fun updateDirs(vararg dirs: FolderEntity)
-
-    @Query("SELECT * FROM directory")
-    fun getAllDirs(): Flow<List<FolderEntity>>
+    suspend fun updateFolders(vararg dirs: FolderEntity)
 
     @Query("SELECT * FROM directory where folderId = :dirId")
-    fun getDirById(dirId: Int): Flow<FolderEntity>
+    fun getFolderById(dirId: Int): Flow<FolderEntity>
 
     @Transaction
     @Query("SELECT * FROM directory WHERE name like :condition")
@@ -26,13 +23,9 @@ interface DirDao {
 
     @Transaction
     @Query("SELECT * FROM directory where folderId = :id")
-    fun getChildDirs(id: Int): Flow<FolderWithFolder>
+    fun getChildFolders(id: Int): Flow<FolderWithFolder>
 
     @Transaction
     @Query("SELECT * FROM directory where folderId = :id")
-    fun getDirWithImagesById(id: Int): Flow<FolderWithImage>
-
-    @Transaction
-    @Query("SELECT * FROM directory where name like :name")
-    fun getDirWithImagesByName(name: String): Flow<FolderWithImage>
+    fun getFolderWithImagesById(id: Int): Flow<FolderWithImage>
 }

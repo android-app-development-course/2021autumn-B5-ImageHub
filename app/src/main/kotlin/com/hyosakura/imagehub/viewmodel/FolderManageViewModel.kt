@@ -3,7 +3,9 @@ package com.hyosakura.imagehub.viewmodel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.*
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import com.hyosakura.imagehub.entity.FolderEntity
 import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.repository.DataRepository
@@ -19,24 +21,26 @@ class FolderManageViewModel(private val repository: DataRepository) : ViewModel(
     var currentFolder by mutableStateOf<Flow<FolderEntity>>(emptyFlow())
     var currentChildFolder by mutableStateOf<Flow<List<FolderEntity>>>(emptyFlow())
     var imagesInCurrentFolder by mutableStateOf<Flow<List<ImageEntity>>>(emptyFlow())
-    var folderById: LiveData<FolderEntity> = getFolderById(-1)
+    var folderById by mutableStateOf<Flow<FolderEntity>>(emptyFlow())
 
-    fun visitFolder(dirId: Int): Flow<FolderEntity> {
+    fun visitFolder(FolderId: Int) {
         viewModelScope.launch {
-            visitChildFolder(dirId)
+            visitChildFolder(FolderId)
         }
         viewModelScope.launch {
-            visitImages(dirId)
+            visitImages(FolderId)
         }
-        return repository.getDirById(dirId).also {
-            currentFolder = it
+        viewModelScope.launch {
+            repository.getFolderById(FolderId).also {
+                currentFolder = it
+            }
         }
     }
 
-    private fun visitChildFolder(dirId: Int) {
-        currentChildFolder = repository.childDir(dirId).map { outerList ->
+    private fun visitChildFolder(FolderId: Int) {
+        currentChildFolder = repository.childFolder(FolderId).map { outerList ->
             outerList.childDirs.onEach {
-                it.latestPicture = repository.dirWithImages(it.folderId!!)
+                it.latestPicture = repository.folderWithImages(it.folderId!!)
                     .firstOrNull()?.images?.firstOrNull()?.url?.let { s ->
                         ImageUtil.getThumbnail(s)
                     }
@@ -45,7 +49,7 @@ class FolderManageViewModel(private val repository: DataRepository) : ViewModel(
     }
 
     private fun visitImages(folderId: Int) {
-        imagesInCurrentFolder = repository.dirWithImages(folderId).map { relation ->
+        imagesInCurrentFolder = repository.folderWithImages(folderId).map { relation ->
             relation.images.filter {
                 it.deleted == 0
             }.map {
@@ -80,10 +84,8 @@ class FolderManageViewModel(private val repository: DataRepository) : ViewModel(
         repository.insertDir(entity).first().toInt()
     }
 
-     fun getFolderById(id: Int): LiveData<FolderEntity> {
-        return repository.getDirById(id).asLiveData().also {
-            folderById = it
-        }
+     fun getFolderById(id: Int) {
+         folderById = repository.getFolderById(id)
     }
 
     fun moveFolder(sourceFolder: FolderEntity, targetFolder: FolderEntity) {
