@@ -2,10 +2,7 @@ package com.hyosakura.imagehub.viewmodel
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.database.Cursor
-import android.provider.MediaStore
 import androidx.lifecycle.*
-import com.hyosakura.imagehub.entity.DeviceFolderEntity
 import com.hyosakura.imagehub.entity.DeviceImageEntity
 import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.repository.DataRepository
@@ -30,17 +27,6 @@ class DeviceImageViewModel(private val repository: DataRepository) : ViewModel()
                     emit(map.values)
                 }.asLiveData()
             }
-    }
-
-    private fun getCursor(context: Context): Cursor {
-        val resolver = context.contentResolver
-        return resolver.query(
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            null,
-            MediaStore.Images.Media.MIME_TYPE + "=? or " + MediaStore.Images.Media.MIME_TYPE + "=?",
-            arrayOf("image/jpeg", "image/png"),
-            MediaStore.Images.Media.DATE_MODIFIED
-        )!!
     }
 
     fun getImageById(id: Int) = map[id]
@@ -83,12 +69,14 @@ class DeviceImageViewModel(private val repository: DataRepository) : ViewModel()
         }
     }
 
-    suspend fun importImage(image: DeviceImageEntity): Int =
+    suspend fun importImage(context: Context, image: DeviceImageEntity): Int =
         withContext(viewModelScope.coroutineContext) {
+            val path = ImageUtil.saveImageToLocalStorge(context, ImageUtil.decodeFile(image.url!!, 1), image.name!!)
+            println(path)
             val entity = ImageEntity(
                 imageId = null,
                 name = image.name,
-                url = image.url,
+                url = path,
                 ext = image.ext,
                 width = image.width,
                 height = image.height,

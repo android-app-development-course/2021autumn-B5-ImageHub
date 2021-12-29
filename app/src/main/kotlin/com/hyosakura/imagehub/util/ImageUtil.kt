@@ -4,11 +4,14 @@ import android.content.*
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Environment
 import android.provider.MediaStore
-import android.provider.MediaStore.MediaColumns
 import android.widget.Toast
 import com.hyosakura.imagehub.entity.ImageEntity
 import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.OutputStream
 
 
 object ImageUtil {
@@ -16,7 +19,6 @@ object ImageUtil {
 
     fun decodeFile(url: String, size: Int): Bitmap {
         // 输出参数
-        println("decodeFile: $url, $size")
         options.inSampleSize = size
         return BitmapFactory.decodeFile(url, options)
     }
@@ -29,7 +31,7 @@ object ImageUtil {
         )
     }
 
-    fun Context.share(bitmap: Bitmap) {
+    fun Context.getImageFromShare(bitmap: Bitmap) {
         val intent = Intent()
         intent.action = Intent.ACTION_SEND
         val values = ContentValues()
@@ -46,18 +48,68 @@ object ImageUtil {
         this.startActivity(Intent.createChooser(intent, "来自ImageHub的分享"))
     }
 
-    fun getFilePathFromContentUri(
+    private fun getFilePathFromContentUri(
         selectedVideoUri: Uri?,
         contentResolver: ContentResolver
     ): String? {
         val filePath: String
-        val filePathColumn = arrayOf(MediaColumns.DATA)
+        val filePathColumn = arrayOf(MediaStore.MediaColumns.DATA)
         val cursor = contentResolver.query(selectedVideoUri!!, filePathColumn, null, null, null)
         cursor!!.moveToFirst()
         val columnIndex = cursor.getColumnIndex(filePathColumn[0])
         filePath = cursor.getString(columnIndex)
         cursor.close()
         return filePath
+    }
+
+    fun saveImageToLocalStorge(
+        context: Context,
+        bitmap: Bitmap,
+        filename: String,
+    ): String? {
+        val f = File(
+            context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), filename
+        )
+        try {
+            val fos = FileOutputStream(f)
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos)
+            fos.flush()
+            fos.close()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return f.absolutePath
+    }
+
+    fun saveBitmapToMedia(context: Context, fileName: String, bitmap: Bitmap) {
+        val values = ContentValues()
+        values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
+        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+        try {
+            val uri: Uri =
+                context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+                    ?: return
+            val path = getFilePathFromContentUri(uri, context.contentResolver)!!
+            val dir = File(File(path).parentFile, "ImageHub")
+            dir.mkdirs()
+            val file = File(dir, fileName)
+            val out: OutputStream = FileOutputStream(file)
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
+            out.flush()
+            out.close()
+            Toast.makeText(
+                context,
+                "图片成功保存至$file",
+                Toast.LENGTH_LONG
+            ).show()
+        } catch (e: IOException) {
+            e.printStackTrace()
+            Toast.makeText(
+                context,
+                "图片保存失败",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
     fun copyImage(image: ImageEntity, context: Context) {
