@@ -379,6 +379,7 @@ fun BaseScreen(
                         onImageDelete = {
                             navController.popBackStack()
                             image.deleted = 1
+                            image.deleteTime = System.currentTimeMillis()
                             imageManageViewModel.updateImage(image)
                         },
                         onImageRestore = {

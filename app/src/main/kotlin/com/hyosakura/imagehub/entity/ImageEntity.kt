@@ -36,6 +36,8 @@ data class ImageEntity(
 
     var shareTime: Long? = null,
 
+    var deleteTime: Long? = null,
+
     var deleted: Int? = 0,
 
     @Ignore

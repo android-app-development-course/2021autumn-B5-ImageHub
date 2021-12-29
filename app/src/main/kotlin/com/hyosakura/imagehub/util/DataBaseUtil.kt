@@ -17,7 +17,12 @@ import com.hyosakura.imagehub.entity.relation.ImageTagCrossRef
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import java.time.Duration
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 @Database(
     entities = [ImageEntity::class, FolderEntity::class, TagEntity::class, ImageTagCrossRef::class, HistoryEntity::class],
@@ -34,6 +39,12 @@ abstract class AppDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
+        private fun Long.toLocalDateTime(): LocalDateTime {
+            val instant = Instant.ofEpochMilli(this)
+            val zone = ZoneId.systemDefault()
+            return LocalDateTime.ofInstant(instant, zone)
+        }
+
         fun getDatabase(application: Activity): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -49,6 +60,15 @@ abstract class AppDatabase : RoomDatabase() {
                                 INSTANCE
                                     ?.folderDao()
                                     ?.insertFolders(FolderEntity(folderId = -1, parentId = -2, name = "无文件夹"))
+                                INSTANCE?.imageDao()?.getAllDeletedImages()?.collect { list->
+                                    list.forEach {
+                                        val deleteTime = it.deleteTime!!.toLocalDateTime()
+                                        val current = System.currentTimeMillis().toLocalDateTime()
+                                        if (Duration.between(deleteTime, current).toDays() >= 30) {
+                                            INSTANCE?.imageDao()?.removeDeletedImages(it)
+                                        }
+                                    }
+                                }
                             }
                         }
                     })
