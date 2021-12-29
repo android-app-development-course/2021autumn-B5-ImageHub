@@ -525,7 +525,13 @@ private fun BottomBar(
         BaseBottomBar(
             allScreens = listOf(Main, Search, Library),
             onSelected = { screen ->
-                navController.navigate(screen.name)
+                if (screen != currentScreen) {
+                    navController.navigate(screen.name) {
+                        popUpTo(Main.name) {
+                            inclusive = true
+                        }
+                    }
+                }
             },
             currentScreen = currentScreen,
         )
