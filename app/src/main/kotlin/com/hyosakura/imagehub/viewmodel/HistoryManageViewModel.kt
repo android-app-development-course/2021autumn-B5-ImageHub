@@ -5,10 +5,24 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.hyosakura.imagehub.entity.HistoryEntity
 import com.hyosakura.imagehub.repository.DataRepository
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class HistoryManageViewModel(private val repository: DataRepository) : ViewModel() {
-    val searchHistories = repository.searchHistories
+    companion object {
+        val searchListCache = mutableListOf<String>()
+    }
+
+    val searchHistories = repository.searchHistories.map { list ->
+        list.map {
+            val keyword = it.keyword!!
+            if (searchListCache.contains(keyword)) {
+                searchListCache.add(keyword)
+            }
+            it
+        }
+        list
+    }
 
     fun addHistory(history: HistoryEntity) {
         viewModelScope.launch {
