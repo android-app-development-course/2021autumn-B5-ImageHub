@@ -162,12 +162,11 @@ fun TagScreen(
                 onClick = {
                     isAddMode = !isAddMode
                 },
-                icon = { Icon(Icons.Filled.Add, "添加标签") },
+                icon = { Icon(Icons.Filled.Add, "") },
                 text = { Text(text = stringResource(id = R.string.addTag)) },
                 modifier = Modifier.constrainAs(fab) {
                     bottom.linkTo(parent.bottom, 16.dp)
                     end.linkTo(parent.end, 16.dp)
-                    start.linkTo(parent.start, 16.dp)
                 }
             )
         }
@@ -269,6 +268,9 @@ fun TagList(
                     { onTagClick(tag) },
                 )
             }
+            item {
+                Spacer(modifier = Modifier.height(30.dp))
+            }
         }
 
         if (isEditMode) {
@@ -311,7 +313,9 @@ fun TagList(
                     ) { Text(stringResource(R.string.editName)) }
                 },
                 dismissButton = {
-                    TextButton(onClick = { isEditMode = false }) { Text("取消") }
+                    TextButton(onClick = {
+                        isEditMode = false
+                    }) { Text(stringResource(id = R.string.cancel)) }
                 }
             )
         }
