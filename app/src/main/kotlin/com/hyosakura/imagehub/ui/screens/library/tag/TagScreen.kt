@@ -58,7 +58,7 @@ fun TagScreen(
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.Filled.ArrowBack,
-                            contentDescription = "标签列表"
+                            contentDescription = "Back",
                         )
                     }
                 }
@@ -115,7 +115,7 @@ fun TagScreen(
                         isAddMode = false
                     },
                     title = {
-                        Text(text = "添加标签")
+                        Text(text = stringResource(id = R.string.addTag))
                     },
                     text = {
                         InputOutlinedTextField(
@@ -142,7 +142,7 @@ fun TagScreen(
                                 }
                             }
                         ) {
-                            Text("添加标签")
+                            Text(stringResource(id = R.string.addTag))
                         }
                     },
                     dismissButton = {
@@ -151,7 +151,7 @@ fun TagScreen(
                                 isAddMode = false
                             }
                         ) {
-                            Text("取消")
+                            Text(stringResource(id = R.string.cancel))
                         }
                     }
                 )

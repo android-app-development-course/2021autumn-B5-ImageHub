@@ -38,4 +38,6 @@
     <string name="tagList">标签列表</string>
     <string name="noResult">无搜索结果</string>
     <string name="imageHasCopied">图片已复制到剪贴板</string>
+    <string name="enjoyImageHub">你管理的非常好！暂时还没有建议，请继续享受 Image Hub。</string>
+    <string name="recentShare">最近分享</string>
 </resources>
