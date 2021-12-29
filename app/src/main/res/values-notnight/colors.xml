@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="launcher_icon_background">@android:color/white</color>
+    <color name="launcher_icon">@android:color/system_neutral1_900</color>
+
+    <color name="icon_background">@android:color/system_accent1_50</color>
+
+    <color name="pink">#DCA3C6</color>
+
+    <color name="background">@android:color/white</color>
+</resources>

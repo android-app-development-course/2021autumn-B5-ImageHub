@@ -506,7 +506,7 @@ private fun BaseTopBar() {
                     .padding(end = 10.dp)
             )
             Image(
-                painterResource(id = R.drawable.logo_imagehub),
+                painterResource(id = R.drawable.ic_logo_imagehub),
                 contentDescription = null,
                 Modifier.size(150.dp)
             )
