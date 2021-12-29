@@ -6,8 +6,9 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
-import android.widget.Toast
 import com.hyosakura.imagehub.entity.ImageEntity
+import com.hyosakura.imagehub.util.ToastUtil.long
+import com.hyosakura.imagehub.util.ToastUtil.short
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -97,18 +98,10 @@ object ImageUtil {
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
             out.flush()
             out.close()
-            Toast.makeText(
-                context,
-                "图片成功保存至$file",
-                Toast.LENGTH_LONG
-            ).show()
+            context.long("图片成功保存至$file")
         } catch (e: IOException) {
             e.printStackTrace()
-            Toast.makeText(
-                context,
-                "图片保存失败",
-                Toast.LENGTH_SHORT
-            ).show()
+            context.short("图片保存失败")
         }
     }
 
@@ -117,10 +110,6 @@ object ImageUtil {
         val copyUri = Uri.parse(image.url)
         val clip = ClipData.newUri(context.contentResolver, "URI", copyUri)
         clipboardManager?.setPrimaryClip(clip)
-        Toast.makeText(
-            context,
-            "图片已复制到剪贴板",
-            Toast.LENGTH_SHORT
-        ).show()
+        context.short("图片已复制到剪贴板")
     }
 }

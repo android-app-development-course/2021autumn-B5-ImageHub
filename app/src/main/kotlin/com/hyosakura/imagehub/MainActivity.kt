@@ -2,7 +2,6 @@ package com.hyosakura.imagehub
 
 import android.Manifest
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
@@ -15,6 +14,7 @@ import com.hyosakura.imagehub.repository.DataRepository
 import com.hyosakura.imagehub.ui.BaseScreen
 import com.hyosakura.imagehub.ui.theme.ImageHubTheme
 import com.hyosakura.imagehub.util.AppDatabase
+import com.hyosakura.imagehub.util.ToastUtil.short
 
 class MainActivity : ComponentActivity() {
     private val database by lazy { AppDatabase.getDatabase(this) }
@@ -40,11 +40,7 @@ private fun RequestPermissionUsingAccompanist(repository: DataRepository) {
     PermissionRequired(
         permissionState = permissionState,
         permissionNotAvailableContent = {
-            Toast.makeText(
-                LocalContext.current,
-                "权限获取失败!",
-                Toast.LENGTH_SHORT
-            ).show()
+            LocalContext.current.short("权限获取失败!")
             BaseScreen(repository)
         }, permissionNotGrantedContent = {
             LaunchedEffect(repository) {

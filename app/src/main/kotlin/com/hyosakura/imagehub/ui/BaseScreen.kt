@@ -1,6 +1,5 @@
 package com.hyosakura.imagehub.ui
 
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -47,6 +46,7 @@ import com.hyosakura.imagehub.ui.screens.main.MainScreen
 import com.hyosakura.imagehub.ui.screens.search.SearchResultsScreen
 import com.hyosakura.imagehub.ui.screens.search.SearchScreen
 import com.hyosakura.imagehub.util.ImageUtil
+import com.hyosakura.imagehub.util.ToastUtil.short
 import com.hyosakura.imagehub.viewmodel.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -217,11 +217,7 @@ fun BaseScreen(
                         onTagConflict = {
                             coroutine.launch {
                                 withContext(Dispatchers.Main) {
-                                    Toast.makeText(
-                                        context,
-                                        "标签已存在",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
+                                    context.short("标签已存在")
                                 }
                             }
                         },
@@ -393,15 +389,6 @@ fun BaseScreen(
                         },
                         onCopyClick = {
                             ImageUtil.copyImage(image, context)
-                            coroutine.launch {
-                                withContext(Dispatchers.Main) {
-                                    Toast.makeText(
-                                        context,
-                                        "图片已复制到剪切板",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                            }
                         },
                         onAnnotationEdit = { editText ->
                             image.annotation = editText
@@ -415,11 +402,7 @@ fun BaseScreen(
                         onTagConflict = {
                             coroutine.launch {
                                 withContext(Dispatchers.Main) {
-                                    Toast.makeText(
-                                        context,
-                                        "标签已存在",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
+                                    context.short("标签已存在")
                                 }
                             }
                         },
