@@ -420,7 +420,8 @@ fun BaseScreen(
                                     ).show()
                                 }
                             }
-                        }
+                        },
+                        onSaveClick = { TODO("保存图片到 媒体文件夹/ImageHub 下，根据标签命名，然后用 Toast 提示保存路径") }
                     )
                 }
                 composable(

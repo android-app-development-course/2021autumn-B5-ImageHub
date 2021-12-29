@@ -33,7 +33,7 @@ fun LibraryScreen(
             ConstraintLayout(Modifier.fillMaxWidth()) {
                 val (label, folder, tip, trash) = createRefs()
                 Button(
-                    iconId = R.drawable.ic_outline_label_24, textId = R.string.label,
+                    iconId = R.drawable.ic_outline_label_24, textId = R.string.tag,
                     onButtonClick = onTagButtonClick,
                     modifier = Modifier.constrainAs(label) {
                         top.linkTo(parent.top, margin = 16.dp)
