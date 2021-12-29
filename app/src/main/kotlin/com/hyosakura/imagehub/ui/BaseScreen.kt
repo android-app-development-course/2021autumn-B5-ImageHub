@@ -107,7 +107,9 @@ fun BaseScreen(
             ) {
                 composable(Main.name) {
                     val images by imageManageViewModel.allImages.collectAsState(listOf())
-                    val recentShareImages by imageManageViewModel.recentShareImages.collectAsState(listOf())
+                    val recentShareImages by imageManageViewModel.recentShareImages.collectAsState(
+                        listOf()
+                    )
                     MainScreen(images, recentShareImages) {
                         navController.navigate("${Detail.name}/${imageId}")
                     }
@@ -181,7 +183,7 @@ fun BaseScreen(
                         onImageClick = {
                             navController.navigate("${Detail.name}/${imageId}")
                         },
-                        addSearchHistory = {history ->
+                        addSearchHistory = { history ->
                             searchHistoryManageViewModel.addHistory(history)
                         }
                     )
@@ -328,7 +330,7 @@ fun BaseScreen(
                     )
                 }
                 composable(Tip.name) {
-                    TipScreen({navController.popBackStack()})
+                    TipScreen({ navController.popBackStack() })
                 }
                 composable(RecycleBin.name) {
                     val deletedImages by recycleBinViewModel.allDeletedImages.collectAsState(listOf())
@@ -410,7 +412,11 @@ fun BaseScreen(
                             }
                         },
                         onSaveClick = {
-                            ImageUtil.saveBitmapToMedia(context, "${tagList.joinToString("")}${image.name!!}", image.bitmap!!)
+                            ImageUtil.saveBitmapToMedia(
+                                context,
+                                "${tagList.joinToString("")}${image.name!!}",
+                                image.bitmap!!
+                            )
                         },
                         onImageShare = {
                             context.shareImage(image.bitmap!!)
@@ -456,7 +462,8 @@ fun BaseScreen(
                         onImageImport = {
                             coroutine.launch {
                                 withContext(Dispatchers.Main) {
-                                    val id = deviceImageManageViewModel.importImage(context, image!!)
+                                    val id =
+                                        deviceImageManageViewModel.importImage(context, image!!)
                                     navController.popBackStack()
                                     navController.navigate("${Detail.name}/$id")
                                 }
