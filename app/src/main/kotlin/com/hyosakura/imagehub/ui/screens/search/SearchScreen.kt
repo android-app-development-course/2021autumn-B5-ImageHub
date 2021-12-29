@@ -41,7 +41,7 @@ fun SearchScreen(
                 item {
                     Text(
                         stringResource(R.string.searchHistory),
-                        style = MaterialTheme.typography.titleLarge
+                        style = MaterialTheme.typography.titleMedium
                     )
                 }
                 if (!searchHistory.isNullOrEmpty()) {
@@ -52,7 +52,7 @@ fun SearchScreen(
                         )
                     }
                 }
-                item { Spacer(modifier = Modifier.height(30.dp)) }
+                item { Spacer(modifier = Modifier.height(25.dp)) }
                 if (!recentTags.isNullOrEmpty()) {
                     item {
                         Text(
@@ -62,7 +62,7 @@ fun SearchScreen(
                         TagRow(tagList = recentTags, onSuggestTagClick = onSuggestTagClick)
                     }
                 }
-                item { Spacer(modifier = Modifier.height(30.dp)) }
+                item { Spacer(modifier = Modifier.height(20.dp)) }
                 if (!starTags.isNullOrEmpty()) {
                     item {
                         Text(

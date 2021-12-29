@@ -93,7 +93,7 @@ fun SearchBarTextField(searchAction: (String) -> Unit) {
                 unfocusedBorderColor = Color.Transparent
             ),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-            keyboardActions = KeyboardActions { keyboardController?.hide() },
+            keyboardActions = KeyboardActions { keyboardController?.hide(); },
             modifier = Modifier.fillMaxWidth()
         )
         TabRowDefaults.Divider(

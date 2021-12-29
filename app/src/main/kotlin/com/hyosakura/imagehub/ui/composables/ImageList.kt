@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
@@ -16,6 +17,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
 import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.entity.toDateTime
+import com.hyosakura.imagehub.ui.theme.ImageHubTheme
 import java.time.format.DateTimeFormatter
 import java.util.stream.Collectors
 
@@ -98,18 +100,18 @@ fun ImageItem(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ImageList(
+fun ImageRow(
     images: List<ImageEntity>,
     onImageClick: ImageEntity.() -> Unit
 ) {
-    LazyVerticalGrid(
-        cells = GridCells.Adaptive(minSize = 120.dp),
-    ) {
-        items(images) { image ->
-            ImageItem(
-                image,
-                onImageClick
-            )
+    LazyRow {
+        images.let {
+            val list = it.toList()
+            val count = if (list.size > 30) 30 else list.size
+            items(count) { i ->
+                val image = list[i]
+                ImageItem(image, onImageClick)
+            }
         }
     }
 }

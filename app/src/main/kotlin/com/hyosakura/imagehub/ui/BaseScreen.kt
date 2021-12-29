@@ -108,7 +108,7 @@ fun BaseScreen(
                 composable(Main.name) {
                     val images by imageManageViewModel.allImages.collectAsState(listOf())
                     val recentShareImages by imageManageViewModel.recentShareImages.collectAsState(listOf())
-                    MainScreen(images, listOf()) {
+                    MainScreen(images, recentShareImages) {
                         navController.navigate("${Detail.name}/${imageId}")
                     }
                 }
@@ -328,7 +328,7 @@ fun BaseScreen(
                     )
                 }
                 composable(Tip.name) {
-                    TipScreen()
+                    TipScreen({navController.popBackStack()})
                 }
                 composable(RecycleBin.name) {
                     val deletedImages = recycleBinViewModel.allDeletedImages.observeAsState().value

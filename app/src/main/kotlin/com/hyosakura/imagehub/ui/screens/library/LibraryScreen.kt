@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.hyosakura.imagehub.R
 import com.hyosakura.imagehub.entity.DeviceImageEntity
+import com.hyosakura.imagehub.ui.composables.ImageRow
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
