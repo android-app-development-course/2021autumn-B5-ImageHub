@@ -414,7 +414,7 @@ fun BaseScreen(
                         onSaveClick = {
                             ImageUtil.saveBitmapToMedia(
                                 context,
-                                "${tagList.joinToString("")}${image.name!!}",
+                                "${tagList.joinToString(" ")} ${image.name!!}",
                                 image.bitmap!!
                             )
                         },
