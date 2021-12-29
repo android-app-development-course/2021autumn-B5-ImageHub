@@ -1,12 +1,11 @@
 package com.hyosakura.imagehub.ui.screens.library.tag
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
@@ -23,6 +22,9 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import com.hyosakura.imagehub.R
 import com.hyosakura.imagehub.entity.TagEntity
 import com.hyosakura.imagehub.entity.toDateTime
+import com.hyosakura.imagehub.ui.composables.InputOutlinedTextField
+import com.hyosakura.imagehub.ui.composables.SearchBarButton
+import com.hyosakura.imagehub.ui.composables.SearchBarTextField
 import java.util.stream.Collectors
 
 
@@ -39,14 +41,19 @@ fun TagScreen(
     onTagClick: TagEntity.() -> Unit,
     onTagConflict: () -> Unit,
 ) {
-    var isEditMode by remember { mutableStateOf(false) }
+    var isSearchMode by remember { mutableStateOf(false) }
     var isAddMode by remember { mutableStateOf(false) }
     var flush by remember { mutableStateOf(true) }
+
+    BackHandler(enabled = isSearchMode) {
+        isSearchMode = false
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             SmallTopAppBar(
-                title = { Text("标签列表") },
+                title = { Text(stringResource(R.string.tagList)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
@@ -59,101 +66,45 @@ fun TagScreen(
         }
     ) {
         if (flush) {
-            Text(text = "compose's bug?", modifier = Modifier.width(0.dp).height(0.dp))
+            Text(
+                text = "compose's bug?", modifier = Modifier
+                    .width(0.dp)
+                    .height(0.dp)
+            )
         }
+
         Column(Modifier.fillMaxSize()) {
-            if (allTags != null) {
-                val map = allTags.stream().collect(Collectors.groupingBy {
-                    it.addTime!!.toDateTime().toLocalDate()
-                })
-                val iterator = map.iterator()
-                while (iterator.hasNext()) {
-                    val entry = iterator.next()
-                    val date = entry.key
-                    val list = entry.value
-
-                    // 展示tag
-                    val lazyListState = rememberLazyListState()
-
-                    var currentTag by remember { mutableStateOf<TagEntity?>(null) }
-                    LazyColumn(state = lazyListState, modifier = Modifier) {
-                        items(list) { tag ->
-                            println(tag)
-                            TagItem(
-                                tag,
-                                tag.star,
-                                onStarClick = {
-                                    tag.star = if (tag.star == 0) 1 else 0
-                                    updateAction(tag)
-                                    flush = !flush
-                                },
-                                onEditClick = {
-                                    isEditMode = true
-                                    currentTag = tag
-                                }
-                            ) {
-                                onTagClick(tag)
-                                currentTag = tag
-                            }
-                        }
-                    }
-
-                    if (isEditMode) {
-                        var editText by remember { mutableStateOf(currentTag!!.name!!) }
-                        AlertDialog(
-                            onDismissRequest = { isEditMode = false },
-                            title = {
-                                Row(
-                                    Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(text = "编辑标签")
-                                    TextButton(
-                                        onClick = {
-                                            deleteAction(currentTag!!)
-                                            isEditMode = false
-                                        }
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Filled.Delete,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(30.dp),
-                                            tint = MaterialTheme.colorScheme.error
-                                        )
-                                    }
-                                }
-                            },
-                            text = {
-                                OutlinedTextField(
-                                    value = editText, onValueChange = { editText = it },
-                                    singleLine = true,
-                                    textStyle = MaterialTheme.typography.titleMedium,
-                                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                                        textColor = MaterialTheme.colorScheme.primary,
-                                        cursorColor = MaterialTheme.colorScheme.inversePrimary,
-                                        focusedBorderColor = MaterialTheme.colorScheme.secondary,
-                                        unfocusedBorderColor = MaterialTheme.colorScheme.onSurface
-                                    )
-                                )
-                            },
-                            confirmButton = {
-                                TextButton(
-                                    onClick = {
-                                        isEditMode = false
-                                        currentTag!!.name = editText
-                                        updateAction(currentTag!!)
-                                    }
-                                ) { Text("更改标签") }
-                            },
-                            dismissButton = {
-                                TextButton(onClick = { isEditMode = false }) { Text("取消") }
-                            }
-                        )
-                    }
+            if (!isSearchMode) {
+                SearchBarButton(searchSuggestion = stringResource(R.string.searchTagByName)) {
+                    isSearchMode = true
                 }
+                if (allTags != null) {
+                    TagList(
+                        tagList = allTags,
+                        onStarClick = {
+                            this.star = if (this.star == 0) 1 else 0
+                            updateAction(this)
+                            flush = !flush
+                        },
+                        onTagClick = { onTagClick(this) },
+                        deleteAction = deleteAction,
+                        updateAction = updateAction
+                    )
+                }
+            } else {
+                SearchBarTextField(searchAction = searchAction)
+                TagList(
+                    searchResult,
+                    onStarClick = {
+                        this.star = if (this.star == 0) 1 else 0
+                        updateAction(this)
+                        flush = !flush
+                    },
+                    onTagClick = { onTagClick(this) },
+                    deleteAction = deleteAction,
+                    updateAction = updateAction
+                )
             }
-
 
             if (isAddMode) {
                 var editText by remember { mutableStateOf("") }
@@ -165,20 +116,11 @@ fun TagScreen(
                         Text(text = "添加标签")
                     },
                     text = {
-                        OutlinedTextField(
+                        InputOutlinedTextField(
                             value = editText,
                             onValueChange = {
                                 editText = it
-                            },
-                            singleLine = true,
-                            textStyle = MaterialTheme.typography.titleMedium,
-                            colors = TextFieldDefaults.outlinedTextFieldColors(
-                                textColor = MaterialTheme.colorScheme.primary,
-                                cursorColor = MaterialTheme.colorScheme.inversePrimary,
-                                focusedBorderColor = MaterialTheme.colorScheme.secondary,
-                                unfocusedBorderColor = MaterialTheme.colorScheme.onSurface
-                            )
-                        )
+                            })
                     },
                     confirmButton = {
                         TextButton(
@@ -213,6 +155,7 @@ fun TagScreen(
                 )
             }
         }
+
         ConstraintLayout(modifier = Modifier.fillMaxSize()) {
             val fab = createRef()
             ExtendedFloatingActionButton(
@@ -237,7 +180,7 @@ private fun TagItem(
     isStar: Int,
     onStarClick: () -> Unit,
     onEditClick: () -> Unit,
-    onLabelClick: () -> Unit
+    onTagClick: () -> Unit
 ) {
 
     Row(
@@ -265,7 +208,7 @@ private fun TagItem(
         }
 
         TextButton(
-            onClick = onLabelClick,
+            onClick = onTagClick,
             modifier = Modifier
                 .height(60.dp)
         ) {
@@ -288,6 +231,88 @@ private fun TagItem(
             Icon(
                 painter = painterResource(id = R.drawable.ic_baseline_edit_24),
                 contentDescription = null
+            )
+        }
+    }
+}
+
+@Composable
+fun TagList(
+    tagList: List<TagEntity>,
+    onStarClick: TagEntity.() -> Unit,
+    onTagClick: TagEntity.() -> Unit,
+    deleteAction: TagEntity.() -> Unit,
+    updateAction: TagEntity.() -> Unit,
+) {
+    var isEditMode by remember { mutableStateOf(false) }
+
+    val map = tagList.stream().collect(Collectors.groupingBy {
+        it.addTime!!.toDateTime().toLocalDate()
+    })
+
+    val iterator = map.iterator()
+    while (iterator.hasNext()) {
+        val entry = iterator.next()
+        val list = entry.value
+        val lazyListState = rememberLazyListState()
+        var currentTag by remember { mutableStateOf<TagEntity?>(null) }
+        LazyColumn(state = lazyListState) {
+            items(list) { tag ->
+                TagItem(
+                    tag,
+                    tag.star,
+                    onStarClick = { onStarClick(tag) },
+                    onEditClick = {
+                        isEditMode = true
+                        currentTag = tag
+                    },
+                    { onTagClick(tag) },
+                )
+            }
+        }
+
+        if (isEditMode) {
+            var editText by remember { mutableStateOf(currentTag!!.name!!) }
+            AlertDialog(
+                onDismissRequest = { isEditMode = false },
+                title = {
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = stringResource(R.string.editTag))
+                        TextButton(
+                            onClick = {
+                                deleteAction(currentTag!!)
+                                isEditMode = false
+                            },
+
+                            ) {
+                            Icon(
+                                imageVector = Icons.Filled.Delete,
+                                contentDescription = null,
+                                modifier = Modifier.size(30.dp),
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    }
+                },
+                text = {
+                    InputOutlinedTextField(editText) { editText = it }
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            isEditMode = false
+                            currentTag!!.name = editText
+                            updateAction(currentTag!!)
+                        }
+                    ) { Text(stringResource(R.string.editName)) }
+                },
+                dismissButton = {
+                    TextButton(onClick = { isEditMode = false }) { Text("取消") }
+                }
             )
         }
     }

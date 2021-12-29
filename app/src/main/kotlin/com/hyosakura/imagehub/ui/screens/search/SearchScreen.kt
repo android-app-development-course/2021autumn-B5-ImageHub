@@ -26,7 +26,8 @@ fun SearchScreen(
     searchHistory: List<HistoryEntity>?,
     onSearchBarClick: () -> Unit,
     onSuggestTagClick: (TagEntity) -> Unit,
-    onSearchHistoryClick: (String) -> Unit
+    onSearchHistoryClick: (String) -> Unit,
+    onSearchHistoryDeleteClick: (String) -> Unit,
 ) {
     Scaffold(
         topBar = {

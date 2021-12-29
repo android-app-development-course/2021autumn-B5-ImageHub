@@ -1,8 +1,6 @@
 package com.hyosakura.imagehub.ui.screens.search
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.OutlinedTextField
@@ -20,6 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.hyosakura.imagehub.R
+import com.hyosakura.imagehub.entity.HistoryEntity
 import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.ui.composables.ImageListWithDate
 import com.hyosakura.imagehub.ui.composables.SearchBarTextField
@@ -29,7 +28,8 @@ import com.hyosakura.imagehub.ui.composables.SearchBarTextField
 fun SearchResultsScreen(
     searchAction: (String) -> Unit,
     searchResult: List<ImageEntity>?,
-    onImageClick: ImageEntity.() -> Unit
+    onImageClick: ImageEntity.() -> Unit,
+    addSearchHistory: (String) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -37,8 +37,19 @@ fun SearchResultsScreen(
         },
         content = {
             Column {
-                searchResult?.let {
-                    ImageListWithDate(it, onImageClick)
+                if (!searchResult.isNullOrEmpty()) {
+                    ImageListWithDate(
+                        images = searchResult,
+                        onImageClick = onImageClick
+                    )
+                } else {
+                    Row(Modifier.fillMaxWidth().padding(30.dp), horizontalArrangement = Arrangement.Center) {
+                        Text(
+                            text = stringResource(R.string.noResult),
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                    }
+
                 }
             }
         },

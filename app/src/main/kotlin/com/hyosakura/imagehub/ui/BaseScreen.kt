@@ -125,11 +125,11 @@ fun BaseScreen(
                             navController.navigate(SearchResults.name)
                         },
                         onSuggestTagClick = { tag -> navController.navigate("${TagImage.name}/${tag.tagId}") },
-                        // TODO: 搜索历史字符串不能重复； 跳转到搜索结果页无结果；
                         onSearchHistoryClick = { keyword ->
                             imageManageViewModel.searchImage(keyword)
                             navController.navigate(SearchResults.name)
-                        }
+                        },
+                        onSearchHistoryDeleteClick = { TODO("删除搜索历史") }
                     )
                 }
                 composable(Library.name) {
@@ -181,7 +181,8 @@ fun BaseScreen(
                         result,
                         onImageClick = {
                             navController.navigate("${Detail.name}/${imageId}")
-                        }
+                        },
+                        addSearchHistory = {string -> TODO("分离搜索逻辑") }
                     )
                 }
                 composable(Tag.name) {
