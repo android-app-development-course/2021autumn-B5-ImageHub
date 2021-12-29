@@ -407,7 +407,7 @@ fun BaseScreen(
                             }
                         },
                         onSaveClick = {
-                            ImageUtil.saveBitmapToMedia(context, "${tagList.toString().replace("[", "").replace("]", "")}${image.name!!}", image.bitmap!!)
+                            ImageUtil.saveBitmapToMedia(context, "${tagList.joinToString("")}${image.name!!}", image.bitmap!!)
                         }
                     )
                 }
