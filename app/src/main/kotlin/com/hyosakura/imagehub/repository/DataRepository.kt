@@ -71,6 +71,8 @@ class DataRepository(private val database: AppDatabase) {
 
     val allImages = database.imageDao().getAllImages(20)
 
+    val recentShareImages = database.imageDao().getRecentShareImages(10)
+
     val allDeletedImages = database.imageDao().getAllDeletedImages()
 
     fun getAllDeletedImagesWithoutFlow() = database.imageDao().getAllDeletedImagesWithoutFlow()

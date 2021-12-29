@@ -20,6 +20,9 @@ interface ImageDao {
     @Query("SELECT * FROM image where deleted = 0 limit :limit")
     fun getAllImages(limit: Int = 20): Flow<List<ImageEntity>>
 
+    @Query("SELECT * FROM image where shareTime not null order by shareTime desc limit :limit")
+    fun getRecentShareImages(limit: Int = 10): Flow<List<ImageEntity>>
+
     @Query("SELECT * FROM image where deleted = 1")
     fun getAllDeletedImages(): Flow<List<ImageEntity>>
 

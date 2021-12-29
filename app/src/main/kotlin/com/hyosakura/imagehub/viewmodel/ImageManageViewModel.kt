@@ -31,6 +31,14 @@ class ImageManageViewModel(private val repository: DataRepository) : ViewModel()
         }
     }
 
+    val recentShareImages: Flow<List<ImageEntity>> = repository.recentShareImages.map { list ->
+        list.map {
+            it.thumbnail = ImageUtil.getThumbnail(it.url!!)
+            it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
+            it
+        }
+    }
+
     var image by mutableStateOf<Flow<ImageEntity>>(emptyFlow())
     fun visitImage(imageId: Int) {
         viewModelScope.launch {
