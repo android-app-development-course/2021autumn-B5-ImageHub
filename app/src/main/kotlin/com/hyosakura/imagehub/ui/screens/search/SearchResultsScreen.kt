@@ -49,7 +49,6 @@ fun SearchResultsScreen(
                             style = MaterialTheme.typography.titleLarge
                         )
                     }
-
                 }
             }
         },
