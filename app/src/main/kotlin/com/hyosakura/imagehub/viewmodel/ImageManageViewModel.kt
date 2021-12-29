@@ -102,7 +102,7 @@ class ImageManageViewModel(private val repository: DataRepository) : ViewModel()
     var imagesInTag by mutableStateOf<Flow<List<ImageEntity>>>(emptyFlow())
     fun getImagesInTag(tagId: Int) {
         viewModelScope.launch {
-            imagesInTag = repository.tagWithImages(tagId).map { ref ->
+            imagesInTag = repository.imageInTag(tagId).map { ref ->
                 ref.images.map {
                     it.bitmap = ImageUtil.decodeFile(it.url!!, 1)
                     it.thumbnail = ImageUtil.getThumbnail(it.url!!)

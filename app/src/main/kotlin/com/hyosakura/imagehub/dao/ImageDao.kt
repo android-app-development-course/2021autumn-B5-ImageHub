@@ -26,19 +26,12 @@ interface ImageDao {
     @Query("SELECT * FROM image where deleted = 1")
     fun getAllDeletedImages(): Flow<List<ImageEntity>>
 
-    @Query("SELECT * FROM image where deleted = 1")
-    fun getAllDeletedImagesWithoutFlow(): List<ImageEntity>
-
     @Query("SELECT * FROM image where imageId = :id")
     fun getImageById(id: Int): Flow<ImageEntity>
 
     @Transaction
     @Query("SELECT * FROM image where imageId = :id")
     fun getImageWithTagsById(id: Int): Flow<ImageWithTags>
-
-    @Transaction
-    @Query("SELECT * FROM image where name like :name")
-    fun getImageWithTagsByName(name: String): Flow<List<ImageWithTags>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTags(vararg relation: ImageTagCrossRef)

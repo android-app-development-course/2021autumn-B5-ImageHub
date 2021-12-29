@@ -71,7 +71,7 @@ class FolderManageViewModel(private val repository: DataRepository) : ViewModel(
                 number = 0,
                 modifyTime = System.currentTimeMillis()
             )
-            repository.insertDir(entity)
+            repository.insertFolder(entity)
         }
     }
 
@@ -83,7 +83,7 @@ class FolderManageViewModel(private val repository: DataRepository) : ViewModel(
             number = 0,
             modifyTime = System.currentTimeMillis()
         )
-        repository.insertDir(entity).first().toInt()
+        repository.insertFolder(entity).first().toInt()
     }
 
      fun getFolderById(id: Int) {
@@ -96,7 +96,7 @@ class FolderManageViewModel(private val repository: DataRepository) : ViewModel(
             val time = System.currentTimeMillis()
             sourceFolder.modifyTime = time
             targetFolder.modifyTime = time
-            repository.updateDir(sourceFolder, targetFolder)
+            repository.updateFolder(sourceFolder, targetFolder)
         }
     }
 }

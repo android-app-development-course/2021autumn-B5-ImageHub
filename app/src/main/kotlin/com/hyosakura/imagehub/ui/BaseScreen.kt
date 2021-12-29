@@ -331,7 +331,7 @@ fun BaseScreen(
                     TipScreen()
                 }
                 composable(RecycleBin.name) {
-                    val deletedImages = recycleBinViewModel.allDeletedImages.observeAsState().value
+                    val deletedImages by recycleBinViewModel.allDeletedImages.collectAsState(listOf())
                     RecycleBinScreen(
                         onBack = {
                             navController.popBackStack()
