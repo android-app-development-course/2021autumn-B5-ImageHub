@@ -44,4 +44,6 @@ data class TagEntity(
         result = 31 * result + (modifyTime?.hashCode() ?: 0)
         return result
     }
+
+    override fun toString(): String = name ?: ""
 }
