@@ -24,9 +24,14 @@ class HistoryManageViewModel(private val repository: DataRepository) : ViewModel
         list
     }
 
-    fun addHistory(history: HistoryEntity) {
+    fun addHistory(history: String) {
         viewModelScope.launch {
-            repository.insertHistories(history)
+            repository.insertHistories(
+                HistoryEntity(
+                    keyword = history,
+                    addTime = System.currentTimeMillis()
+                )
+            )
         }
     }
 

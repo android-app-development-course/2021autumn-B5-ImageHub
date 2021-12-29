@@ -27,7 +27,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.hyosakura.imagehub.R
 import com.hyosakura.imagehub.entity.FolderEntity
-import com.hyosakura.imagehub.entity.HistoryEntity
 import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.entity.TagEntity
 import com.hyosakura.imagehub.repository.DataRepository
@@ -129,7 +128,9 @@ fun BaseScreen(
                             imageManageViewModel.searchImage(keyword)
                             navController.navigate(SearchResults.name)
                         },
-                        onSearchHistoryDeleteClick = { TODO("删除搜索历史") }
+                        onSearchHistoryDeleteClick = {
+                            searchHistoryManageViewModel.deleteHistory(it)
+                        }
                     )
                 }
                 composable(Library.name) {
@@ -169,12 +170,8 @@ fun BaseScreen(
                                     !HistoryManageViewModel.searchListCache.contains(it)
                                 ) {
                                     HistoryManageViewModel.searchListCache.add(it)
-                                    searchHistoryManageViewModel.addHistory(
-                                        HistoryEntity(
-                                            keyword = it,
-                                            addTime = System.currentTimeMillis()
-                                        )
-                                    )
+                                    // todo 分离后需要删除的
+                                    searchHistoryManageViewModel.addHistory(it)
                                 }
                             }
                         },
@@ -182,7 +179,9 @@ fun BaseScreen(
                         onImageClick = {
                             navController.navigate("${Detail.name}/${imageId}")
                         },
-                        addSearchHistory = {string -> TODO("分离搜索逻辑") }
+                        addSearchHistory = {history ->
+                            searchHistoryManageViewModel.addHistory(history)
+                        }
                     )
                 }
                 composable(Tag.name) {
