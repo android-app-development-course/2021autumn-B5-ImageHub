@@ -6,10 +6,11 @@ import com.hyosakura.imagehub.ui.composables.ImageListWithDate
 
 @Composable
 fun MainScreen(
-    list: List<ImageEntity>,
+    imageList: List<ImageEntity>,
+    recentShareImageList: List<ImageEntity>,
     onImageClick: ImageEntity.() -> Unit,
 ) {
-    ImageListWithDate(list) {
+    ImageListWithDate(imageList) {
         onImageClick()
     }
 }

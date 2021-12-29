@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
+import com.hyosakura.imagehub.R
 import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.util.ToastUtil.long
 import com.hyosakura.imagehub.util.ToastUtil.short
@@ -111,6 +112,6 @@ object ImageUtil {
         val copyUri = Uri.parse(image.url)
         val clip = ClipData.newUri(context.contentResolver, "URI", copyUri)
         clipboardManager?.setPrimaryClip(clip)
-        context.short("图片已复制到剪贴板")
+        context.short(context.getString(R.string.imageHasCopied))
     }
 }

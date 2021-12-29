@@ -81,7 +81,7 @@ fun LibraryScreen(
                 )
             }
 
-            LazyRow() {
+            LazyRow {
                 imageList?.let {
                     val list = it.toList()
                     val count = if (list.size > 30) 30 else list.size

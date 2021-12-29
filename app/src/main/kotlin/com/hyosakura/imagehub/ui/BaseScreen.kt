@@ -107,7 +107,8 @@ fun BaseScreen(
             ) {
                 composable(Main.name) {
                     val images by imageManageViewModel.allImages.collectAsState(listOf())
-                    MainScreen(images) {
+                    // TODO: 传入最近分享的 10 张图片
+                    MainScreen(images, listOf()) {
                         navController.navigate("${Detail.name}/${imageId}")
                     }
                 }

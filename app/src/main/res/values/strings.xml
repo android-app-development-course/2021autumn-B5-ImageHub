@@ -37,4 +37,5 @@
     <string name="searchTagByName">按标签名称搜索</string>
     <string name="tagList">标签列表</string>
     <string name="noResult">无搜索结果</string>
+    <string name="imageHasCopied">图片已复制到剪贴板</string>
 </resources>
