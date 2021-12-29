@@ -45,6 +45,7 @@ import com.hyosakura.imagehub.ui.screens.main.MainScreen
 import com.hyosakura.imagehub.ui.screens.search.SearchResultsScreen
 import com.hyosakura.imagehub.ui.screens.search.SearchScreen
 import com.hyosakura.imagehub.util.ImageUtil
+import com.hyosakura.imagehub.util.ImageUtil.shareImage
 import com.hyosakura.imagehub.util.ToastUtil.short
 import com.hyosakura.imagehub.viewmodel.*
 import kotlinx.coroutines.CoroutineScope
@@ -106,7 +107,7 @@ fun BaseScreen(
             ) {
                 composable(Main.name) {
                     val images by imageManageViewModel.allImages.collectAsState(listOf())
-                    // TODO: 传入最近分享的 10 张图片
+                    val recentShareImages by imageManageViewModel.recentShareImages.collectAsState(listOf())
                     MainScreen(images, listOf()) {
                         navController.navigate("${Detail.name}/${imageId}")
                     }
@@ -218,7 +219,7 @@ fun BaseScreen(
                         onTagConflict = {
                             coroutine.launch {
                                 withContext(Dispatchers.Main) {
-                                    context.short("标签已存在")
+                                    context.short(it)
                                 }
                             }
                         },
@@ -409,6 +410,11 @@ fun BaseScreen(
                         },
                         onSaveClick = {
                             ImageUtil.saveBitmapToMedia(context, "${tagList.joinToString("")}${image.name!!}", image.bitmap!!)
+                        },
+                        onImageShare = {
+                            context.shareImage(image.bitmap!!)
+                            image.shareTime = System.currentTimeMillis()
+                            imageManageViewModel.updateImage(image)
                         }
                     )
                 }

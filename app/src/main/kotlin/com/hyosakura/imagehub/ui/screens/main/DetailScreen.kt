@@ -27,7 +27,6 @@ import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.entity.TagEntity
 import com.hyosakura.imagehub.ui.composables.InputOutlinedTextField
 import com.hyosakura.imagehub.ui.composables.MiniTagRow
-import com.hyosakura.imagehub.util.ImageUtil.getImageFromShare
 import com.hyosakura.imagehub.viewmodel.ImageManageViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -56,6 +55,7 @@ fun DetailScreen(
 
     onImageDelete: () -> Unit,
     onImageRestore: () -> Unit,
+    onImageShare: () -> Unit,
 
     onCopyClick: () -> Unit,
     onSaveClick: () -> Unit,
@@ -105,7 +105,8 @@ fun DetailScreen(
                     onDeleteImageClick = { onImageDelete() },
                     onFolderClick = { onCopyClick() },
                     onRestoreClick = { onImageRestore() },
-                    onSaveClick
+                    onSaveClick = onSaveClick,
+                    onShareClick = onImageShare
                 )
             }
         }
@@ -365,6 +366,7 @@ private fun DetailBottomBar(
     folderName: String,
     onDeleteImageClick: () -> Unit,
     onFolderClick: () -> Unit,
+    onShareClick: () -> Unit,
     onRestoreClick: () -> Unit,
     onSaveClick: () -> Unit
 ) {
@@ -375,7 +377,8 @@ private fun DetailBottomBar(
                 imageEntity = image,
                 onDeleteClick = onDeleteImageClick,
                 onCopyClick = onFolderClick,
-                onSaveClick = onSaveClick
+                onSaveClick = onSaveClick,
+                onShareClick = onShareClick
             )
         }
         else -> {
@@ -404,6 +407,7 @@ fun BottomBar(
     imageEntity: ImageEntity,
     onDeleteClick: () -> Unit,
     onCopyClick: () -> Unit,
+    onShareClick: () -> Unit,
     onSaveClick: () -> Unit
 ) {
     val context = LocalContext.current
@@ -417,9 +421,7 @@ fun BottomBar(
                     style = MaterialTheme.typography.labelLarge
                 )
             },
-            onClick = {
-                context.getImageFromShare(imageEntity.bitmap!!)
-            }
+            onClick = onShareClick
         )
         NavigationBarItem(
             icon = { Icon(painterResource(id = R.drawable.ic_baseline_content_copy_24), null) },

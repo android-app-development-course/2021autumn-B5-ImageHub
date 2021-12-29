@@ -39,7 +39,7 @@ fun TagScreen(
     deleteAction: TagEntity.() -> Unit,
     searchAction: (String) -> Unit,
     onTagClick: TagEntity.() -> Unit,
-    onTagConflict: () -> Unit,
+    onTagConflict: (String) -> Unit,
 ) {
     var isSearchMode by remember { mutableStateOf(false) }
     var isAddMode by remember { mutableStateOf(false) }
@@ -88,7 +88,8 @@ fun TagScreen(
                         },
                         onTagClick = { onTagClick(this) },
                         deleteAction = deleteAction,
-                        updateAction = updateAction
+                        updateAction = updateAction,
+                        onTagConflict
                     )
                 }
             } else {
@@ -102,7 +103,8 @@ fun TagScreen(
                     },
                     onTagClick = { onTagClick(this) },
                     deleteAction = deleteAction,
-                    updateAction = updateAction
+                    updateAction = updateAction,
+                    onTagConflict
                 )
             }
 
@@ -132,7 +134,7 @@ fun TagScreen(
                                             t.name == editText
                                         }
                                     ) {
-                                        onTagConflict()
+                                        onTagConflict("标签已存在")
                                     } else {
                                         insertAction(editText)
 
@@ -180,7 +182,8 @@ private fun TagItem(
     isStar: Int,
     onStarClick: () -> Unit,
     onEditClick: () -> Unit,
-    onTagClick: () -> Unit
+    onTagClick: () -> Unit,
+    onTagConflict: (String) -> Unit
 ) {
 
     Row(
@@ -243,6 +246,7 @@ fun TagList(
     onTagClick: TagEntity.() -> Unit,
     deleteAction: TagEntity.() -> Unit,
     updateAction: TagEntity.() -> Unit,
+    onTagConflict: (String) -> Unit,
 ) {
     var isEditMode by remember { mutableStateOf(false) }
 
@@ -267,6 +271,7 @@ fun TagList(
                         currentTag = tag
                     },
                     { onTagClick(tag) },
+                    onTagConflict
                 )
             }
         }
@@ -305,8 +310,16 @@ fun TagList(
                     TextButton(
                         onClick = {
                             isEditMode = false
-                            currentTag!!.name = editText
-                            updateAction(currentTag!!)
+                            if (
+                                tagList.any { any->
+                                    any.name == editText
+                                }
+                            ) {
+                               onTagConflict("已存在同名标签")
+                            } else {
+                                currentTag!!.name = editText
+                                updateAction(currentTag!!)
+                            }
                         }
                     ) { Text(stringResource(R.string.editName)) }
                 },

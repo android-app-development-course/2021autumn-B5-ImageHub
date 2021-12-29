@@ -34,7 +34,7 @@ object ImageUtil {
         )
     }
 
-    fun Context.getImageFromShare(bitmap: Bitmap) {
+    fun Context.shareImage(bitmap: Bitmap) {
         val intent = Intent()
         intent.action = Intent.ACTION_SEND
         val values = ContentValues()
