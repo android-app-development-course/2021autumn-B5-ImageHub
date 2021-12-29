@@ -13,6 +13,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.OutputStream
+import java.nio.file.Paths
 
 
 object ImageUtil {
@@ -98,7 +99,7 @@ object ImageUtil {
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
             out.flush()
             out.close()
-            context.long("图片成功保存至$file")
+            context.long("图片成功保存至${Paths.get(File(dir.parent!!).parent).relativize(Paths.get(file.absolutePath))}")
         } catch (e: IOException) {
             e.printStackTrace()
             context.short("图片保存失败")
