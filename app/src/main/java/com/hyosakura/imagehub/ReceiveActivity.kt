@@ -2,19 +2,16 @@ package com.hyosakura.imagehub
 
 import android.app.Activity
 import android.content.Intent
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
 import android.util.Log
 import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.util.AppDatabase
+import com.hyosakura.imagehub.util.ImageUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import java.io.File
-import java.io.FileOutputStream
 
 
 class ReceiveActivity : Activity() {
@@ -67,7 +64,8 @@ class ReceiveActivity : Activity() {
             )
             val fileName = it.path?.substringAfterLast("/") ?: "None"
             if (bitmap != null) {
-                val path = saveImage(
+                val path = ImageUtil.saveImageToLocalStorge(
+                    this@ReceiveActivity.applicationContext,
                     bitmap,
                     fileName
                 )
@@ -89,23 +87,5 @@ class ReceiveActivity : Activity() {
                 db.imageDao().insertImages(imageEntity)
             }
         }
-    }
-
-    private fun saveImage(
-        bitmap: Bitmap,
-        filename: String,
-    ): String? {
-        val f = File(
-            getExternalFilesDir(Environment.DIRECTORY_PICTURES), filename
-        )
-        try {
-            val fos = FileOutputStream(f)
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos)
-            fos.flush()
-            fos.close()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        return f.absolutePath
     }
 }

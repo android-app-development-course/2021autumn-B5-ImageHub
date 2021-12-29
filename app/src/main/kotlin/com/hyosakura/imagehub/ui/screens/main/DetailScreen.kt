@@ -27,7 +27,7 @@ import com.hyosakura.imagehub.entity.ImageEntity
 import com.hyosakura.imagehub.entity.TagEntity
 import com.hyosakura.imagehub.ui.composables.InputOutlinedTextField
 import com.hyosakura.imagehub.ui.composables.MiniTagRow
-import com.hyosakura.imagehub.util.ImageUtil.share
+import com.hyosakura.imagehub.util.ImageUtil.getImageFromShare
 import com.hyosakura.imagehub.viewmodel.ImageManageViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -105,7 +105,7 @@ fun DetailScreen(
                     onDeleteImageClick = { onImageDelete() },
                     onFolderClick = { onCopyClick() },
                     onRestoreClick = { onImageRestore() },
-                    onSaveClick = { onSaveClick() }
+                    onSaveClick
                 )
             }
         }
@@ -418,7 +418,7 @@ fun BottomBar(
                 )
             },
             onClick = {
-                context.share(imageEntity.bitmap!!)
+                context.getImageFromShare(imageEntity.bitmap!!)
             }
         )
         NavigationBarItem(

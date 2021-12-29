@@ -1,6 +1,5 @@
 package com.hyosakura.imagehub.ui
 
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -47,6 +46,7 @@ import com.hyosakura.imagehub.ui.screens.main.MainScreen
 import com.hyosakura.imagehub.ui.screens.search.SearchResultsScreen
 import com.hyosakura.imagehub.ui.screens.search.SearchScreen
 import com.hyosakura.imagehub.util.ImageUtil
+import com.hyosakura.imagehub.util.ToastUtil.short
 import com.hyosakura.imagehub.viewmodel.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -165,8 +165,10 @@ fun BaseScreen(
                                 if (
                                     searchHistories.none { e ->
                                         e.keyword!! == it
-                                    }
+                                    } &&
+                                    !HistoryManageViewModel.searchListCache.contains(it)
                                 ) {
+                                    HistoryManageViewModel.searchListCache.add(it)
                                     searchHistoryManageViewModel.addHistory(
                                         HistoryEntity(
                                             keyword = it,
@@ -215,11 +217,7 @@ fun BaseScreen(
                         onTagConflict = {
                             coroutine.launch {
                                 withContext(Dispatchers.Main) {
-                                    Toast.makeText(
-                                        context,
-                                        "标签已存在",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
+                                    context.short("标签已存在")
                                 }
                             }
                         },
@@ -391,15 +389,6 @@ fun BaseScreen(
                         },
                         onCopyClick = {
                             ImageUtil.copyImage(image, context)
-                            coroutine.launch {
-                                withContext(Dispatchers.Main) {
-                                    Toast.makeText(
-                                        context,
-                                        "图片已复制到剪切板",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                            }
                         },
                         onAnnotationEdit = { editText ->
                             image.annotation = editText
@@ -413,15 +402,13 @@ fun BaseScreen(
                         onTagConflict = {
                             coroutine.launch {
                                 withContext(Dispatchers.Main) {
-                                    Toast.makeText(
-                                        context,
-                                        "标签已存在",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
+                                    context.short("标签已存在")
                                 }
                             }
                         },
-                        onSaveClick = { TODO("保存图片到 媒体文件夹/ImageHub 下，根据标签命名，然后用 Toast 提示保存路径") }
+                        onSaveClick = {
+                            ImageUtil.saveBitmapToMedia(context, "${tagList.toString().replace("[", "").replace("]", "")}${image.name!!}", image.bitmap!!)
+                        }
                     )
                 }
                 composable(
@@ -461,7 +448,7 @@ fun BaseScreen(
                         onImageImport = {
                             coroutine.launch {
                                 withContext(Dispatchers.Main) {
-                                    val id = deviceImageManageViewModel.importImage(image!!)
+                                    val id = deviceImageManageViewModel.importImage(context, image!!)
                                     navController.popBackStack()
                                     navController.navigate("${Detail.name}/$id")
                                 }
